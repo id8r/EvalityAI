@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Palette Inspector (Atlassian & Stripe)</title>
+    <style>
+        :root {
+            --bg-app: #f4f5f7;
+            --text-main: #172b4d;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        header {
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #dfe1e6;
+            padding-bottom: 1rem;
+        }
+        h1 { margin: 0 0 0.5rem 0; font-size: 1.8rem; }
+        p { margin: 0; color: #5e6c84; }
+
+        .system-section {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .system-title {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #091e4214;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .theme-block {
+            border-radius: 6px;
+            padding: 1.5rem;
+        }
+        .theme-block.light {
+            background: #ffffff;
+            border: 1px solid #dfe1e6;
+            color: #172b4d;
+        }
+        .theme-block.dark {
+            background: #0f172a;
+            color: #f1f5f9;
+        }
+
+        .theme-block h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            opacity: 0.8;
+        }
+
+        .color-group {
+            margin-bottom: 1.5rem;
+        }
+        .group-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            opacity: 0.6;
+        }
+
+        .color-row {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+        .light .color-row:hover { background: #f4f5f7; }
+        .dark .color-row:hover { background: #1e293b; }
+
+        .swatch {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            margin-right: 1rem;
+            flex-shrink: 0;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
+        }
+        .dark .swatch {
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+        }
+
+        .color-info {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .color-name { font-weight: 500; }
+        .color-hex {
+            font-family: monospace;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* Interactive Component Preview Area */
+        .preview-box {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Design System Color Explorer</h1>
+        <p>A reference architecture mapping Atlassian and Stripe tokens. Use these to build out your independent design scale.</p>
+    </header>
+
+    <!-- ATLASSIAN SECTION -->
+    <section class="system-section">
+        <div class="system-title" style="color: #0052CC;">Atlassian Design System Tones</div>
+        <div class="theme-grid">
+
+            <!-- Atlassian Light -->
+            <div class="theme-block light">
+                <h3>Light Mode Tokens</h3>
+
+                <div class="color-group">
+                    <div class="group-label">Brand & Interactive</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #0052CC;"></div>
+                        <div class="color-info"><span class="color-name">Primary Blue</span><span class="color-hex">#0052CC</span></div>
+                    </div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #0065FF;"></div>
+                        <div class="color-info"><span class="color-name">Primary Hover</span><span class="color-hex">#0065FF</span></div>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <div class="group-label">Text Levels</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #172B4D;"></div>
+                        <div class="color-info"><span class="color-name">Default Text</span><span class="color-hex">#172B4D</span></div>
+                    </div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #5E6C84;"></div>
+                        <div class="color-info"><span class="color-name">Muted / Secondary</span><span class="color-hex">#5E6C84</span></div>
+                    </div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #8993A4;"></div>
+                        <div class="color-info"><span class="color-name">Disabled / Subtle</span><span class="color-hex">#8993A4</span></div>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <div class="group-label">Borders & Dividers</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #DFE1E6;"></div>
+                        <div class="color-info"><span class="color-name">Standard Border</span><span class="color-hex">#DFE1E6</span></div>
+                    </div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #C1C7D0;"></div>
+                        <div class="color-info"><span class="color-name">Strong Border</span><span class="color-hex">#C1C7D0</span></div>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <div class="group-label">Dark Neutral Accents</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #091E42;"></div>
+                        <div class="color-info"><span class="color-name">Deep Black Button / Text</span><span class="color-hex">#091E42</span></div>
+                    </div>
+                </div>
+
+                <div class="group-label">Component Proofing</div>
+                <div class="preview-box" style="background: #f4f5f7;">
+                    <button class="btn" style="background: #0052CC; color: white;">Primary</button>
+                    <button class="btn" style="background: #091E42; color: white;">Dark Accent</button>
+                    <button class="btn" style="background: transparent; border-color: #DFE1E6; color: #172B4D;">Bordered</button>
+                    <span style="color: #5E6C84; font-size: 0.85rem; align-self: center;">Muted label</span>
+                </div>
+            </div>
+
+            <!-- Atlassian Dark -->
+            <div class="theme-block dark">
+                <h3>Dark Mode Tokens</h3>
+
+                <div class="color-group">
+                    <div class="group-label">Brand & Interactive</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #579DFF;"></div>
+                        <div class="color-info"><span class="color-name">Primary Blue (Dark)</span><span class="color-hex">#579DFF</span></div>
+                    </div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #85B8FF;"></div>
+                        <div class="color-info"><span class="color-name">Primary Hover</span><span class="color-hex">#85B8FF</span></div>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <div class="group-label">Text Levels</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #97A0AF;"></div>
+                        <div class="color-info"><span class="color-name">Default Text</span><span class="color-hex">#97A0AF</span></div>
+                    </div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #8C96A5;"></div>
+                        <div class="color-info"><span class="color-name">Muted / Secondary</span><span class="color-hex">#8C96A5</span></div>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <div class="group-label">Borders & Dividers</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #223555;"></div>
+                        <div class="color-info"><span class="color-name">Standard Border</span><span class="color-hex">#223555</span></div>
+                    </div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #304463;"></div>
+                        <div class="color-info"><span class="color-name">Strong Border</span><span class="color-hex">#304463</span></div>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <div class="group-label">Dark Neutral Accents</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #161A1D;"></div>
+                        <div class="color-info"><span class="color-name">Surface Deep</span><span class="color-hex">#161A1D</span></div>
+                    </div>
+                </div>
+
+                <div class="group-label">Component Proofing</div>
+                <div class="preview-box" style="background: #1d2125;">
+                    <button class="btn" style="background: #579DFF; color: #1c2b42;">Primary</button>
+                    <button class="btn" style="background: #161A1D; color: white; border: 1px solid #223555;">Dark Accent</button>
+                    <button class="btn" style="background: transparent; border-color: #223555; color: #97A0AF;">Bordered</button>
+                    <span style="color: #8C96A5; font-size: 0.85rem; align-self: center;">Muted label</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STRIPE SECTION -->
+    <section class="system-section">
+        <div class="system-title" style="color: #635BFF;">Stripe Design System Tones</div>
+        <div class="theme-grid">
+
+            <!-- Stripe Light -->
+            <div class="theme-block light">
+                <h3>Light Mode Tokens</h3>
+
+                <div class="color-group">
+                    <div class="group-label">Brand & Interactive</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #635BFF;"></div>
+                        <div class="color-info"><span class="color-name">Stripe Purple</span><span class="color-hex">#635BFF</span></div>
+                    </div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #0A2540;"></div>
+                        <div class="color-info"><span class="color-name">Dark Slate (Primary Button)</span><span class="color-hex">#0A2540</span></div>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <div class="group-label">Text Levels</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #0A2540;"></div>
+                        <div class="color-info"><span class="color-name">Heading / Dark Text</span><span class="color-hex">#0A2540</span></div>
+                    </div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #424e60;"></div>
+                        <div class="color-info"><span class="color-name">Body / Muted Text</span><span class="color-hex">#424e60</span></div>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <div class="group-label">Borders & Lines</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #e6ebf1;"></div>
+                        <div class="color-info"><span class="color-name">Subtle Border</span><span class="color-hex">#e6ebf1</span></div>
+                    </div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #a3acb9;"></div>
+                        <div class="color-info"><span class="color-name">Mid Border</span><span class="color-hex">#a3acb9</span></div>
+                    </div>
+                </div>
+
+                <div class="group-label">Component Proofing</div>
+                <div class="preview-box" style="background: #f8f9fa;">
+                    <button class="btn" style="background: #635BFF; color: white;">Purple Action</button>
+                    <button class="btn" style="background: #0A2540; color: white;">Slate Button</button>
+                    <button class="btn" style="background: transparent; border-color: #e6ebf1; color: #424e60;">Bordered</button>
+                </div>
+            </div>
+
+            <!-- Stripe Dark (Inspired) -->
+            <div class="theme-block dark">
+                <h3>Dark Tones / Dark Mode Alternative</h3>
+
+                <div class="color-group">
+                    <div class="group-label">Brand Highlights</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #8075ff;"></div>
+                        <div class="color-info"><span class="color-name">Electric Purple</span><span class="color-hex">#8075ff</span></div>
+                    </div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #00d4b2;"></div>
+                        <div class="color-info"><span class="color-name">Stripe Teal Mint</span><span class="color-hex">#00d4b2</span></div>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <div class="group-label">Text Levels</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #ffffff;"></div>
+                        <div class="color-info"><span class="color-name">Pure High Contrast</span><span class="color-hex">#ffffff</span></div>
+                    </div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #adbdcc;"></div>
+                        <div class="color-info"><span class="color-name">Slate Muted text</span><span class="color-hex">#adbdcc</span></div>
+                    </div>
+                </div>
+
+                <div class="color-group">
+                    <div class="group-label">Borders & Containers</div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #2a3b50;"></div>
+                        <div class="color-info"><span class="color-name">Border Tone</span><span class="color-hex">#2a3b50</span></div>
+                    </div>
+                    <div class="color-row">
+                        <div class="swatch" style="background: #101f30;"></div>
+                        <div class="color-info"><span class="color-name">Deep Base Fill</span><span class="color-hex">#101f30</span></div>
+                    </div>
+                </div>
+
+                <div class="group-label">Component Proofing</div>
+                <div class="preview-box" style="background: #0a2540;">
+                    <button class="btn" style="background: #8075ff; color: white;">Electric</button>
+                    <button class="btn" style="background: #00d4b2; color: #0a2540;">Mint Accent</button>
+                    <button class="btn" style="background: transparent; border-color: #2a3b50; color: #adbdcc;">Bordered</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+</body>
+</html>

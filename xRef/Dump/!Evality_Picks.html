@@ -1,0 +1,326 @@
+<!-- 🎨 The Exhaustive Evality Production System (18 Tokens) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evality Core Color Palette V1 — Blue Hero Engine</title>
+    <style>
+        :root {
+            /* BRAND HERO & INTERACTIVE BLUE ENGINE */
+            --fx-primary: #0A62DE;          /* ★ Hero Brand Blue (ADS Derived) */
+            --fx-primary-hover: #1254B8;    /* Deep Blue State / Hover modifier */
+            --fx-accent: #4F35FD;           /* Stripe Indigo Accent Pop */
+
+            /* APP CANVAS AND SURFACES */
+            --fx-bg: #F3F6F9;
+            --fx-surface: #FFFFFF;
+            --fx-surface-subtle: #F8FAFC;
+            --fx-surface-muted: #ECECEF;
+
+            /* BORDERS / DIVIDERS */
+            --fx-border-light: #E3E8EC;
+            --fx-border: #BDC3CC;
+            --fx-border-strong: #888B93;
+
+            /* TEXT HIERARCHY */
+            --fx-text: #1A293E;
+            --fx-text-muted: #5A6880;
+            --fx-text-subtle: #3E4E6A;
+
+            /* SUCCESS / WARNING / INFO STATES */
+            --fx-success: #7EB032;
+            --fx-warning: #FFA700;
+            --fx-info-surface: #CADDF9;
+
+            /* SHADOW / DARK PANEL BASE */
+            --fx-shadow-core: #000000;
+            --fx-dark-panel: #26272B;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--fx-bg);
+            color: var(--fx-text);
+            padding: 40px 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header-area {
+            margin-bottom: 32px;
+            border-left: 4px solid var(--fx-primary);
+            padding-left: 16px;
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--fx-text);
+            margin: 0 0 4px 0;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: var(--fx-text-muted);
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--fx-text-muted);
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--fx-border-light);
+            padding-bottom: 6px;
+            font-weight: bold;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .card {
+            background: var(--fx-surface);
+            border: 1px solid var(--fx-border-light);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            display: flex;
+            align-items: center;
+            padding: 12px;
+        }
+        .swatch {
+            width: 56px;
+            height: 56px;
+            border-radius: 6px;
+            margin-right: 14px;
+            flex-shrink: 0;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .info {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .token {
+            font-family: monospace;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--fx-primary);
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        .hex {
+            font-family: monospace;
+            font-size: 12px;
+            color: var(--fx-text-muted);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .label {
+            font-size: 11px;
+            color: var(--fx-text-muted);
+            margin-top: 2px;
+            line-height: 1.3;
+        }
+        .brand-highlight {
+            border: 2px solid var(--fx-primary);
+            background: var(--fx-surface-subtle);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-area">
+        <h1>Evality Core Color Palette V1</h1>
+        <div class="subtitle">18 base colors with Blue locked as the Hero Interactive Action. Dark mode excluded.</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Brand / Action Engine (Blue Hero)</div>
+        <div class="grid">
+            <div class="card brand-highlight">
+                <div class="swatch" style="background-color: var(--fx-primary);"></div>
+                <div class="info">
+                    <span class="token" style="color: var(--fx-primary);">--fx-primary</span>
+                    <span class="hex">#0A62DE</span>
+                    <span class="label">★ Hero Brand Action. Main UI elements, navigation headers, primary links.</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-primary-hover);"></div>
+                <div class="info">
+                    <span class="token" style="color: var(--fx-primary-hover);">--fx-primary-hover</span>
+                    <span class="hex">#1254B8</span>
+                    <span class="label">Tactile interaction hover step for your Hero Blue elements.</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-accent);"></div>
+                <div class="info">
+                    <span class="token" style="color: var(--fx-accent);">--fx-accent</span>
+                    <span class="hex">#4F35FD</span>
+                    <span class="label">Stripe Indigo secondary accent pop. High-alert notices, specialized badges.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">App Canvas & Surfaces</div>
+        <div class="grid">
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-bg);"></div>
+                <div class="info">
+                    <span class="token">--fx-bg</span>
+                    <span class="hex">#F3F6F9</span>
+                    <span class="label">Global application background framing viewports.</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-surface);"></div>
+                <div class="info">
+                    <span class="token">--fx-surface</span>
+                    <span class="hex">#FFFFFF</span>
+                    <span class="label">Main card sheets, data containers, active table rows.</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-surface-subtle);"></div>
+                <div class="info">
+                    <span class="token">--fx-surface-subtle</span>
+                    <span class="hex">#F8FAFC</span>
+                    <span class="label">Sheet top headers, toolbar panels & bottom status decks.</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-surface-muted);"></div>
+                <div class="info">
+                    <span class="token">--fx-surface-muted</span>
+                    <span class="hex">#ECECEF</span>
+                    <span class="label">Zebra striped layout rows, disabled field skins.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Borders & Dividers</div>
+        <div class="grid">
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-border-light);"></div>
+                <div class="info">
+                    <span class="token">--fx-border-light</span>
+                    <span class="hex">#E3E8EC</span>
+                    <span class="label">Interior data cell lines & micro pane dividers.</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-border);"></div>
+                <div class="info">
+                    <span class="token">--fx-border</span>
+                    <span class="hex">#BDC3CC</span>
+                    <span class="label">Standard component edges, form field outlines.</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-border-strong);"></div>
+                <div class="info">
+                    <span class="token">--fx-border-strong</span>
+                    <span class="hex">#888B93</span>
+                    <span class="label">Sticky layout caps, headers, contrast barriers.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Text Hierarchy</div>
+        <div class="grid">
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-text);"></div>
+                <div class="info">
+                    <span class="token">--fx-text</span>
+                    <span class="hex">#1A293E</span>
+                    <span class="label">Primary headers, titles, high contrast data cells.</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-text-muted);"></div>
+                <div class="info">
+                    <span class="token">--fx-text-muted</span>
+                    <span class="hex">#5A6880</span>
+                    <span class="label">Secondary metadata descriptors, table column labels.</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-text-subtle);"></div>
+                <div class="info">
+                    <span class="token">--fx-text-subtle</span>
+                    <span class="hex">#3E4E6A</span>
+                    <span class="label">Unselected navigation links, control tabs.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Success / Warning / Info States</div>
+        <div class="grid">
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-success);"></div>
+                <div class="info">
+                    <span class="token">--fx-success</span>
+                    <span class="hex">#7EB032</span>
+                    <span class="label">Successful validation, check indicators, complete badges.</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-warning);"></div>
+                <div class="info">
+                    <span class="token">--fx-warning</span>
+                    <span class="hex">#FFA700</span>
+                    <span class="label">Active alert systems, warning markers, caution badges.</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-info-surface);"></div>
+                <div class="info">
+                    <span class="token">--fx-info-surface</span>
+                    <span class="hex">#CADDF9</span>
+                    <span class="label">Informational callout backgrounds, active row fills.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Shadow & Dark Panel Base</div>
+        <div class="grid">
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-shadow-core);"></div>
+                <div class="info">
+                    <span class="token">--fx-shadow-core</span>
+                    <span class="hex">#000000</span>
+                    <span class="label">Base structure alpha for drop shadows & popovers.</span>
+                </div>
+            </div>
+            <div class="card">
+                <div class="swatch" style="background-color: var(--fx-dark-panel);"></div>
+                <div class="info">
+                    <span class="token">--fx-dark-panel</span>
+                    <span class="hex">#26272B</span>
+                    <span class="label">Unique high-contrast structural layers or workspace components.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

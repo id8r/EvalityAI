@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evality Integrated Dashboard & Access Client — V1.1 Clean</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Inter Font Loading Engine -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          boxShadow: {
+            'stripe-modal': '0 30px 60px -12px rgba(26, 41, 62, 0.12), 0 18px 36px -18px rgba(26, 41, 62, 0.2)'
+          },
+          colors: {
+            fx: {
+              primary: '#0A62DE',       /* Atlassian Hero Blue Engine */
+              'primary-hover': '#1254B8',
+              accent: '#4F35FD',        /* Stripe Indigo Tactical Pop */
+              bg: '#F3F6F9',            /* Global Canvas Background */
+              surface: '#FFFFFF',       /* Standard White Surface sheets */
+              'surface-subtle': '#F8FAFC', /* Headers, sidebars, decks */
+              'surface-muted': '#ECECEF',  /* Disables, zebra lines */
+              'border-light': '#E3E8EC',   /* Soft grid lines */
+              border: '#BDC3CC',           /* Form outlines, packaging */
+              'border-strong': '#888B93',  /* Contrasts, focus structures */
+              text: '#1A293E',             /* High-contrast content copy */
+              'text-muted': '#5A6880',     /* Secondary labels, columns */
+              'text-subtle': '#3E4E6A',    /* Unselected control text */
+              success: '#7EB032',
+              warning: '#FFA700',
+              'info-surface': '#CADDF9'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Global Typography Base Settings */
+    body { font-family: 'Inter', sans-serif; }
+    .fx-font-h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+    .fx-font-h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+    .fx-font-body { font-size: 14px; font-weight: 400; letter-spacing: normal; }
+    .fx-font-meta { font-size: 13px; font-weight: 400; letter-spacing: normal; }
+    .fx-font-label { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+  </style>
+</head>
+<body class="bg-fx-bg text-fx-text fx-font-body h-screen w-screen flex overflow-hidden">
+
+  <!-- LIGHT-UNIFIED SIDEBAR CONTAINER -->
+  <aside class="w-[240px] bg-fx-surface-subtle border-r border-fx-border-light flex flex-col flex-shrink-0">
+    <div class="p-5 fx-font-h2 border-b border-fx-border-light flex items-center gap-2 text-fx-text">
+      <div class="w-2.5 h-2.5 bg-fx-primary rounded-full"></div>
+      Evality
+    </div>
+    <ul class="p-3 flex flex-col gap-1 list-none">
+      <li class="rounded-md bg-[#EAEFFA] font-semibold text-fx-primary">
+        <a class="block p-2.5" href="#">Data Workspaces</a>
+      </li>
+      <li class="rounded-md font-medium text-fx-text-subtle hover:bg-fx-surface-muted hover:text-fx-text transition-colors">
+        <a class="block p-2.5" href="#">Pipeline Registry</a>
+      </li>
+      <li class="rounded-md font-medium text-fx-text-subtle hover:bg-fx-surface-muted hover:text-fx-text transition-colors">
+        <a class="block p-2.5" href="#">Metrics Logs</a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- WORKSPACE VIEWPORT -->
+  <main class="flex-grow flex flex-col overflow-hidden">
+
+    <!-- STICKY TOP APP OPERATION BAR -->
+    <header class="h-[60px] bg-fx-surface border-b border-fx-border-light flex items-center justify-between px-6 flex-shrink-0">
+      <div class="font-semibold text-fx-text">Workspace / Primary_Cluster</div>
+      <div>
+        <button class="bg-fx-surface border border-fx-border text-fx-text-subtle px-3 py-1.5 rounded-md font-medium text-xs hover:border-fx-border-strong hover:text-fx-text transition-all" onclick="document.getElementById('loginOverlay').style.display='flex'">
+          Reset Session Interface
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT WORKSPACE -->
+    <div class="flex-grow p-6 overflow-y-auto flex flex-col gap-6">
+
+      <!-- INTEGRATED INFO HIGHLIGHT BANNER -->
+      <div class="bg-fx-info-surface border border-[#A3C7FC] rounded-md p-4 flex gap-2 items-center">
+        <span class="font-bold text-fx-primary">⚡ System Status:</span>
+        <span class="text-fx-text-subtle fx-font-meta">Inter typography system and frozen V1 core color assets unified. Clear visual scale active.</span>
+      </div>
+
+      <!-- DATA SHEET LAYER -->
+      <section class="bg-fx-surface border border-fx-border-light rounded-lg shadow-sm overflow-hidden flex flex-col">
+        <div class="bg-fx-surface-subtle border-b border-fx-border-light px-5 py-4 flex justify-between items-center">
+          <div class="font-semibold text-fx-text">Cluster Run Schedules</div>
+          <button class="bg-fx-surface border border-fx-border text-fx-text-subtle px-3 py-1.5 rounded-md font-medium text-xs hover:border-fx-border-strong">Filter Grid</button>
+        </div>
+
+        <table class="w-full border-collapse text-left">
+          <thead>
+            <tr class="border-b border-fx-border-light">
+              <th class="bg-fx-surface-subtle text-fx-text-muted fx-font-label px-5 py-3">Pipeline Target ID</th>
+              <th class="bg-fx-surface-subtle text-fx-text-muted fx-font-label px-5 py-3">Status</th>
+              <th class="bg-fx-surface-subtle text-fx-text-muted fx-font-label px-5 py-3">Allocation Metric</th>
+            </tr>
+          </thead>
+          <tbody class="fx-font-body">
+            <tr class="odd:bg-fx-surface even:bg-fx-surface-subtle border-b border-fx-border-light">
+              <td class="px-5 py-3.5 font-medium">daasa_og_generator</td>
+              <td class="px-5 py-3.5"><span class="bg-[#EAF5D6] text-fx-success font-semibold px-2 py-0.5 rounded text-xs">Success</span></td>
+              <td class="px-5 py-3.5 text-fx-text-muted">0.0712 Units</td>
+            </tr>
+            <tr class="odd:bg-fx-surface even:bg-fx-surface-subtle border-b border-fx-border-light">
+              <td class="px-5 py-3.5 font-medium">xkit_workspace_sync</td>
+              <td class="px-5 py-3.5"><span class="bg-[#FFF4D6] text-fx-warning font-semibold px-2 py-0.5 rounded text-xs">Pending</span></td>
+              <td class="px-5 py-3.5 text-fx-text-muted">5,000 Units</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- STICKY BOTTOM DECK -->
+        <div class="bg-fx-surface-subtle border-t border-fx-border-light px-5 py-3 flex justify-between items-center text-fx-text-muted fx-font-meta">
+          <div>Displaying core active processing streams</div>
+          <div class="flex gap-1.5">
+            <button class="bg-fx-surface border border-fx-border px-2.5 py-1 rounded text-xs font-medium hover:border-fx-border-strong text-fx-text">Prev</button>
+            <button class="bg-fx-surface border border-fx-border px-2.5 py-1 rounded text-xs font-medium hover:border-fx-border-strong text-fx-text">Next</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- HIGH-END COMPONENT OVERLAY: LOGIN ACCLAIM DESK -->
+  <div id="loginOverlay" class="fixed inset-0 bg-[#1A293E]/20 backdrop-blur-[1px] flex items-center justify-center z-[9999]">
+    <div class="w-[380px] bg-fx-surface border border-fx-border-light rounded-xl shadow-stripe-modal p-8 relative flex flex-col gap-5">
+
+      <!-- Close Component Trigger Button -->
+      <button class="absolute top-4 right-4 text-fx-text-muted hover:text-fx-text text-base cursor-pointer" onclick="document.getElementById('loginOverlay').style.display='none'">✕</button>
+
+      <!-- BRAND IDENTITY SYSTEM TITLE -->
+      <div class="text-center">
+        <div class="fx-font-h1 text-fx-primary flex items-center justify-center gap-1.5 mb-1">
+          <div class="w-3 h-3 bg-fx-primary rounded-full"></div>
+          Evality
+        </div>
+        <p class="fx-font-meta text-fx-text-muted">Secure Application Management Node</p>
+      </div>
+
+      <!-- INTERFACE ENTRY CONTROLS -->
+      <form class="space-y-4" onsubmit="event.preventDefault();">
+
+        <!-- Input Group 1 -->
+        <div class="flex flex-col gap-1.5">
+          <label class="fx-font-label text-fx-text-muted">Identity Token</label>
+          <!-- Strict 40px Height, 14px Text Field Architecture -->
+          <input type="text" placeholder="name@company.com" class="w-full h-10 px-3.5 fx-font-body text-fx-text bg-fx-surface border border-fx-border rounded-md outline-none focus:border-fx-primary focus:ring-2 focus:ring-fx-primary/10 transition-all" value="developer@evality.in" />
+        </div>
+
+        <!-- Input Group 2 -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between items-center">
+            <label class="fx-font-label text-fx-text-muted">Passphrase</label>
+            <a href="#" class="text-[12px] font-semibold text-fx-accent hover:underline">Forgot?</a>
+          </div>
+          <input type="password" value="•••••••••••••••••" class="w-full h-10 px-3.5 fx-font-body text-fx-text bg-fx-surface border border-fx-border rounded-md outline-none focus:border-fx-primary focus:ring-2 focus:ring-fx-primary/10 transition-all" />
+        </div>
+
+        <!-- PRIMARY CALL TO ACTION BUTTON (40px Height / 14px Font Base) -->
+        <button type="submit" class="w-full h-10 mt-2 bg-fx-primary text-white fx-font-body font-semibold rounded-md hover:bg-fx-primary-hover transition-all shadow-sm flex items-center justify-center">
+          Authenticate Session
+        </button>
+      </form>
+
+      <!-- AUXILIARY ACTION COMPONENT ROW -->
+      <div class="pt-4 border-t border-fx-border-light flex gap-2">
+        <button class="w-1/2 h-9 flex items-center justify-center gap-2 rounded-md border border-fx-border text-xs font-medium text-fx-text-subtle hover:bg-fx-surface-subtle transition-all">Google</button>
+        <button class="w-1/2 h-9 flex items-center justify-center gap-2 rounded-md bg-fx-surface-muted text-xs font-semibold text-fx-text hover:bg-fx-border transition-all">Enterprise SSO</button>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

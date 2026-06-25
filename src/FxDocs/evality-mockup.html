@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evality Interface Architecture Mockup — Pure Light V1</title>
+    <style>
+        :root {
+            /* BRAND HERO & INTERACTIVE BLUE ENGINE */
+            --fx-primary: #1068E0;          /* Hero Brand Blue (ADS Derived) */
+            --fx-primary-hover: #1254B8;    /* Deep Blue State / Hover modifier */
+            --fx-accent: #4F35FD;           /* Stripe Indigo Accent Pop */
+
+            /* APP CANVAS AND SURFACES */
+            --fx-bg: #F3F6F9;
+            --fx-surface: #FFFFFF;
+            --fx-surface-subtle: #F8FAFC;
+            --fx-surface-muted: #ECECEF;
+
+            /* BORDERS / DIVIDERS */
+            --fx-border-light: #E3E8EC;
+            --fx-border: #BDC3CC;
+            --fx-border-strong: #888B93;
+
+            /* TEXT HIERARCHY */
+            --fx-text: #1A293E;
+            --fx-text-muted: #5A6880;
+            --fx-text-subtle: #3E4E6A;
+
+            /* SUCCESS / WARNING / INFO STATES */
+            --fx-success: #78B030;
+            /* --fx-success: #7EB032; */
+            --fx-warning: #F09C00;
+            /* --fx-warning: #FFA700; */
+            --fx-info-surface: #CADDF9;
+
+            /* SHADOW CORE */
+            --fx-shadow-core: rgba(26, 41, 62, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--fx-bg);
+            color: var(--fx-text);
+            font-size: 14px;
+            line-height: 1.5;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ---------------------------------- */
+        /* APPLICATION LAYOUT STRUCTURE       */
+        /* ---------------------------------- */
+
+        /* Light-Unified Workspace Sidebar */
+        .fx-sidebar {
+            width: 240px;
+            background-color: var(--fx-surface-subtle); /* Completely Light Palette Base */
+            color: var(--fx-text);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--fx-border-light);
+            flex-shrink: 0;
+        }
+
+        .fx-sidebar-header {
+            padding: 20px;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            border-bottom: 1px solid var(--fx-border-light);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--fx-text);
+        }
+
+        .fx-sidebar-logo-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--fx-primary); /* Hero Blue Logo Anchor */
+            border-radius: 50%;
+        }
+
+        .fx-sidebar-menu {
+            list-style: none;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .fx-sidebar-item a {
+            display: block;
+            padding: 10px 12px;
+            color: var(--fx-text-subtle);
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        /* Semantic Active Navigation Focus */
+        .fx-sidebar-item.active a {
+            background-color: #EAEFFA; /* Subtle primary tint canvas window */
+            color: var(--fx-primary); /* Hero Blue copy focal target */
+            font-weight: 600;
+        }
+
+        .fx-sidebar-item a:hover:not(.active) {
+            background-color: var(--fx-surface-muted);
+            color: var(--fx-text);
+        }
+
+        /* Main Viewport Container */
+        .fx-viewport {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Sticky Top Operation Bar */
+        .fx-topbar {
+            height: 60px;
+            background-color: var(--fx-surface);
+            border-bottom: 1px solid var(--fx-border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            flex-shrink: 0;
+        }
+
+        .fx-topbar-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--fx-text);
+        }
+
+        /* Functional Content Area */
+        .fx-content-area {
+            flex-grow: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* ---------------------------------- */
+        /* COMPONENT ARCHITECTURE             */
+        /* ---------------------------------- */
+
+        .fx-sheet {
+            background-color: var(--fx-surface);
+            border: 1px solid var(--fx-border-light);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px var(--fx-shadow-core);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fx-sheet-header {
+            background-color: var(--fx-surface-subtle);
+            border-bottom: 1px solid var(--fx-border-light);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .fx-sheet-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--fx-text);
+        }
+
+        .fx-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .fx-data-table th {
+            background-color: var(--fx-surface-subtle);
+            color: var(--fx-text-muted);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--fx-border-light);
+        }
+
+        .fx-data-table td {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--fx-border-light);
+            color: var(--fx-text);
+        }
+
+        .fx-data-table tr:nth-child(even) td {
+            background-color: var(--fx-surface-subtle);
+        }
+
+        .fx-sheet-footer {
+            background-color: var(--fx-surface-subtle);
+            border-top: 1px solid var(--fx-border-light);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--fx-text-muted);
+        }
+
+        .fx-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .fx-badge-success {
+            background-color: #EAF5D6;
+            color: var(--fx-success);
+        }
+        .fx-badge-warning {
+            background-color: #FFF4D6;
+            color: var(--fx-warning);
+        }
+        .fx-badge-info {
+            background-color: var(--fx-info-surface);
+            color: var(--fx-primary-hover);
+        }
+
+        .fx-btn-utility {
+            background-color: var(--fx-surface);
+            border: 1px solid var(--fx-border);
+            color: var(--fx-text-subtle);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .fx-btn-utility:hover {
+            border-color: var(--fx-border-strong);
+            color: var(--fx-text);
+        }
+
+        .fx-info-banner {
+            background-color: var(--fx-info-surface);
+            border: 1px solid #A3C7FC;
+            border-radius: 6px;
+            padding: 12px 16px;
+            color: var(--fx-text);
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* ---------------------------------- */
+        /* MODAL / LOGIN SCREEN SIMULATION   */
+        /* ---------------------------------- */
+        .fx-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(26, 41, 62, 0.25);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .fx-login-window {
+            width: 380px;
+            background-color: var(--fx-surface);
+            border: 1px solid var(--fx-border);
+            border-radius: 12px;
+            box-shadow: 0 12px 32px var(--fx-shadow-core);
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        .fx-login-header {
+            text-align: center;
+        }
+
+        .fx-login-logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--fx-primary);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .fx-login-subtitle {
+            font-size: 13px;
+            color: var(--fx-text-muted);
+        }
+
+        .fx-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .fx-form-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--fx-text-muted);
+        }
+
+        .fx-form-input {
+            width: 100%;
+            height: 40px; /* Precise height directive */
+            padding: 0 12px;
+            font-size: 14px; /* 14px base directive */
+            border: 1px solid var(--fx-border);
+            border-radius: 6px;
+            color: var(--fx-text);
+            background-color: var(--fx-surface);
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+
+        .fx-form-input:focus {
+            border-color: var(--fx-primary);
+            box-shadow: 0 0 0 2px rgba(10, 98, 222, 0.15);
+        }
+
+        .fx-btn-primary {
+            width: 100%;
+            height: 40px; /* Precise height directive */
+            background-color: var(--fx-primary); /* Hero Blue Engine */
+            color: #FFFFFF;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px; /* 14px base directive */
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fx-btn-primary:hover {
+            background-color: var(--fx-primary-hover);
+        }
+
+        .fx-btn-accent {
+            background-color: transparent;
+            color: var(--fx-accent); /* Accent Pop Indigo used purposefully */
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: right;
+            text-decoration: none;
+        }
+        .fx-btn-accent:hover {
+            text-decoration: underline;
+        }
+
+        .fx-modal-close-trigger {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            color: var(--fx-text-muted);
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="fx-sidebar">
+        <div class="fx-sidebar-header">
+            <div class="fx-sidebar-logo-dot"></div>
+            Evality Console
+        </div>
+        <ul class="fx-sidebar-menu">
+            <li class="fx-sidebar-item active"><a href="#">Data Workspaces</a></li>
+            <li class="fx-sidebar-item"><a href="#">Pipeline Registry</a></li>
+            <li class="fx-sidebar-item"><a href="#">Metrics Logs</a></li>
+            <li class="fx-sidebar-item"><a href="#">Access Controls</a></li>
+        </ul>
+    </aside>
+
+    <main class="fx-viewport">
+
+        <header class="fx-topbar">
+            <div class="fx-topbar-title">Workspace / Primary_Cluster</div>
+            <div>
+                <button class="fx-btn-utility" onclick="document.getElementById('loginModal').style.display='flex'">Trigger Login Window Component</button>
+            </div>
+        </header>
+
+        <div class="fx-content-area">
+
+            <div class="fx-info-banner">
+                <span style="font-weight: bold; color: var(--fx-primary);">⚡ Operational Notice:</span>
+                <span style="color: var(--fx-text-subtle);">Unified light mode layout successfully configured. Navigation panels align natively with core surface tokens.</span>
+            </div>
+
+            <section class="fx-sheet">
+                <div class="fx-sheet-header">
+                    <div class="fx-sheet-title">Cluster Run Schedules</div>
+                    <button class="fx-btn-utility">Filter Options</button>
+                </div>
+
+                <table class="fx-data-table">
+                    <thead>
+                        <tr>
+                            <th>Pipeline Target ID</th>
+                            <th>Status Index</th>
+                            <th>Allocation Metric</th>
+                            <th>Operator Node</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight: 500;">daasa_og_generator</td>
+                            <td><span class="fx-badge fx-badge-success">Success</span></td>
+                            <td style="color: var(--fx-text-muted);">0.0712 Units</td>
+                            <td style="color: var(--fx-text-subtle);">node-01-asia</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 500;">xkit_workspace_sync</td>
+                            <td><span class="fx-badge fx-badge-warning">Pending</span></td>
+                            <td style="color: var(--fx-text-muted);">5,000 Units</td>
+                            <td style="color: var(--fx-text-subtle);">node-04-us-east</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight: 500;">cbbtc_usdc_liquidity</td>
+                            <td><span class="fx-badge fx-badge-info">Active Loop</span></td>
+                            <td style="color: var(--fx-text-muted);">1.03% Offset</td>
+                            <td style="color: var(--fx-text-subtle);">node-alpha-onchain</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="fx-sheet-footer">
+                    <div>Showing 3 of 18 active workspace metrics layers</div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="fx-btn-utility" style="padding: 4px 8px; font-size: 12px;">Previous</button>
+                        <button class="fx-btn-utility" style="padding: 4px 8px; font-size: 12px;">Next</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div class="fx-modal-backdrop" id="loginModal">
+        <div class="fx-login-window">
+            <button class="fx-modal-close-trigger" onclick="document.getElementById('loginModal').style.display='none'">✕</button>
+
+            <div class="fx-login-header">
+                <div class="fx-login-logo">
+                    <div class="fx-sidebar-logo-dot" style="width:14px; height:14px;"></div>
+                    Evality
+                </div>
+                <div class="fx-login-subtitle">Secure Access Management Desk</div>
+            </div>
+
+            <div class="fx-form-group">
+                <label class="fx-form-label">Identity / Developer Email</label>
+                <input type="email" class="fx-form-input" placeholder="name@domain.com" value="technologist@evality.in">
+            </div>
+
+            <div class="fx-form-group">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label class="fx-form-label">Access Passkey / Hash</label>
+                    <a href="#" class="fx-btn-accent">Forgot Credentials?</a>
+                </div>
+                <input type="password" class="fx-form-input" value="•••••••••••••••••">
+            </div>
+
+            <button class="fx-btn-primary" onclick="document.getElementById('loginModal').style.display='none'">
+                Authenticate Session
+            </button>
+        </div>
+    </div>
+
+</body>
+</html>
