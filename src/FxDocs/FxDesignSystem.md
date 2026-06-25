@@ -3,6 +3,52 @@
 
 ---
 
+## Design Direction
+
+The Evality design language should stay intentionally in the middle.
+
+Avoid both extremes:
+
+* Too technical or developer-tooling driven: terminal aesthetics, cyber styling, dense engineering UI, excessive sharp edges, overuse of monospace, dark hacker tone.
+* Too soft or consumer-mobile: oversized controls, overly large radii, excessive whitespace, bubbly presentation, playful illustration-heavy surfaces.
+
+Target a modern professional SaaS workspace suitable for a broad audience.
+
+### Desired Qualities
+
+* Clean
+* Contemporary
+* Calm
+* Efficient
+* Trustworthy
+* Premium
+* Data-first
+* Fast to scan
+* Minimal visual noise
+
+Reference the maturity and restraint of products like Linear, Atlassian, Stripe Dashboard, and Vercel Dashboard, without copying them.
+
+### Interaction And Visual Rules
+
+* Prefer subtle over flashy.
+* Use whitespace deliberately.
+* Use color for meaning, not decoration.
+* Maintain strong visual hierarchy.
+* Components should feel light and crisp.
+* Rounded corners should be moderate, generally `6px` to `8px`, with larger radii only where appropriate.
+* Shadows should be soft and minimal.
+* Borders should do most of the structural work.
+* Animations should be quick and understated.
+* Typography should carry hierarchy more than color.
+
+### FxUI Library Rule
+
+Every `FxUI` component should be generic enough to be reused across future products while still expressing the Evality design language through tokens, spacing, typography, and composition, not through one-off styling or product-specific logic.
+
+When choosing between two visual approaches, prefer the one that is simpler, calmer, and more timeless.
+
+---
+
 ## 🎨 Colors
 
 ### Brand & Actions
