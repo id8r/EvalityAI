@@ -1,7 +1,9 @@
+/* src/components/FxUI/Forms/FxButton.js | Branded button wrapper | Sree | 2026-06-25 */
+
 import { cva } from "class-variance-authority";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/FxUtils";
 
 const fxButtonVariants = cva(
   "h-10 px-4 text-[14px] font-medium tracking-[-0.01em] shadow-none",

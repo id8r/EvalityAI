@@ -1,5 +1,8 @@
+/* src/components/FxUI/Forms/FxSwitchField.js | Branded switch field | Sree | 2026-06-25 */
+
 import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/FxUtils";
+/* - - - - - - - - - - - - - - - - */
 
 function FxSwitchField({ label, description, className, ...props }) {
   return (
@@ -17,5 +20,6 @@ function FxSwitchField({ label, description, className, ...props }) {
     </label>
   );
 }
-
+/* - - - - - - - - - - - - - - - - */
 export { FxSwitchField };
+/* - - - - - - - - - - - - - - - - */

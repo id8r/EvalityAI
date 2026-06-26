@@ -1,4 +1,7 @@
-import { cn } from "@/lib/utils";
+/* src/components/FxUI/Layout/FxPanel.js | Branded panel surface | Sree | 2026-06-25 */
+
+import { cn } from "@/lib/FxUtils";
+/* - - - - - - - - - - - - - - - - */
 
 function FxPanel({ className, title, eyebrow, description, children, footer }) {
   return (
@@ -19,5 +22,6 @@ function FxPanel({ className, title, eyebrow, description, children, footer }) {
     </section>
   );
 }
-
+/* - - - - - - - - - - - - - - - - */
 export { FxPanel };
+/* - - - - - - - - - - - - - - - - */

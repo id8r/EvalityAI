@@ -51,48 +51,15 @@ When choosing between two visual approaches, prefer the one that is simpler, cal
 
 ## 🎨 Colors
 
-### Brand & Actions
-| Token | Hex | Usage |
-| :--- | :--- | :--- |
-| `--fx-primary` | `#1068E0` | Primary buttons, active navigation, links, CTAs |
-| `--fx-primary-hover` | `#1254B8` | Hover and pressed states |
-| `--fx-accent` | `#4F35FD` | AI actions, highlights, premium accents |
+Color **values** are not duplicated here. The canonical token definitions (light and dark) live in `src/app/globals.css`, the human-readable palette reference lives in `FxColors.md`, and `/ds` renders every token live from the running theme.
 
-### Surfaces
-| Token | Hex | Usage |
-| :--- | :--- | :--- |
-| `--fx-bg` | `#F3F6F9` | App background |
-| `--fx-surface` | `#FFFFFF` | Cards, sheets, dialogs, tables |
-| `--fx-surface-subtle` | `#F8FAFC` | Headers, footers, secondary panels |
-| `--fx-surface-muted` | `#ECECEF` | Zebra rows, disabled surfaces |
+This section owns color *intent* only:
 
-### Borders
-| Token | Hex | Usage |
-| :--- | :--- | :--- |
-| `--fx-border-light` | `#E3E8EC` | Dividers, grid lines |
-| `--fx-border` | `#BDC3CC` | Inputs, cards, standard borders |
-| `--fx-border-strong` | `#888B93` | Strong boundaries, sticky sections |
-
-### Text
-| Token | Hex | Usage |
-| :--- | :--- | :--- |
-| `--fx-text` | `#1A293E` | Primary text |
-| `--fx-text-muted` | `#5A6880` | Secondary text |
-| `--fx-text-subtle` | `#3E4E6A` | Inactive UI text |
-
-### Semantic
-| Token | Hex | Usage |
-| :--- | :--- | :--- |
-| `--fx-success` | `#78B030` | Success states |
-| `--fx-warning` | `#F09C00` | Warning states |
-| `--fx-danger` | `#D84040` | Errors, destructive actions |
-| `--fx-info-surface` | `#CADDF9` | Information banners, selection highlights |
-
-### Utility
-| Token | Hex | Usage |
-| :--- | :--- | :--- |
-| `--fx-shadow-core` | `#000000` | Shadow generation |
-| `--fx-dark-panel` | `#26272B` | Reserved utility token |
+* Use color for meaning, not decoration.
+* `--fx-primary` (Hero Brand Blue) is the single interactive brand action color: primary buttons, active navigation, links, CTAs.
+* `--fx-accent` (Indigo) is a secondary accent for AI actions, highlights, and premium moments — never a general-purpose second button color.
+* Surfaces, borders, and text tokens should carry hierarchy through structure and contrast, with borders doing most of the structural work.
+* Semantic tokens (`--fx-success`, `--fx-warning`, `--fx-danger`, `--fx-info-surface`) are reserved for state, not styling.
 
 ---
 

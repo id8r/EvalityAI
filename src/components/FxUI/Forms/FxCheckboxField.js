@@ -1,5 +1,8 @@
+/* src/components/FxUI/Forms/FxCheckboxField.js | Branded checkbox field | Sree | 2026-06-25 */
+
 import { Checkbox } from "@/components/ui/checkbox";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/FxUtils";
+/* - - - - - - - - - - - - - - - - */
 
 function FxCheckboxField({ label, description, className, ...props }) {
   return (
@@ -17,5 +20,6 @@ function FxCheckboxField({ label, description, className, ...props }) {
     </label>
   );
 }
-
+/* - - - - - - - - - - - - - - - - */
 export { FxCheckboxField };
+/* - - - - - - - - - - - - - - - - */

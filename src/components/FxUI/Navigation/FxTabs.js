@@ -1,5 +1,7 @@
+/* src/components/FxUI/Navigation/FxTabs.js | Branded tabs wrapper | Sree | 2026-06-25 */
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/FxUtils";
 
 function FxTabs({ className, tabs = [], defaultValue, children }) {
   return (

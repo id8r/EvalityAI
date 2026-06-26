@@ -1,14 +1,17 @@
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+/* src/components/FxUI/Forms/FxTextarea.js | Branded textarea field | Sree | 2026-06-25 */
 
-function FxInput({
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/FxUtils";
+/* - - - - - - - - - - - - - - - - */
+
+function FxTextarea({
   label,
   hint,
   message,
   id,
   className,
-  inputClassName,
+  textareaClassName,
   required = false,
   ...props
 }) {
@@ -22,7 +25,12 @@ function FxInput({
           {required ? <span className="ml-1 text-[var(--fx-danger)]">*</span> : null}
         </Label>
       ) : null}
-      <Input id={fieldId} className={cn("h-10", inputClassName)} aria-invalid={Boolean(message)} {...props} />
+      <Textarea
+        id={fieldId}
+        className={cn("min-h-28", textareaClassName)}
+        aria-invalid={Boolean(message)}
+        {...props}
+      />
       {message ? (
         <p className="text-[13px] text-[var(--fx-danger)]">{message}</p>
       ) : hint ? (
@@ -31,5 +39,6 @@ function FxInput({
     </div>
   );
 }
-
-export { FxInput };
+/* - - - - - - - - - - - - - - - - */
+export { FxTextarea };
+/* - - - - - - - - - - - - - - - - */

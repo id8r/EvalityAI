@@ -1,5 +1,8 @@
+/* src/components/FxUI/DataDisplay/FxBadge.js | Branded status badge | Sree | 2026-06-25 */
+
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/FxUtils";
+/* - - - - - - - - - - - - - - - - */
 
 function FxBadge({ className, tone = "default", children, ...props }) {
   return (
@@ -8,5 +11,6 @@ function FxBadge({ className, tone = "default", children, ...props }) {
     </Badge>
   );
 }
-
+/* - - - - - - - - - - - - - - - - */
 export { FxBadge };
+/* - - - - - - - - - - - - - - - - */

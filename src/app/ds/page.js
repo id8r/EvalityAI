@@ -1,180 +1,88 @@
-import { FxAppShell } from "@/components/FxUI/FxAppShell";
-import { FxBadge } from "@/components/FxUI/FxBadge";
-import { FxButton } from "@/components/FxUI/FxButton";
-import { FxInput } from "@/components/FxUI/FxInput";
-import { FxPageFrame } from "@/components/FxUI/FxPageFrame";
-import { FxPanel } from "@/components/FxUI/FxPanel";
-import { FxSidebar } from "@/components/FxUI/FxSidebar";
-import { FxTabs } from "@/components/FxUI/FxTabs";
-import { FxTextarea } from "@/components/FxUI/FxTextarea";
-import { FxTopbar } from "@/components/FxUI/FxTopbar";
+/* src/app/ds/page.js | Living visual design system playground | Sree | 2026-06-25 */
 
+import {
+  Bell,
+  CircleHelp,
+  FileText,
+  Filter,
+  Folder,
+  Inbox,
+  Plus,
+  Search,
+  Settings,
+  Sparkles,
+  User,
+} from "lucide-react";
+
+import { FxBadge } from "@/components/FxUI/DataDisplay";
+import { FxButton, FxCheckboxField, FxInput, FxRadioGroupField, FxSwitchField, FxTextarea } from "@/components/FxUI/Forms";
+import { FxPanel } from "@/components/FxUI/Layout";
+import { FxTabs } from "@/components/FxUI/Navigation";
+import { FxColorTokenCard } from "./FxColorTokenCard";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  FX_BORDER,
+  FX_RADIUS,
+  FX_SHADOW,
+  FX_SPACE,
+  FX_SURFACE,
+  FX_TYPOGRAPHY,
+} from "@/lib/FxTheme";
+
+/* - - - - - - - - - - - - - - - - */
+
+/* Token names only. Values are read live from the active theme in FxColorTokenCard,
+   so globals.css remains the single source of truth for every color value. */
 const colorGroups = [
   {
     title: "Brand",
-    note: "Primary action and accent signals.",
-    items: [
-      ["--fx-primary", "Primary"],
-      ["--fx-primary-hover", "Primary Hover"],
-      ["--fx-accent", "Accent"],
-      ["--fx-primary-foreground", "Primary Foreground"],
-    ],
+    tokens: ["--fx-primary", "--fx-primary-hover", "--fx-accent", "--fx-primary-foreground"],
   },
   {
     title: "Surfaces",
-    note: "Canvas, panel, hover, and selected states.",
-    items: [
-      ["--fx-bg", "App Background"],
-      ["--fx-bg-soft", "Soft Background"],
-      ["--fx-surface", "Surface"],
-      ["--fx-surface-subtle", "Surface Subtle"],
-      ["--fx-surface-raised", "Surface Raised"],
-      ["--fx-surface-muted", "Surface Muted"],
-      ["--fx-surface-hover", "Surface Hover"],
-      ["--fx-surface-selected", "Surface Selected"],
+    tokens: [
+      "--fx-bg",
+      "--fx-bg-soft",
+      "--fx-surface",
+      "--fx-surface-subtle",
+      "--fx-surface-muted",
+      "--fx-surface-hover",
+      "--fx-surface-selected",
     ],
   },
   {
-    title: "Borders And Text",
-    note: "Structural dividers and reading hierarchy.",
-    items: [
-      ["--fx-border-light", "Border Light"],
-      ["--fx-border", "Border"],
-      ["--fx-border-strong", "Border Strong"],
-      ["--fx-text", "Text"],
-      ["--fx-text-muted", "Text Muted"],
-      ["--fx-text-subtle", "Text Subtle"],
-      ["--fx-text-disabled", "Text Disabled"],
+    title: "Text And Borders",
+    tokens: [
+      "--fx-border-light",
+      "--fx-border",
+      "--fx-border-strong",
+      "--fx-text",
+      "--fx-text-muted",
+      "--fx-text-subtle",
     ],
   },
   {
     title: "Semantic",
-    note: "Status and guidance colors.",
-    items: [
-      ["--fx-success", "Success"],
-      ["--fx-warning", "Warning"],
-      ["--fx-danger", "Danger"],
-      ["--fx-info-surface", "Info Surface"],
-      ["--fx-ring", "Ring"],
-    ],
-  },
-  {
-    title: "Table",
-    note: "Explicit tokens for dense data surfaces.",
-    items: [
-      ["--fx-table-header", "Table Header"],
-      ["--fx-table-row-alt", "Table Row Alt"],
-    ],
+    tokens: ["--fx-success", "--fx-warning", "--fx-danger", "--fx-info-surface"],
   },
 ];
 
 const typeScale = [
-  {
-    role: "Page Title",
-    size: "28px",
-    weight: "600",
-    className: "text-[28px] font-semibold leading-[1.15] tracking-tight",
-    sample: "Revenue intelligence for operational teams",
-    usage: "Page headings",
-  },
-  {
-    role: "Section Title",
-    size: "20px",
-    weight: "600",
-    className: "text-[20px] font-semibold leading-[1.2]",
-    sample: "System Overview",
-    usage: "Sections",
-  },
-  {
-    role: "Card Title",
-    size: "16px",
-    weight: "600",
-    className: "text-[16px] font-semibold leading-[1.3]",
-    sample: "Pipeline Status",
-    usage: "Cards, sheets, dialogs",
-  },
-  {
-    role: "Body",
-    size: "14px",
-    weight: "400",
-    className: "text-[14px] font-normal leading-[1.6]",
-    sample: "Evality turns raw workflows into structured, reviewable decisions.",
-    usage: "Default text",
-  },
-  {
-    role: "Clickable",
-    size: "14px",
-    weight: "500",
-    className: "text-[14px] font-medium leading-[1.4] text-primary",
-    sample: "Open forecast workbook",
-    usage: "Links, clickable values",
-  },
-  {
-    role: "Meta",
-    size: "13px",
-    weight: "400",
-    className: "text-[13px] font-normal leading-[1.5] text-muted-foreground",
-    sample: "Updated 25 Jun 2026",
-    usage: "Helper text",
-  },
-  {
-    role: "Label",
-    size: "12px",
-    weight: "500",
-    className: "text-[12px] font-medium uppercase tracking-[0.14em] text-muted-foreground",
-    sample: "Dataset Status",
-    usage: "Labels, table headers",
-  },
+  ["Page Title", "text-[28px] font-semibold leading-[1.15] tracking-tight", "Revenue intelligence for operational teams", "28px / 600"],
+  ["Section Title", "text-[20px] font-semibold leading-[1.2]", "Workspace overview", "20px / 600"],
+  ["Card Title", "text-[16px] font-semibold leading-[1.3]", "Pipeline status", "16px / 600"],
+  ["Body", "text-[14px] font-normal leading-[1.6]", "Evality turns operational work into structured, reviewable decisions.", "14px / 400"],
+  ["Clickable", "text-[14px] font-medium leading-[1.4] text-primary", "Open workbook", "14px / 500"],
+  ["Meta", "text-[13px] font-normal leading-[1.5] text-muted-foreground", "Updated 25 Jun 2026", "13px / 400"],
+  ["Label", "text-[12px] font-medium uppercase tracking-[0.14em] text-muted-foreground", "Dataset status", "12px / 500"],
 ];
 
-const primitiveGroups = [
-  {
-    title: "Core Input",
-    items: ["button", "input", "textarea", "label", "checkbox", "radio-group", "switch"],
-  },
-  {
-    title: "Overlay And Navigation",
-    items: ["dialog", "sheet", "alert-dialog", "dropdown-menu", "popover", "tooltip", "tabs"],
-  },
-  {
-    title: "Structure And Feedback",
-    items: ["table", "badge", "separator", "scroll-area", "sonner"],
-  },
-];
+const spacingScale = ["8", "16", "24", "32", "48", "64", "96"];
+const iconSet = [Search, Filter, Plus, Inbox, Folder, FileText, Bell, Settings, User, CircleHelp, Sparkles];
 
-const shellRules = [
-  ["Viewport height ownership", "Owned by `FxAppShell` via `h-[100dvh]` and `overflow-hidden`."],
-  ["Sidebar width", "Desktop assumption is `272px`; hidden below `lg` for now."],
-  ["Topbar height", "Topbar is a consistent `56px` structural header."],
-  ["Content scroll ownership", "`FxPageFrame` owns the primary vertical scroll region."],
-  ["Page padding", "Default page padding is `24px` to `32px` depending on breakpoint."],
-  ["Background layering", "Shell uses subtle bg gradient, surfaces and borders do the structural work."],
-  ["Sticky regions", "Topbar is sticky by default; sidebar is fixed within the shell column."],
-  ["Responsive assumptions", "Desktop-first workspace shell for review. Mobile behavior stays intentionally minimal for now."],
-];
-
-function TokenRow({ token, label }) {
-  const previewStyle =
-    token === "--fx-table-row-alt"
-      ? {
-          background:
-            "repeating-linear-gradient(135deg, var(--fx-surface) 0 12px, var(--fx-bg-soft) 12px 24px)",
-        }
-      : { background: `var(${token})` };
-
-  return (
-    <div className="grid grid-cols-[120px_minmax(0,1fr)_160px] items-center gap-4 border-t border-border py-3 first:border-t-0">
-      <div className="h-10 border border-border" style={previewStyle} />
-      <div className="min-w-0">
-        <p className="text-sm font-medium text-foreground">{label}</p>
-        <p className="truncate font-mono text-xs text-muted-foreground">{token}</p>
-      </div>
-      <code className="justify-self-end font-mono text-xs text-muted-foreground">
-        var({token})
-      </code>
-    </div>
-  );
-}
+/* - - - - - - - - - - - - - - - - */
 
 function SectionHeader({ eyebrow, title, note }) {
   return (
@@ -184,53 +92,41 @@ function SectionHeader({ eyebrow, title, note }) {
       </p>
       <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <h2 className="text-[22px] font-semibold tracking-tight text-foreground">{title}</h2>
-        {note ? <p className="max-w-xl text-sm text-muted-foreground">{note}</p> : null}
+        {note ? <p className="max-w-2xl text-sm text-muted-foreground">{note}</p> : null}
       </div>
     </div>
   );
 }
 
-function TablePreview() {
-  const rows = [
-    ["Workspace Audit", "Ready", "12 Jun"],
-    ["Claims Intake", "Review", "18 Jun"],
-    ["Revenue Forecast", "Blocked", "21 Jun"],
-    ["Churn Watchlist", "Ready", "24 Jun"],
-  ];
-
+function ColorGroup({ group }) {
   return (
-    <div className="border border-border bg-[var(--fx-surface)]">
-      <table className="w-full border-collapse text-sm">
-        <thead style={{ background: "var(--fx-table-header)" }}>
-          <tr className="text-left">
-            <th className="border-b border-border px-4 py-3 text-[12px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-              Dataset
-            </th>
-            <th className="border-b border-border px-4 py-3 text-[12px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-              Status
-            </th>
-            <th className="border-b border-border px-4 py-3 text-[12px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-              Updated
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <tr
-              key={row[0]}
-              className="border-b border-border last:border-b-0"
-              style={{
-                background:
-                  index % 2 === 1 ? "var(--fx-table-row-alt)" : "var(--fx-surface)",
-              }}
-            >
-              <td className="px-4 py-3 text-foreground">{row[0]}</td>
-              <td className="px-4 py-3 text-muted-foreground">{row[1]}</td>
-              <td className="px-4 py-3 text-muted-foreground">{row[2]}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <section className="space-y-4">
+      <h3 className="text-base font-semibold text-foreground">{group.title}</h3>
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {group.tokens.map((token) => (
+          <FxColorTokenCard key={token} token={token} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ThemePalette({ theme, dark = false }) {
+  return (
+    <div
+      className={`space-y-5 rounded-[16px] border border-border bg-[var(--fx-surface)] p-4 md:p-5 ${
+        dark ? "dark" : ""
+      }`}
+    >
+      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+        {theme} Theme
+      </p>
+
+      <div className="space-y-6">
+        {colorGroups.map((group) => (
+          <ColorGroup key={group.title} group={group} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -240,53 +136,69 @@ function FoundationSection() {
     <div className="space-y-8">
       <SectionHeader
         eyebrow="Foundation"
-        title="Tokens, Type, And Core Layout Rules"
-        note="Foundations stay explicit here so future components inherit the same visual discipline."
+        title="Color, type, spacing, radius, and shadow system"
+        note="This is the living visual source of truth for core design language."
       />
 
-      <div className="space-y-8">
-        {colorGroups.map((group) => (
-          <section key={group.title} className="grid gap-3 md:grid-cols-[220px_minmax(0,1fr)] md:items-start">
-            <div>
-              <h3 className="text-base font-semibold text-foreground">{group.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{group.note}</p>
-            </div>
-            <div className="border border-border bg-[var(--fx-surface)] px-4">
-              {group.items.map(([token, label]) => (
-                <TokenRow key={token} token={token} label={label} />
-              ))}
-            </div>
-          </section>
-        ))}
-      </div>
+      <FxPanel eyebrow="Colors">
+        <div className="grid gap-5 xl:grid-cols-2">
+          <ThemePalette theme="Light" />
+          <ThemePalette theme="Dark" dark />
+        </div>
+      </FxPanel>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-        <FxPanel
-          eyebrow="Table"
-          title="Data Surface Preview"
-          description="Live check for header treatment, row rhythm, and readability in dense layouts."
-        >
-          <TablePreview />
-        </FxPanel>
-
-        <FxPanel
-          eyebrow="Typography"
-          title="Type Scale"
-          description="Current hierarchy pulled from the design-system notes."
-        >
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <FxPanel eyebrow="Typography" title="Type Scale" description="Hierarchy should come primarily from type, spacing, and structure.">
           <div className="space-y-4">
-            {typeScale.map((item) => (
-              <div key={item.role} className="border-t border-border pt-4 first:border-t-0 first:pt-0">
-                <div className="mb-2 flex flex-wrap items-baseline justify-between gap-3">
-                  <p className="text-sm font-medium text-foreground">{item.role}</p>
-                  <p className="font-mono text-xs text-muted-foreground">
-                    {item.size} / {item.weight}
-                  </p>
+            {typeScale.map(([label, className, sample, meta]) => (
+              <div key={label} className="border-t border-border pt-4 first:border-t-0 first:pt-0">
+                <div className="mb-2 flex items-baseline justify-between gap-3">
+                  <p className="text-sm font-medium text-foreground">{label}</p>
+                  <p className="font-mono text-xs text-muted-foreground">{meta}</p>
                 </div>
-                <p className={item.className}>{item.sample}</p>
-                <p className="mt-2 text-xs text-muted-foreground">{item.usage}</p>
+                <p className={className}>{sample}</p>
               </div>
             ))}
+          </div>
+        </FxPanel>
+
+        <FxPanel eyebrow="Layout" title="Spacing, Radius, And Shadow" description="Moderate radii, soft shadows, borders doing most of the structural work.">
+          <div className="space-y-6">
+            <div>
+              <p className="mb-3 text-[12px] font-medium uppercase tracking-[0.12em] text-muted-foreground">Spacing</p>
+              <div className="space-y-3">
+                {spacingScale.map((value) => (
+                  <div key={value} className="flex items-center gap-4">
+                    <p className="w-10 font-mono text-xs text-muted-foreground">{value}</p>
+                    <div style={{ width: `${value}px` }} className="h-3 bg-primary" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {[
+                ["6px", "rounded-[6px]"],
+                ["8px", "rounded-[8px]"],
+                ["12px", "rounded-[12px]"],
+              ].map(([label, radiusClass]) => (
+                <div key={label} className="space-y-2">
+                  <p className="font-mono text-xs text-muted-foreground">{label}</p>
+                  <div className={`h-16 border border-border bg-[var(--fx-surface-subtle)] ${radiusClass}`} />
+                </div>
+              ))}
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="border border-border bg-[var(--fx-surface)] px-4 py-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]">
+                <p className="text-sm font-medium text-foreground">Soft shadow</p>
+                <p className="mt-1 text-sm text-muted-foreground">Light elevation for panels and overlays.</p>
+              </div>
+              <div className="border border-border bg-[var(--fx-surface)] px-4 py-5">
+                <p className="text-sm font-medium text-foreground">Border-first</p>
+                <p className="mt-1 text-sm text-muted-foreground">Default surface structure should come from borders and spacing.</p>
+              </div>
+            </div>
           </div>
         </FxPanel>
       </div>
@@ -294,33 +206,201 @@ function FoundationSection() {
   );
 }
 
-function PrimitivesSection() {
+function ControlsSection() {
   return (
     <div className="space-y-8">
       <SectionHeader
-        eyebrow="Primitives"
-        title="Low-Level UI Base"
-        note="These stay in `src/components/ui` as the Radix or shadcn-level layer. They are not product components."
+        eyebrow="Controls"
+        title="Buttons, inputs, selection controls, tabs, and badges"
+        note="This section should keep growing as the permanent review surface for everyday controls."
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {primitiveGroups.map((group) => (
-          <FxPanel
-            key={group.title}
-            eyebrow="ui"
-            title={group.title}
-            description="Approved low-level primitives for the reset project."
-          >
-            <div className="flex flex-wrap gap-2">
-              {group.items.map((item) => (
-                <FxBadge key={item} tone="secondary">
-                  {item}
-                </FxBadge>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <FxPanel eyebrow="Buttons" title="Action Hierarchy" description="Low-noise, professional action styles.">
+          <div className="flex flex-wrap gap-3">
+            <FxButton>Primary Action</FxButton>
+            <FxButton variant="secondary">Secondary</FxButton>
+            <FxButton variant="ghost">Ghost</FxButton>
+            <FxButton variant="destructive">Delete</FxButton>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Button variant="default">ui/default</Button>
+            <Button variant="outline">ui/outline</Button>
+            <Button variant="ghost">ui/ghost</Button>
+          </div>
+        </FxPanel>
+
+        <FxPanel eyebrow="Badges" title="Status Markers" description="Use color for meaning, not decoration.">
+          <div className="flex flex-wrap gap-3">
+            <FxBadge>Default</FxBadge>
+            <FxBadge tone="secondary">Secondary</FxBadge>
+            <FxBadge tone="outline">Outline</FxBadge>
+            <FxBadge tone="success">Ready</FxBadge>
+            <FxBadge tone="warning">Warning</FxBadge>
+            <FxBadge tone="destructive">Blocked</FxBadge>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Badge>ui/badge</Badge>
+            <Badge variant="secondary">ui/secondary</Badge>
+            <Badge variant="outline">ui/outline</Badge>
+          </div>
+        </FxPanel>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <FxPanel eyebrow="Inputs" title="Text Fields" description="Fields should feel light, bordered, and efficient to scan.">
+          <div className="space-y-4">
+            <FxInput label="Workspace Name" defaultValue="Revenue Ops" hint="Used in headers and exports." />
+            <FxInput label="Owner Email" placeholder="owner@evality.ai" message="Please enter a valid work email." />
+            <FxTextarea label="Internal Note" defaultValue="Keep workbook naming aligned with the source system." hint="Long-form helper text and audit notes." />
+            <div className="space-y-2">
+              <p className="text-[12px] font-medium uppercase tracking-[0.12em] text-muted-foreground">Select</p>
+              <div className="flex h-10 items-center justify-between border border-border bg-[var(--fx-surface)] px-3 text-sm text-foreground">
+                <span>Pending primitive</span>
+                <span className="text-muted-foreground">v</span>
+              </div>
+            </div>
+          </div>
+        </FxPanel>
+
+        <FxPanel eyebrow="Selection" title="Choice Controls" description="Choice controls should stay structured and neutral.">
+          <div className="space-y-4">
+            <FxCheckboxField defaultChecked label="Auto-archive drafts" description="Move untouched drafts out of the active workspace after 30 days." />
+            <FxSwitchField defaultChecked label="Analyst Notifications" description="Send updates when review state changes." />
+            <FxRadioGroupField
+              defaultValue="team"
+              label="Approval Mode"
+              description="Generic selection pattern for future products."
+              options={[
+                { value: "solo", label: "Single Owner", description: "One reviewer controls the decision path." },
+                { value: "team", label: "Team Review", description: "A small group can update the state collaboratively." },
+              ]}
+            />
+          </div>
+        </FxPanel>
+      </div>
+
+      <FxPanel eyebrow="Tabs" title="Section Navigation" description="Tabs should feel structural, not decorative.">
+        <FxTabs
+          defaultValue="overview"
+          tabs={[
+            { value: "overview", label: "Overview" },
+            { value: "filters", label: "Filters" },
+            { value: "history", label: "History" },
+          ]}
+        >
+          <FxTabs.Content value="overview">
+            <p className="text-sm leading-6 text-muted-foreground">Use tabs for calm structural navigation between related views.</p>
+          </FxTabs.Content>
+          <FxTabs.Content value="filters">
+            <p className="text-sm leading-6 text-muted-foreground">Tabs should not become bright or over-styled.</p>
+          </FxTabs.Content>
+          <FxTabs.Content value="history">
+            <p className="text-sm leading-6 text-muted-foreground">Prefer typography and spacing over decorative effects.</p>
+          </FxTabs.Content>
+        </FxTabs>
+      </FxPanel>
+    </div>
+  );
+}
+
+function SurfacesSection() {
+  return (
+    <div className="space-y-8">
+      <SectionHeader
+        eyebrow="Surfaces"
+        title="Sheets, dialogs, tables, toasts, empty states, and icons"
+        note="Some specimens are visual previews until their richer interactions are implemented."
+      />
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <FxPanel eyebrow="Dialog" title="Dialog Preview" description="Overlay surfaces should stay crisp and restrained.">
+          <div className="flex min-h-[220px] items-center justify-center border border-border bg-[color:color-mix(in_srgb,var(--fx-dark-panel)_10%,white)] px-6 py-8">
+            <div className="w-full max-w-[520px] border border-border bg-[var(--fx-surface-raised)] px-6 py-5 shadow-[0_20px_60px_rgba(15,23,42,0.14)]">
+              <p className="text-[20px] font-semibold text-foreground">Confirm data refresh</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">Replace the current snapshot with the latest source export for this workspace.</p>
+              <div className="mt-5 flex justify-end gap-3">
+                <FxButton variant="ghost">Cancel</FxButton>
+                <FxButton>Refresh</FxButton>
+              </div>
+            </div>
+          </div>
+        </FxPanel>
+
+        <FxPanel eyebrow="Sheet" title="Sheet Preview" description="Large working surfaces can expand from the side without becoming visually heavy.">
+          <div className="grid min-h-[220px] grid-cols-[minmax(0,1fr)_420px] overflow-hidden border border-border">
+            <div className="bg-[var(--fx-bg-soft)]" />
+            <div className="border-l border-border bg-[var(--fx-surface-raised)] px-6 py-5 shadow-[-6px_0_18px_rgba(15,23,42,0.04)]">
+              <p className="text-[20px] font-semibold text-foreground">Configuration Sheet</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">Sheets should feel like working panes, not modals with oversized decoration.</p>
+              <div className="mt-6 space-y-3">
+                <div className="h-10 border border-border bg-[var(--fx-surface-subtle)]" />
+                <div className="h-10 border border-border bg-[var(--fx-surface-subtle)]" />
+                <div className="h-28 border border-border bg-[var(--fx-surface-subtle)]" />
+              </div>
+            </div>
+          </div>
+        </FxPanel>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+        <FxPanel eyebrow="Table" title="Data Surface" description="Large tables should remain clean and readable.">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Dataset</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Updated</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {[
+                ["Workspace Audit", "Ready", "12 Jun"],
+                ["Claims Intake", "Review", "18 Jun"],
+                ["Revenue Forecast", "Blocked", "21 Jun"],
+                ["Churn Watchlist", "Ready", "24 Jun"],
+              ].map(([name, status, updated]) => (
+                <TableRow key={name}>
+                  <TableCell>{name}</TableCell>
+                  <TableCell>{status}</TableCell>
+                  <TableCell>{updated}</TableCell>
+                </TableRow>
               ))}
+            </TableBody>
+          </Table>
+        </FxPanel>
+
+        <div className="space-y-6">
+          <FxPanel eyebrow="Empty State" title="Empty State" description="Keep empty states calm and useful, not playful.">
+            <div className="flex flex-col items-start gap-4 border border-dashed border-border bg-[var(--fx-surface-subtle)] px-5 py-6">
+              <Inbox className="size-6 text-muted-foreground" />
+              <div className="space-y-1">
+                <p className="text-base font-semibold text-foreground">No datasets yet</p>
+                <p className="text-sm leading-6 text-muted-foreground">Import a source file or connect a system to start building structured workspaces.</p>
+              </div>
+              <FxButton size="sm">Add source</FxButton>
             </div>
           </FxPanel>
-        ))}
+
+          <FxPanel eyebrow="Toast" title="Toast Preview" description="Feedback should be compact, informative, and low-noise.">
+            <div className="border border-border bg-[var(--fx-surface-raised)] px-4 py-3 shadow-[0_16px_40px_rgba(15,23,42,0.12)]">
+              <p className="text-sm font-medium text-foreground">Export queued</p>
+              <p className="mt-1 text-sm text-muted-foreground">Your workbook export is being prepared.</p>
+            </div>
+          </FxPanel>
+        </div>
       </div>
+
+      <FxPanel eyebrow="Icons" title="Icon Set Preview" description="Icons should stay functional, light, and consistent in weight.">
+        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
+          {iconSet.map((Icon, index) => (
+            <div key={index} className="flex items-center gap-3 border border-border bg-[var(--fx-surface)] px-4 py-3">
+              <Icon className="size-4 text-foreground" />
+              <span className="text-sm text-muted-foreground">Icon</span>
+            </div>
+          ))}
+        </div>
+      </FxPanel>
     </div>
   );
 }
@@ -330,58 +410,39 @@ function FxUISection() {
     <div className="space-y-8">
       <SectionHeader
         eyebrow="FxUI"
-        title="Branded Reusable Layer"
-        note="`FxUI` composes the primitive layer into calm, product-agnostic workspace components."
+        title="Branded reusable component layer"
+        note="This is where Evality-specific composition should live without product-specific logic."
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <FxPanel
-          eyebrow="Actions"
-          title="Buttons And Status"
-          description="Surface language should feel crisp, restrained, and reusable across future products."
-        >
-          <div className="space-y-5">
-            <div className="flex flex-wrap gap-3">
-              <FxButton>Primary Action</FxButton>
-              <FxButton variant="secondary">Secondary</FxButton>
-              <FxButton variant="ghost">Ghost</FxButton>
-              <FxButton variant="destructive">Delete</FxButton>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <FxBadge>Default</FxBadge>
-              <FxBadge tone="secondary">Secondary</FxBadge>
-              <FxBadge tone="outline">Outline</FxBadge>
-              <FxBadge tone="success">Ready</FxBadge>
-              <FxBadge tone="warning">Warning</FxBadge>
-              <FxBadge tone="destructive">Blocked</FxBadge>
-            </div>
+        <FxPanel eyebrow="Fx Components" title="Panels And Forms" description="Reusable, branded blocks built on top of low-level primitives.">
+          <div className="space-y-4">
+            <FxPanel
+              eyebrow="Nested Panel"
+              title="FxPanel"
+              description="Panels should remain crisp, neutral, and reusable."
+              footer={<p className="text-[13px] text-muted-foreground">Footer region for metadata or actions.</p>}
+            >
+              <p className="text-sm leading-6 text-muted-foreground">This is the baseline Evality surface wrapper for internal tools and workspace views.</p>
+            </FxPanel>
+
+            <FxInput label="FxInput" defaultValue="Revenue Ops" hint="Reusable field wrapper with label and hint." />
+            <FxTextarea label="FxTextarea" defaultValue="Long-form internal notes go here." />
           </div>
         </FxPanel>
 
-        <FxPanel
-          eyebrow="Fields"
-          title="Form Surface"
-          description="Inputs should stay light, bordered, and efficient to scan."
-        >
-          <div className="space-y-4">
-            <FxInput
-              label="Workspace Name"
-              name="workspaceName"
-              defaultValue="Revenue Ops"
-              hint="Used in headers and exports."
-            />
-            <FxInput
-              label="Owner Email"
-              name="ownerEmail"
-              placeholder="owner@evality.ai"
-              message="Please enter a valid work email."
-            />
-            <FxTextarea
-              label="Internal Note"
-              name="internalNote"
-              defaultValue="Keep workbook naming aligned with the source system."
-              hint="Long-form helper text and audit notes."
-            />
+        <FxPanel eyebrow="App Shell" title="Shell Components" description="The shell itself is part of the growing FxUI system.">
+          <div className="space-y-3 text-sm leading-6 text-muted-foreground">
+            <p>`FxAppShell`, `FxAppHeader`, `FxAppSidebar`, `FxAppContent`, `FxAppFooter`, and `FxNotificationArea` are reviewed live at `/dashboard`.</p>
+            <p>`/ds` remains the public visual system playground and should keep growing as the permanent component library.</p>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <FxBadge tone="secondary">FxAppShell</FxBadge>
+            <FxBadge tone="secondary">FxAppHeader</FxBadge>
+            <FxBadge tone="secondary">FxAppSidebar</FxBadge>
+            <FxBadge tone="secondary">FxAppContent</FxBadge>
+            <FxBadge tone="secondary">FxAppFooter</FxBadge>
+            <FxBadge tone="secondary">FxNotificationArea</FxBadge>
           </div>
         </FxPanel>
       </div>
@@ -389,223 +450,114 @@ function FxUISection() {
   );
 }
 
-function AppShellPreview() {
-  const sidebar = (
-    <FxSidebar
-      brand={
-        <div className="min-w-0">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-            Evality AI
-          </p>
-          <p className="truncate text-sm font-semibold text-foreground">Workspace Shell</p>
-        </div>
-      }
-      nav={
-        <div className="space-y-1">
-          {["Overview", "Workbooks", "Approvals", "Activity", "Settings"].map((item, index) => (
-            <div
-              key={item}
-              className={
-                index === 0
-                  ? "border border-border bg-[var(--fx-surface-hover)] px-3 py-2 text-sm font-medium text-foreground"
-                  : "px-3 py-2 text-sm text-muted-foreground"
-              }
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      }
-      footer={
-        <div className="space-y-1">
-          <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
-            Responsive Assumption
-          </p>
-          <p className="text-[13px] leading-5 text-muted-foreground">
-            Sidebar is desktop-first and hidden below `lg` until the mobile shell is designed.
-          </p>
-        </div>
-      }
-    />
-  );
+function RecipesSection() {
+  const typographyRoles = [
+    ["pageTitle", "Page title"],
+    ["sectionTitle", "Section title"],
+    ["cardTitle", "Card title"],
+    ["body", "Body text for scanning and reading"],
+    ["clickable", "Clickable / link value"],
+    ["meta", "Meta helper text"],
+    ["label", "Label"],
+    ["eyebrow", "Eyebrow label"],
+  ];
 
-  const topbar = (
-    <FxTopbar
-      title="Quarterly Review Workspace"
-      subtitle="Generic shell preview, no product-specific logic."
-      actions={
-        <>
-          <FxButton variant="ghost" size="sm">
-            Filter
-          </FxButton>
-          <FxButton variant="secondary" size="sm">
-            Export
-          </FxButton>
-        </>
-      }
-    />
-  );
-
-  const pageHeader = (
-    <div className="flex flex-col gap-3 border-b border-border pb-5 md:flex-row md:items-end md:justify-between">
-      <div className="space-y-2">
-        <p className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-          Page Frame
-        </p>
-        <h2 className="text-[28px] font-semibold tracking-tight text-foreground">
-          Content region owns the scroll
-        </h2>
-        <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-          The sidebar and topbar stay structurally stable while the page frame handles
-          vertical scroll and page padding.
-        </p>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <FxBadge tone="secondary">56px Topbar</FxBadge>
-        <FxBadge tone="secondary">272px Sidebar</FxBadge>
-        <FxBadge tone="secondary">24-32px Padding</FxBadge>
-      </div>
-    </div>
-  );
-
-  const pageAside = (
-    <div className="space-y-4">
-      <FxPanel
-        eyebrow="Aside"
-        title="Secondary Column"
-        description="Optional supporting region for summaries, filters, or metadata."
-      >
-        <div className="space-y-3 text-sm text-muted-foreground">
-          <p>Keep this column quiet. It should support the main surface, not compete with it.</p>
-          <p>Use borders and spacing before adding heavier visual emphasis.</p>
-        </div>
-      </FxPanel>
-    </div>
-  );
-
-  const pageContent = (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-3">
-        {[
-          ["Open Reviews", "18", "Ready"],
-          ["Pending Decisions", "7", "Warning"],
-          ["Blocked Items", "2", "Blocked"],
-        ].map(([label, value, status]) => (
-          <FxPanel key={label} eyebrow="Metric" title={value} description={label}>
-            <FxBadge tone={status === "Ready" ? "success" : status === "Warning" ? "warning" : "destructive"}>
-              {status}
-            </FxBadge>
-          </FxPanel>
-        ))}
-      </div>
-
-      <FxPanel
-        eyebrow="Primary Surface"
-        title="Main Workspace Table"
-        description="Dense work should live in the central surface with calm hierarchy and explicit borders."
-      >
-        <TablePreview />
-      </FxPanel>
-    </div>
-  );
+  const surfaceRoles = ["surface", "subtle", "raised", "muted", "hover", "selected"];
 
   return (
     <div className="space-y-8">
       <SectionHeader
-        eyebrow="AppShell"
-        title="Workspace Layout Foundation"
-        note="This defines the structural rules for future application screens before any product logic is introduced."
+        eyebrow="Recipes"
+        title="FxTheme reusable class recipes"
+        note="Live specimens rendered directly from the FX_* recipe groups in src/lib/FxTheme.js. Components consume these instead of re-inlining values."
       />
 
-      <FxPanel
-        eyebrow="Preview"
-        title="Visible Shell Review"
-        description="Viewport ownership, fixed regions, and content-scroll boundaries are shown here."
-      >
-        <div className="overflow-hidden border border-border">
-          <FxAppShell
-            className="h-[760px]"
-            sidebar={sidebar}
-            topbar={topbar}
-            mobileBanner="Mobile shell is intentionally deferred. Desktop workspace rules are the current focus."
-          >
-            <FxPageFrame header={pageHeader} aside={pageAside}>
-              {pageContent}
-            </FxPageFrame>
-          </FxAppShell>
-        </div>
-      </FxPanel>
-
-      <FxPanel
-        eyebrow="Rules"
-        title="Shell Contract"
-        description="The shell should remain generic and reusable across future products."
-      >
-        <div className="grid gap-3">
-          {shellRules.map(([label, note]) => (
-            <div key={label} className="grid gap-1 border-t border-border pt-3 first:border-t-0 first:pt-0 md:grid-cols-[220px_minmax(0,1fr)]">
-              <p className="text-sm font-medium text-foreground">{label}</p>
-              <p className="text-sm leading-6 text-muted-foreground">{note}</p>
+      <FxPanel eyebrow="FX_TYPOGRAPHY" title="Type Roles" description="Size, weight, and line-height only. Color stays with the consumer.">
+        <div className="space-y-4">
+          {typographyRoles.map(([key, sample]) => (
+            <div key={key} className="border-t border-border pt-4 first:border-t-0 first:pt-0">
+              <div className="mb-2 flex items-baseline justify-between gap-3">
+                <p className="font-mono text-xs text-muted-foreground">FX_TYPOGRAPHY.{key}</p>
+              </div>
+              <p className={`${FX_TYPOGRAPHY[key]} text-foreground`}>{sample}</p>
             </div>
           ))}
         </div>
       </FxPanel>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <FxPanel eyebrow="FX_RADIUS" title="Radii" description="Moderate corners; pill for fully rounded.">
+          <div className="grid gap-4 sm:grid-cols-4">
+            {Object.entries(FX_RADIUS).map(([key, recipe]) => (
+              <div key={key} className="space-y-2">
+                <div className={`h-16 border border-border bg-[var(--fx-surface-subtle)] ${recipe}`} />
+                <p className="font-mono text-xs text-muted-foreground">{key}</p>
+              </div>
+            ))}
+          </div>
+        </FxPanel>
+
+        <FxPanel eyebrow="FX_SHADOW" title="Elevation" description="Soft and minimal. Each level carries a dark-mode override.">
+          <div className="grid gap-4 sm:grid-cols-3">
+            {Object.entries(FX_SHADOW)
+              .filter(([key]) => key !== "none")
+              .map(([key, recipe]) => (
+                <div key={key} className="space-y-2">
+                  <div className={`h-16 rounded-[8px] border border-border bg-[var(--fx-surface)] ${recipe}`} />
+                  <p className="font-mono text-xs text-muted-foreground">{key}</p>
+                </div>
+              ))}
+          </div>
+        </FxPanel>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <FxPanel eyebrow="FX_SURFACE" title="Surfaces" description="Token-driven, so these resolve correctly in both themes.">
+          <div className="grid gap-3 sm:grid-cols-2">
+            {surfaceRoles.map((key) => (
+              <div key={key} className={`flex h-16 items-center px-4 ${FX_BORDER.base} border ${FX_SURFACE[key]} ${FX_RADIUS.md}`}>
+                <p className="font-mono text-xs text-[var(--fx-text-muted)]">{key}</p>
+              </div>
+            ))}
+          </div>
+        </FxPanel>
+
+        <FxPanel eyebrow="FX_SPACE" title="Spacing Scale" description="The 8px vocabulary, composed into arbitrary classes by consumers.">
+          <div className="space-y-3">
+            {Object.entries(FX_SPACE).map(([key, value]) => (
+              <div key={key} className="flex items-center gap-4">
+                <p className="w-10 font-mono text-xs text-muted-foreground">{key}</p>
+                <div style={{ width: value }} className="h-3 rounded-[2px] bg-primary" />
+                <p className="font-mono text-xs text-muted-foreground">{value}</p>
+              </div>
+            ))}
+          </div>
+        </FxPanel>
+      </div>
     </div>
   );
 }
 
-export const metadata = {
-  title: "Evality Design System",
-  description: "Visual token and design-system reference for Evality AI.",
-};
+/* - - - - - - - - - - - - - - - - */
 
 export default function DesignSystemPage() {
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,var(--fx-bg-soft)_0,var(--fx-bg)_240px,var(--fx-bg)_100%)]">
       <div className="mx-auto max-w-7xl px-6 py-10 md:px-10 md:py-14">
         <section className="space-y-8 border-b border-border pb-10">
-          <div className="space-y-5">
+          <div className="space-y-3">
             <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
-              Evality AI / Design System
+              Evality AI / Living Design System
             </p>
-            <div className="space-y-3">
-              <h1 className="max-w-4xl text-[44px] font-semibold leading-[0.95] tracking-[-0.04em] text-foreground">
-                Living reference for foundations, reusable UI, and workspace shell structure.
-              </h1>
-              <p className="max-w-3xl text-[15px] leading-7 text-muted-foreground">
-                This page should stay readable as the system grows. Foundations, primitives,
-                branded components, and shell rules are separated so review stays fast.
-              </p>
-            </div>
+            <h1 className="max-w-5xl text-[44px] font-semibold leading-[0.95] tracking-[-0.04em] text-foreground">
+              Live visual playground for foundations, primitives, surfaces, and reusable Fx components.
+            </h1>
+            <p className="max-w-3xl text-[15px] leading-7 text-muted-foreground">
+              `/ds` is the permanent visual system review surface. Design decisions live in markdown.
+              Architecture decisions live in markdown. This page stays for specimens and visual review.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-px border border-border bg-border sm:grid-cols-3">
-            <div className="bg-[var(--fx-surface)] p-4">
-              <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                Primary
-              </p>
-              <div className="h-12 bg-primary" />
-              <p className="mt-3 font-mono text-xs text-muted-foreground">--fx-primary</p>
-            </div>
-            <div className="bg-[var(--fx-surface)] p-4">
-              <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                Surface
-              </p>
-              <div className="h-12 border border-border bg-[var(--fx-surface-subtle)]" />
-              <p className="mt-3 font-mono text-xs text-muted-foreground">
-                --fx-surface-subtle
-              </p>
-            </div>
-            <div className="bg-[var(--fx-surface)] p-4">
-              <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-                Layout
-              </p>
-              <div className="flex h-12 items-center border border-border bg-[var(--fx-bg-soft)] px-3 text-xs text-muted-foreground">
-                100dvh shell / 272px sidebar / 56px topbar
-              </div>
-              <p className="mt-3 font-mono text-xs text-muted-foreground">AppShell contract</p>
-            </div>
-          </div>
         </section>
 
         <section className="mt-10">
@@ -613,22 +565,26 @@ export default function DesignSystemPage() {
             defaultValue="foundation"
             tabs={[
               { value: "foundation", label: "Foundation" },
-              { value: "primitives", label: "Primitives" },
+              { value: "recipes", label: "Recipes" },
+              { value: "controls", label: "Controls" },
+              { value: "surfaces", label: "Surfaces" },
               { value: "fxui", label: "FxUI" },
-              { value: "appshell", label: "AppShell Preview" },
             ]}
           >
             <FxTabs.Content value="foundation">
               <FoundationSection />
             </FxTabs.Content>
-            <FxTabs.Content value="primitives">
-              <PrimitivesSection />
+            <FxTabs.Content value="recipes">
+              <RecipesSection />
+            </FxTabs.Content>
+            <FxTabs.Content value="controls">
+              <ControlsSection />
+            </FxTabs.Content>
+            <FxTabs.Content value="surfaces">
+              <SurfacesSection />
             </FxTabs.Content>
             <FxTabs.Content value="fxui">
               <FxUISection />
-            </FxTabs.Content>
-            <FxTabs.Content value="appshell">
-              <AppShellPreview />
             </FxTabs.Content>
           </FxTabs>
         </section>
