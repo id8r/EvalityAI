@@ -1,10 +1,11 @@
-/* src/components/FxUI/DataDisplay/FxTable.js | Dense data-table primitive (v1) | Sree | 2026-06-26 */
+/* src/components/FxUI/DataDisplay/FxTable.js | Dense data-table primitive (v1.1) | Sree | 2026-06-26 */
 
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 
+import { Checkbox } from "@/components/ui/checkbox";
 import { FX_TABLE } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 import { FX_TABLE_CELL_PRESETS } from "@/components/FxUI/DataDisplay/FxTableCells";
@@ -13,6 +14,9 @@ import { useFxTable } from "@/components/FxUI/DataDisplay/useFxTable";
 
 const DEFAULT_MIN_WIDTH = 140;
 const ACTIONS_DEFAULT_WIDTH = 64;
+const SELECTION_KEY = "__fx_selection__";
+const SELECTION_WIDTH = 48;
+const BODY_CELL_Y = "py-[10px]"; // compact-but-not-cramped row height (overrides recipe py-2)
 
 function cssPx(value) {
   return typeof value === "number" ? `${value}px` : value;
@@ -32,11 +36,13 @@ function justifyClass(align) {
   return align === "right" ? "justify-end" : align === "center" ? "justify-center" : "justify-start";
 }
 
-/* Width architecture: action columns are fixed; everything else gets an honest minWidth so
-   horizontal scroll is truthful, and omits a hard width when `grow` so it fills available space. */
+function isFixedWidthColumn(column) {
+  return column.__selection || column.type === "actions";
+}
+
 function resolveColumnStyle(column) {
-  if (column.type === "actions") {
-    const size = column.width ?? ACTIONS_DEFAULT_WIDTH;
+  if (isFixedWidthColumn(column)) {
+    const size = column.width ?? (column.__selection ? SELECTION_WIDTH : ACTIONS_DEFAULT_WIDTH);
     return { width: cssPx(size), minWidth: cssPx(size), maxWidth: cssPx(size) };
   }
   const style = {};
@@ -59,18 +65,13 @@ function getTableMinWidth(columns, minTableWidth) {
   return `${Math.max(sum, toPx(minTableWidth) ?? 0)}px`;
 }
 
-function stickyPositionFor(column, index, length, stickyFirstColumn, stickyLastColumn) {
-  if (column.sticky === "left" || (stickyFirstColumn && index === 0)) return "left";
-  if (column.sticky === "right" || (stickyLastColumn && index === length - 1)) return "right";
-  return null;
-}
-
-function buildStickyOffsets(columns, stickyFirstColumn, stickyLastColumn) {
+// Cumulative left/right offsets so multiple pinned columns stack correctly, honoring column order.
+function buildStickyOffsets(columns) {
   const left = new Map();
   const right = new Map();
   let accumulatedLeft = 0;
-  columns.forEach((column, index) => {
-    if (column.sticky === "left" || (stickyFirstColumn && index === 0)) {
+  columns.forEach((column) => {
+    if (column.sticky === "left") {
       left.set(column.key, accumulatedLeft);
       accumulatedLeft += stickyColumnWidth(column);
     }
@@ -78,7 +79,7 @@ function buildStickyOffsets(columns, stickyFirstColumn, stickyLastColumn) {
   let accumulatedRight = 0;
   for (let index = columns.length - 1; index >= 0; index -= 1) {
     const column = columns[index];
-    if (column.sticky === "right" || (stickyLastColumn && index === columns.length - 1)) {
+    if (column.sticky === "right") {
       right.set(column.key, accumulatedRight);
       accumulatedRight += stickyColumnWidth(column);
     }
@@ -107,24 +108,32 @@ function SortIndicator({ state }) {
 /* - - - - - - - - - - - - - - - - */
 
 export function FxTable({
+  // controller: pass a shared useFxTable() instance, OR omit and let FxTable build one from the props below
+  controller,
   columns,
   rows,
-  getRowId = (row) => row.id,
-
-  // sorting (controller-backed)
-  sortable = false,
-  defaultSort = null,
+  getRowId,
   sort,
+  defaultSort,
   onSortChange,
+  enableRowSelection,
+  selectedRowKeys,
+  defaultSelectedRowKeys,
+  onSelectedRowKeysChange,
+  visibleColumnKeys,
+  defaultVisibleColumnKeys,
+  onVisibleColumnKeysChange,
+  columnOrder,
+  onColumnOrderChange,
 
-  // layout / scroll
+  // render behaviour
+  columnManager, // optional node (e.g. <FxColumnManager variant="icon" />) rendered in the last column header
+  sortable = false,
   stickyHeader = false,
   stickyFirstColumn = false,
   stickyLastColumn = false,
   scrollX = true,
   minTableWidth,
-
-  // interaction
   onRowClick,
 
   // states
@@ -140,23 +149,54 @@ export function FxTable({
   bodyClassName,
   rowClassName,
 }) {
+  const internal = useFxTable({
+    rows: rows ?? [],
+    columns: columns ?? [],
+    getRowId,
+    sort,
+    defaultSort,
+    onSortChange,
+    enableRowSelection,
+    selectedRowKeys,
+    defaultSelectedRowKeys,
+    onSelectedRowKeysChange,
+    visibleColumnKeys,
+    defaultVisibleColumnKeys,
+    onVisibleColumnKeysChange,
+    columnOrder,
+    onColumnOrderChange,
+  });
+  const table = controller ?? internal;
+  const { rows: displayRows, columns: productColumns, selection, sortKey, sortDirection, toggleSort, getRowId: resolveRowId } = table;
+
   const scrollRef = useRef(null);
   const [hasOverflowLeft, setHasOverflowLeft] = useState(false);
   const [hasOverflowRight, setHasOverflowRight] = useState(false);
 
-  const {
-    rows: displayRows,
-    sortKey,
-    sortDirection,
-    toggleSort,
-  } = useFxTable({ rows, columns, sort, defaultSort, onSortChange });
+  // Apply sticky-first/last convenience onto product columns, then inject the selection column.
+  const renderColumns = useMemo(() => {
+    const withSticky = productColumns.map((column, index, all) => {
+      if (column.sticky) return column;
+      if (stickyFirstColumn && index === 0) return { ...column, sticky: "left" };
+      if (stickyLastColumn && index === all.length - 1) return { ...column, sticky: "right" };
+      return column;
+    });
+    if (!selection.enabled) return withSticky;
+    const pinSelection = withSticky[0]?.sticky === "left" || stickyFirstColumn;
+    const selectionColumn = {
+      key: SELECTION_KEY,
+      header: null,
+      width: SELECTION_WIDTH,
+      align: "center",
+      sticky: pinSelection ? "left" : undefined,
+      __selection: true,
+    };
+    return [selectionColumn, ...withSticky];
+  }, [productColumns, selection.enabled, stickyFirstColumn, stickyLastColumn]);
 
-  const tableMinWidth = useMemo(() => getTableMinWidth(columns, minTableWidth), [columns, minTableWidth]);
-  const stickyOffsets = useMemo(
-    () => buildStickyOffsets(columns, stickyFirstColumn, stickyLastColumn),
-    [columns, stickyFirstColumn, stickyLastColumn],
-  );
-  const columnsKey = useMemo(() => columns.map((column) => column.key).join(","), [columns]);
+  const tableMinWidth = useMemo(() => getTableMinWidth(renderColumns, minTableWidth), [renderColumns, minTableWidth]);
+  const stickyOffsets = useMemo(() => buildStickyOffsets(renderColumns), [renderColumns]);
+  const columnsKey = useMemo(() => renderColumns.map((column) => column.key).join(","), [renderColumns]);
 
   useEffect(() => {
     if (!scrollX) {
@@ -166,13 +206,11 @@ export function FxTable({
     }
     const container = scrollRef.current;
     if (!container) return undefined;
-
     function update() {
       const maxScrollLeft = container.scrollWidth - container.clientWidth;
       setHasOverflowLeft(container.scrollLeft > 4);
       setHasOverflowRight(maxScrollLeft > 4 && container.scrollLeft < maxScrollLeft - 4);
     }
-
     update();
     container.addEventListener("scroll", update, { passive: true });
     const observer = new ResizeObserver(update);
@@ -183,23 +221,48 @@ export function FxTable({
     };
   }, [scrollX, columnsKey, tableMinWidth, displayRows.length, loading]);
 
-  function stickyStyleFor(column, position) {
-    if (position === "left") return { left: `${stickyOffsets.left.get(column.key) ?? 0}px` };
-    if (position === "right") return { right: `${stickyOffsets.right.get(column.key) ?? 0}px` };
+  function stickyStyleFor(column) {
+    if (column.sticky === "left") return { left: `${stickyOffsets.left.get(column.key) ?? 0}px` };
+    if (column.sticky === "right") return { right: `${stickyOffsets.right.get(column.key) ?? 0}px` };
     return {};
+  }
+
+  function stickyCellClass(column, base) {
+    if (column.sticky === "left") return cn("sticky left-0 z-10", base);
+    if (column.sticky === "right") return cn("sticky right-0 z-10", base);
+    return "";
   }
 
   function renderHeader() {
     return (
       <thead className={headerClassName}>
         <tr>
-          {columns.map((column, index) => {
-            const position = stickyPositionFor(column, index, columns.length, stickyFirstColumn, stickyLastColumn);
+          {renderColumns.map((column, index) => {
             const resolvedStyle = resolveColumnStyle(column);
+            const headerStickyClass = column.sticky ? cn(stickyCellClass(column, ""), "z-30") : "";
+            const isLastColumn = index === renderColumns.length - 1;
+
+            if (column.__selection) {
+              return (
+                <th
+                  key={column.key}
+                  scope="col"
+                  className={cn(FX_TABLE.headerCell, "px-0 text-center", stickyHeader && "sticky top-0 z-20", headerStickyClass)}
+                  style={{ ...resolvedStyle, ...stickyStyleFor(column) }}
+                >
+                  <div className="flex h-full items-center justify-center">
+                    <Checkbox
+                      checked={selection.isAllVisibleSelected ? true : selection.isIndeterminate ? "indeterminate" : false}
+                      onCheckedChange={selection.toggleAllVisible}
+                      aria-label="Select all visible rows"
+                    />
+                  </div>
+                </th>
+              );
+            }
+
             const isSorted = sortKey === column.key;
             const isSortable = sortable && column.sortable;
-            const sortIndicatorState = isSorted ? sortDirection : null;
-
             return (
               <th
                 key={column.key}
@@ -208,16 +271,16 @@ export function FxTable({
                 className={cn(
                   FX_TABLE.headerCell,
                   alignClass(column.align),
-                  stickyHeader && "sticky top-0",
-                  position === "left" && "sticky left-0",
-                  position === "right" && "sticky right-0",
-                  (stickyHeader || position) && "z-20",
-                  stickyHeader && position && "z-30",
+                  stickyHeader && "sticky top-0 z-20",
+                  headerStickyClass,
+                  columnManager && isLastColumn && "px-0",
                   column.headerClassName,
                 )}
-                style={{ ...resolvedStyle, ...stickyStyleFor(column, position) }}
+                style={{ ...resolvedStyle, ...stickyStyleFor(column) }}
               >
-                {isSortable ? (
+                {columnManager && isLastColumn ? (
+                  <div className="flex items-center justify-center">{columnManager}</div>
+                ) : isSortable ? (
                   <button
                     type="button"
                     onClick={() => toggleSort(column.key)}
@@ -228,7 +291,7 @@ export function FxTable({
                     )}
                   >
                     <span className="min-w-0 truncate">{column.header}</span>
-                    <SortIndicator state={sortIndicatorState} />
+                    <SortIndicator state={isSorted ? sortDirection : null} />
                   </button>
                 ) : (
                   <span className="block min-w-0 truncate">{column.header}</span>
@@ -245,23 +308,16 @@ export function FxTable({
     return (
       <tbody className={bodyClassName}>
         {Array.from({ length: loadingRowCount }).map((_, rowIndex) => (
-          <tr key={`fx-skeleton-${rowIndex}`} className="bg-[var(--fx-surface)]">
-            {columns.map((column, index) => {
-              const position = stickyPositionFor(column, index, columns.length, stickyFirstColumn, stickyLastColumn);
-              return (
-                <td
-                  key={column.key}
-                  className={cn(
-                    FX_TABLE.bodyCell,
-                    position === "left" && "sticky left-0 z-10 bg-[var(--fx-surface)]",
-                    position === "right" && "sticky right-0 z-10 bg-[var(--fx-surface)]",
-                  )}
-                  style={{ ...resolveColumnStyle(column), ...stickyStyleFor(column, position) }}
-                >
-                  <div className="h-3 w-3/5 animate-pulse rounded bg-[var(--fx-surface-muted)]" />
-                </td>
-              );
-            })}
+          <tr key={`fx-skeleton-${rowIndex}`} className="bg-[var(--fx-surface)] even:bg-[var(--fx-table-row-alt)]">
+            {renderColumns.map((column) => (
+              <td
+                key={column.key}
+                className={cn(FX_TABLE.bodyCell, BODY_CELL_Y, stickyCellClass(column, "bg-inherit"))}
+                style={{ ...resolveColumnStyle(column), ...stickyStyleFor(column) }}
+              >
+                <div className="h-3 w-3/5 animate-pulse rounded bg-[var(--fx-surface-muted)]" />
+              </td>
+            ))}
           </tr>
         ))}
       </tbody>
@@ -273,7 +329,7 @@ export function FxTable({
       return (
         <tbody className={bodyClassName}>
           <tr>
-            <td colSpan={columns.length} className={FX_TABLE.empty}>
+            <td colSpan={renderColumns.length} className={FX_TABLE.empty}>
               {empty ?? <div className="py-6 text-center text-[var(--fx-text-muted)]">{emptyMessage}</div>}
             </td>
           </tr>
@@ -284,30 +340,51 @@ export function FxTable({
     return (
       <tbody className={bodyClassName}>
         {displayRows.map((row, rowIndex) => {
-          const rowId = getRowId(row) ?? rowIndex;
+          const rowId = resolveRowId(row) ?? rowIndex;
+          const isSelected = selection.enabled && selection.isSelected(rowId);
           return (
             <tr
               key={rowId}
               onClick={onRowClick ? (event) => onRowClick(row, event) : undefined}
               className={cn(
-                "bg-[var(--fx-surface)] transition-colors hover:bg-[var(--fx-surface-hover)]",
+                "transition-colors",
+                isSelected
+                  ? "bg-[color:color-mix(in_srgb,var(--fx-primary)_7%,var(--fx-surface))] hover:bg-[color:color-mix(in_srgb,var(--fx-primary)_10%,var(--fx-surface))]"
+                  : "bg-[var(--fx-surface)] even:bg-[var(--fx-table-row-alt)] hover:bg-[var(--fx-surface-hover)]",
                 onRowClick && "cursor-pointer",
                 rowClassName,
               )}
             >
-              {columns.map((column, index) => {
-                const position = stickyPositionFor(column, index, columns.length, stickyFirstColumn, stickyLastColumn);
+              {renderColumns.map((column) => {
+                if (column.__selection) {
+                  return (
+                    <td
+                      key={column.key}
+                      className={cn(FX_TABLE.bodyCell, BODY_CELL_Y, "px-0 text-center", stickyCellClass(column, "bg-inherit"))}
+                      style={{ ...resolveColumnStyle(column), ...stickyStyleFor(column) }}
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <div className="flex h-full items-center justify-center">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => selection.toggleRow(rowId)}
+                          aria-label="Select row"
+                        />
+                      </div>
+                    </td>
+                  );
+                }
                 return (
                   <td
                     key={column.key}
                     className={cn(
                       FX_TABLE.bodyCell,
+                      BODY_CELL_Y,
                       alignClass(column.align),
-                      position === "left" && "sticky left-0 z-10 bg-inherit",
-                      position === "right" && "sticky right-0 z-10 bg-inherit",
+                      stickyCellClass(column, "bg-inherit"),
                       column.cellClassName,
                     )}
-                    style={{ ...resolveColumnStyle(column), ...stickyStyleFor(column, position) }}
+                    style={{ ...resolveColumnStyle(column), ...stickyStyleFor(column) }}
                   >
                     {renderCellContent(column, row, rowIndex)}
                   </td>

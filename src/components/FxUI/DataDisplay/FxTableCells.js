@@ -77,16 +77,68 @@ function EmptyDash() {
   return <span className="text-[var(--fx-text-muted)]">{EMPTY}</span>;
 }
 
-export function FxTextCell({ value, muted = false, title, className }) {
-  if (isBlank(value)) return <EmptyDash />;
+/* Status dot — semantic tones mirror FxBadge. Reusable across link/text/stacked cells. */
+const DOT_TONE_CLASS = {
+  neutral: "bg-[var(--fx-text-muted)]",
+  subtle: "bg-[var(--fx-border-strong)]",
+  primary: "bg-[var(--fx-primary)]",
+  success: "bg-[var(--fx-success)]",
+  warning: "bg-[var(--fx-warning)]",
+  danger: "bg-[var(--fx-danger)]",
+  info: "bg-[var(--fx-info)]",
+};
+
+export function FxCellDot({ tone = "neutral", pulse = false, title, className }) {
   return (
-    <span className={cn("block min-w-0 truncate", muted ? "text-[var(--fx-text-muted)]" : "text-[var(--fx-text)]", className)} title={title}>
-      {value}
+    <span title={title} aria-hidden={title ? undefined : "true"} className="relative inline-flex shrink-0">
+      {pulse ? (
+        <span className={cn("absolute inset-0 animate-ping rounded-full opacity-60", DOT_TONE_CLASS[tone] ?? DOT_TONE_CLASS.neutral)} />
+      ) : null}
+      <span className={cn("relative inline-block size-[8px] rounded-full", DOT_TONE_CLASS[tone] ?? DOT_TONE_CLASS.neutral, className)} />
     </span>
   );
 }
 
-export function FxLinkCell({ value, href, onClick, tone = "primary", title, className }) {
+/*
+  `indicator` may be:
+    - a tone string ("warning")
+    - an object { tone, pulse, title }
+    - `true` or { tone: null } → RESERVE the dot gutter but render it invisible
+  Passing any object/true reserves the leading slot, so text stays aligned whether or not a
+  given row shows a dot. Passing nothing/undefined adds no gutter at all.
+*/
+function normalizeIndicator(indicator) {
+  if (indicator == null || indicator === false) return null;
+  if (indicator === true) return { tone: null };
+  return typeof indicator === "string" ? { tone: indicator } : indicator;
+}
+
+function withIndicator(node, indicator) {
+  const config = normalizeIndicator(indicator);
+  if (!config) return node;
+  return (
+    <span className="flex min-w-0 items-center gap-2">
+      {config.tone ? (
+        <FxCellDot tone={config.tone} pulse={config.pulse} title={config.title} />
+      ) : (
+        <span aria-hidden="true" className="inline-block size-[8px] shrink-0" />
+      )}
+      {node}
+    </span>
+  );
+}
+
+export function FxTextCell({ value, muted = false, indicator, title, className }) {
+  if (isBlank(value)) return <EmptyDash />;
+  return withIndicator(
+    <span className={cn("block min-w-0 truncate", muted ? "text-[var(--fx-text-muted)]" : "text-[var(--fx-text)]", className)} title={title}>
+      {value}
+    </span>,
+    indicator,
+  );
+}
+
+export function FxLinkCell({ value, href, onClick, tone = "primary", indicator, title, className }) {
   if (isBlank(value)) return <EmptyDash />;
   const classes = cn(
     "block min-w-0 truncate",
@@ -94,14 +146,11 @@ export function FxLinkCell({ value, href, onClick, tone = "primary", title, clas
     tone === "primary" ? "text-[var(--fx-primary)] hover:text-[var(--fx-text)]" : "text-[var(--fx-text)] hover:text-[var(--fx-primary)]",
     className,
   );
-  if (href) {
-    return (
-      <Link href={href} className={classes} title={title ?? (typeof value === "string" ? value : undefined)} onClick={stop}>
-        {value}
-      </Link>
-    );
-  }
-  return (
+  const link = href ? (
+    <Link href={href} className={classes} title={title ?? (typeof value === "string" ? value : undefined)} onClick={stop}>
+      {value}
+    </Link>
+  ) : (
     <button
       type="button"
       className={cn(classes, "text-left")}
@@ -114,6 +163,7 @@ export function FxLinkCell({ value, href, onClick, tone = "primary", title, clas
       {value}
     </button>
   );
+  return withIndicator(link, indicator);
 }
 
 export function FxBadgeCell({ value, label, tone = "neutral", variant = "soft", size = "sm", dot = false, className }) {
@@ -189,28 +239,28 @@ export function FxAvailabilityCell({ days, className }) {
   return <span className={cn("text-[var(--fx-text)]", className)}>{formatAvailability(days)}</span>;
 }
 
-export function FxStackedCell({ primary, secondary, onClick, className }) {
+export function FxStackedCell({ primary, secondary, indicator, onClick, className }) {
   const inner = (
     <>
       <span className="block truncate text-[14px] leading-[20px] text-[var(--fx-text)]">{primary}</span>
       {!isBlank(secondary) ? <span className="block truncate text-[12px] leading-[18px] text-[var(--fx-text-muted)]">{secondary}</span> : null}
     </>
   );
-  if (onClick) {
-    return (
-      <button
-        type="button"
-        className={cn("block min-w-0 text-left", className)}
-        onClick={(event) => {
-          stop(event);
-          onClick(event);
-        }}
-      >
-        {inner}
-      </button>
-    );
-  }
-  return <div className={cn("min-w-0", className)}>{inner}</div>;
+  const block = onClick ? (
+    <button
+      type="button"
+      className={cn("block min-w-0 text-left", className)}
+      onClick={(event) => {
+        stop(event);
+        onClick(event);
+      }}
+    >
+      {inner}
+    </button>
+  ) : (
+    <div className={cn("min-w-0", className)}>{inner}</div>
+  );
+  return withIndicator(block, indicator);
 }
 
 function FxInlineAction({ icon: Icon, label, onClick, tone, disabled = false }) {

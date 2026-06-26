@@ -88,9 +88,13 @@ export function AuthDialog({ open, onOpenChange, intent = "signup" }) {
             placeholder={AUTH_COPY.email}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            inputClassName={cn("rounded-[6px] px-4 text-[15px]")}
+            inputClassName={cn("h-[48px] rounded-[10px] px-4 text-[16px]")}
           />
-          <FxButton type="submit" size="xl" className="w-full justify-center">
+          <FxButton
+            type="submit"
+            size="xl"
+            className="w-full justify-center border-transparent bg-[var(--fx-text)] text-white hover:bg-[color:color-mix(in_srgb,var(--fx-text)_86%,black)]"
+          >
             {AUTH_COPY.continue}
           </FxButton>
         </form>

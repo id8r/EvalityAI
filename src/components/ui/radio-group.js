@@ -20,7 +20,7 @@ function RadioGroupItem({ className, ...props }) {
     <RadioGroupPrimitive.Item
       data-slot="radio-group-item"
       className={cn(
-        "aspect-square size-4 shrink-0 border border-input bg-[var(--fx-surface)] text-primary shadow-sm outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-primary",
+        "aspect-square size-4 shrink-0 rounded-full border border-input bg-[var(--fx-surface)] text-primary shadow-sm outline-none transition-colors focus-visible:ring-3 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:border-primary",
         className,
       )}
       {...props}

@@ -18,6 +18,12 @@ export const ROUTES = {
 // Browser storage keys reserved for future client leaf behavior.
 export const STORAGE_KEYS = {
   sidebarCollapsed: "evality.sidebar-collapsed",
+  theme: "evality.theme",
+};
+
+export const THEMES = {
+  LIGHT: "light",
+  DARK: "dark",
 };
 
 // Desktop-first shell viewport; the workspace shell owns the full app frame.

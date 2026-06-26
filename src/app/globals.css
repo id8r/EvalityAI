@@ -70,7 +70,7 @@
   --fx-surface-hover: #eaf0f7;
   --fx-surface-selected: #caddf9;
   --fx-table-header: var(--fx-surface-subtle);
-  --fx-table-row-alt: transparent;
+  --fx-table-row-alt: #f9fbfd;
 
   --fx-border-light: #e3e8ec;
   --fx-border: #bdc3cc;
@@ -114,7 +114,7 @@
   --fx-surface-hover: #344156;
   --fx-surface-selected: #31486f;
   --fx-table-header: var(--fx-surface-subtle);
-  --fx-table-row-alt: transparent;
+  --fx-table-row-alt: #293140;
 
   --fx-border-light: #3b495d;
   --fx-border: #4b5b72;

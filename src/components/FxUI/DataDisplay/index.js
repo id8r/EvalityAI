@@ -2,6 +2,7 @@
 
 export { FxBadge, fxBadgeVariants } from "@/components/FxUI/DataDisplay/FxBadge";
 export { FxTable } from "@/components/FxUI/DataDisplay/FxTable";
+export { FxColumnManager } from "@/components/FxUI/DataDisplay/FxColumnManager";
 export { useFxTable } from "@/components/FxUI/DataDisplay/useFxTable";
 export {
   FX_TABLE_CELL_PRESETS,
@@ -15,6 +16,7 @@ export {
   FxAvailabilityCell,
   FxStackedCell,
   FxActionsCell,
+  FxCellDot,
   formatCurrency,
   formatCompactDate,
   formatRelativeTime,

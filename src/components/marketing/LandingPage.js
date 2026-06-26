@@ -285,15 +285,10 @@ export function LandingPage() {
         end={
           <div className="flex items-center gap-3">
             <FxThemeToggle />
-            <FxButton size="sm" className="whitespace-nowrap rounded-[8px] px-[14px]" onClick={() => openAuth("signup")}>
+            <FxButton size="sm" className="whitespace-nowrap" onClick={() => openAuth("signup")}>
               {copy.hero.cta}
             </FxButton>
-            <FxButton
-              size="sm"
-              variant="secondary"
-              className="whitespace-nowrap rounded-[8px] px-[14px]"
-              onClick={() => openAuth("login")}
-            >
+            <FxButton size="sm" variant="secondary" className="whitespace-nowrap" onClick={() => openAuth("login")}>
               {copy.hero.login}
             </FxButton>
           </div>

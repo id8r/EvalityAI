@@ -151,6 +151,13 @@ export const FX_CONTROL = {
    call sites that need button-shaped elements (links, Radix triggers). */
 export const FX_BUTTON = {
   radius: "rounded-[10px]",
+  radiusBySize: {
+    xs: "rounded-[6px]",
+    sm: "rounded-[6px]",
+    md: "rounded-[8px]",
+    lg: "rounded-[10px]",
+    xl: "rounded-[10px]",
+  },
   gap: "gap-[8px]",
   transition: "transition-colors duration-150 ease-out",
   height: {

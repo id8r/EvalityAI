@@ -120,6 +120,54 @@ const typeRoles = [
   },
 ];
 
+const buttonSizeSpecs = [
+  {
+    size: "xs",
+    label: "XS",
+    sample: "Tiny action",
+    height: "30px",
+    text: "12px / 18px",
+    radius: "6px",
+    padding: "10px x 10px",
+  },
+  {
+    size: "sm",
+    label: "SM",
+    sample: "Small option",
+    height: "34px",
+    text: "13px / 20px",
+    radius: "6px",
+    padding: "12px x 12px",
+  },
+  {
+    size: "md",
+    label: "MD",
+    sample: "Medium action",
+    height: "40px",
+    text: "14px / 22px",
+    radius: "8px",
+    padding: "16px x 16px",
+  },
+  {
+    size: "lg",
+    label: "LG",
+    sample: "Large primary action",
+    height: "44px",
+    text: "14px / 22px",
+    radius: "10px",
+    padding: "20px x 20px",
+  },
+  {
+    size: "xl",
+    label: "XL",
+    sample: "Forty eight pixels",
+    height: "48px",
+    text: "14px / 22px",
+    radius: "10px",
+    padding: "20px x 20px",
+  },
+];
+
 const spacingScale = ["8", "16", "24", "32", "48", "64", "96"];
 const iconSet = [Search, Filter, Plus, Inbox, Folder, FileText, Bell, Settings, User, CircleHelp, Sparkles];
 const surfaceRoles = ["surface", "subtle", "raised", "muted", "hover", "selected"];
@@ -334,24 +382,36 @@ function ControlsSection() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <FxPanel {...specPanelTone} eyebrow="Buttons" title="Action Hierarchy">
-          <div className="space-y-4">
-            <div className="rounded-[28px] border border-[color:color-mix(in_srgb,var(--fx-border)_72%,transparent)] bg-[linear-gradient(135deg,color-mix(in_srgb,var(--fx-primary)_10%,var(--fx-surface))_0%,var(--fx-surface)_58%,color-mix(in_srgb,var(--fx-accent)_6%,var(--fx-surface))_100%)] p-6 md:p-7">
-              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-                <div className="max-w-xl space-y-2">
-                  <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Hero CTA</p>
-                  <h3 className="text-[22px] font-semibold tracking-tight text-foreground">Rounded marketing-style call to action</h3>
-                  <p className="text-sm leading-6 text-muted-foreground">
-                    This is the softer treatment from the older landing flow. It stays distinct from the normal action buttons.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  <FxButton variant="hero" size="xl">
-                    Start free workspace
-                  </FxButton>
-                  <FxButton variant="secondary" size="xl">
-                    Book demo
-                  </FxButton>
-                </div>
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Sizes</p>
+              <div className="grid gap-3">
+                {buttonSizeSpecs.map((spec) => (
+                  <div
+                    key={spec.size}
+                    className="grid grid-cols-[56px_minmax(220px,1fr)_repeat(3,minmax(0,120px))] items-center gap-4 rounded-[12px] border border-border bg-[var(--fx-surface)] px-4 py-3"
+                  >
+                    <div>
+                      <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">{spec.label}</p>
+                      <p className="mt-1 text-xs text-muted-foreground">Button</p>
+                    </div>
+                    <FxButton size={spec.size} className="justify-center">
+                      {spec.sample}
+                    </FxButton>
+                    <div className="text-[12px] leading-5 text-muted-foreground">
+                      <p className="uppercase tracking-[0.12em]">Height</p>
+                      <p className="mt-1 font-medium text-foreground">{spec.height}</p>
+                    </div>
+                    <div className="text-[12px] leading-5 text-muted-foreground">
+                      <p className="uppercase tracking-[0.12em]">Radius</p>
+                      <p className="mt-1 font-medium text-foreground">{spec.radius}</p>
+                    </div>
+                    <div className="text-[12px] leading-5 text-muted-foreground">
+                      <p className="uppercase tracking-[0.12em]">Padding</p>
+                      <p className="mt-1 font-medium text-foreground">{spec.padding}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -366,19 +426,6 @@ function ControlsSection() {
                 <FxButton variant="destructive">Delete</FxButton>
                 <FxButton variant="destructiveOutline">Delete Outline</FxButton>
                 <FxAiButton>AI Action</FxAiButton>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Sizes</p>
-              <div className="flex flex-wrap items-center gap-3">
-                <FxButton size="xs">Tiny action</FxButton>
-                <FxButton size="sm">Small option</FxButton>
-                <FxButton size="md">Medium action</FxButton>
-                <FxButton size="lg">Large primary action</FxButton>
-                <FxButton size="xl">Forty eight pixels</FxButton>
-                <FxButton disabled>Disabled</FxButton>
-                <FxButton loading>Loading</FxButton>
               </div>
             </div>
 

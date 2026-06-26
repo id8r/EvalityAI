@@ -62,7 +62,7 @@ function FxButton({
   ...props
 }) {
   const isDisabled = loading || disabled;
-  const radiusClass = FX_BUTTON.radius;
+  const radiusClass = FX_BUTTON.radiusBySize[size ?? "md"] ?? FX_BUTTON.radius;
 
   return (
     <ButtonPrimitive
