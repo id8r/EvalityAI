@@ -254,6 +254,7 @@ Props:
 * `header`
 * `body`
 * `footer`
+* `collapsed`
 * `className`
 
 Slots / children:
@@ -264,6 +265,7 @@ Slots / children:
 
 Defaults:
 
+* `collapsed=false`
 * fills the shell-provided column width
 
 Optional regions:
@@ -274,10 +276,19 @@ Optional regions:
 Does not own:
 
 * its own width (FxAppShell owns the sidebar column width via `SIDEBAR_WIDTHS` and `sidebarCollapsed`)
+* collapse state / persistence (a client wrapper owns state and feeds `collapsed` to both the shell and the sidebar)
 * route activation logic
 * mobile drawer behavior
-* collapse behavior implementation
 * product-specific nav rules
+
+Note: `collapsed` here is presentational only — it adapts internal padding/alignment so slot content can render as an icon-only rail. The collapsed *width* is still owned by FxAppShell.
+
+### Sidebar composition primitives
+
+Reusable client primitives consumed by the sidebar slots (kept generic — data passed in, no product logic):
+
+* `FxSidebarNavItem` — icon + animated label nav item. Props: `icon`, `label`, `href`, `onClick`, `active`, `collapsed`, `className`. Renders an icon-only button/link with a right-side tooltip when `collapsed`, and active styling from `FX_NAVIGATION`.
+* `FxSidebarAccount` — avatar + name/email footer with a dropdown menu (theme toggle, settings, help, log out). Props: `name`, `email`, `collapsed`. Collapses to an icon-only avatar trigger.
 
 ### FxAppContent
 

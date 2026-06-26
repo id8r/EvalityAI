@@ -55,7 +55,10 @@ function FxAppShell({
 
         <div
           data-slot="fx-shell-body"
-          className={cn("grid min-h-0 min-w-0", shellBodyClassName)}
+          className={cn(
+            "grid min-h-0 min-w-0 transition-[grid-template-columns] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
+            shellBodyClassName,
+          )}
           style={{ gridTemplateColumns: shellBodyGridTemplateColumns }}
         >
           {sidebar ? (

@@ -30,6 +30,12 @@ export default function WorkspaceDashboardPage() {
           This route is intentionally reduced to shell architecture only. Review the frame, region
           ownership, spacing, and layout hierarchy, not product content.
         </p>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">
+          Sidebar verification: use the collapse control in the sidebar header to switch between the
+          expanded and icon-only rail, hover collapsed nav items to see tooltips, click items to move
+          the active state, and open the avatar menu (bottom-left) for the account dropdown and theme
+          toggle. Collapsed state persists across reloads.
+        </p>
       </div>
 
       {/* PAGE BODY */}
