@@ -13,7 +13,6 @@ import { cn } from "@/lib/FxUtils";
 function FxAppShell({
   className,
   sidebar,
-  sidebarCollapsed = false,
   header,
   notificationArea,
   rightPanel,
@@ -21,13 +20,8 @@ function FxAppShell({
   children,
   shellBodyClassName,
 }) {
-  const sidebarWidth = sidebarCollapsed
-    ? SIDEBAR_WIDTHS.collapsed
-    : SIDEBAR_WIDTHS.expanded;
-
-  const shellBodyGridTemplateColumns = sidebar
-    ? `${sidebarWidth} minmax(0, 1fr)`
-    : "minmax(0, 1fr)";
+  /* The sidebar column auto-follows the sidebar element's own (animated) width. */
+  const shellBodyGridTemplateColumns = sidebar ? "auto minmax(0, 1fr)" : "minmax(0, 1fr)";
 
   const contentGridTemplateColumns = rightPanel
     ? `minmax(0, 1fr) ${SIDEBAR_WIDTHS.rightPanel}`
@@ -42,7 +36,10 @@ function FxAppShell({
       )}
       style={{ height: APP_VIEWPORT_HEIGHT }}
     >
-      <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)]">
+      <div
+        className="grid h-full min-h-0"
+        style={{ gridTemplateRows: notificationArea ? "auto minmax(0, 1fr)" : "minmax(0, 1fr)" }}
+      >
         {notificationArea ? (
           <div
             data-slot="fx-notification-area-region"
@@ -55,10 +52,7 @@ function FxAppShell({
 
         <div
           data-slot="fx-shell-body"
-          className={cn(
-            "grid min-h-0 min-w-0 transition-[grid-template-columns] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]",
-            shellBodyClassName,
-          )}
+          className={cn("grid min-h-0 min-w-0", shellBodyClassName)}
           style={{ gridTemplateColumns: shellBodyGridTemplateColumns }}
         >
           {sidebar ? (
@@ -89,7 +83,7 @@ function FxAppShell({
               className="grid min-h-0 min-w-0 flex-1"
               style={{ gridTemplateColumns: contentGridTemplateColumns }}
             >
-              <div data-slot="fx-content-region" className="min-h-0 min-w-0 overflow-hidden">
+              <div data-slot="fx-content-region" className="flex min-h-0 min-w-0 flex-col overflow-hidden">
                 {children}
               </div>
 

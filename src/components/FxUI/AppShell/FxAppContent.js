@@ -11,11 +11,16 @@ function FxAppContent({
   widthClassName = "max-w-7xl",
   padded = true,
   paddingClassName,
+  scrollable = true,
 }) {
   return (
     <main
       data-slot="fx-app-content"
-      className={cn("min-h-0 flex-1 overflow-y-auto bg-transparent", className)}
+      className={cn(
+        "min-h-0 flex-1 bg-transparent",
+        scrollable ? "overflow-y-auto" : "overflow-hidden",
+        className,
+      )}
     >
       <div
         style={
@@ -30,6 +35,7 @@ function FxAppContent({
         }
         className={cn(
           "mx-auto w-full",
+          !scrollable && "flex h-full min-h-0 flex-col",
           padded &&
             "[padding:var(--fx-content-y)_var(--fx-content-x)] md:[padding:var(--fx-content-y-wide)_var(--fx-content-x-wide)]",
           widthClassName,

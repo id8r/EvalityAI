@@ -3,13 +3,12 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { ChevronsUpDown, CircleHelp, LogOut, Moon, Settings, Sun } from "lucide-react";
+import { ChevronsUpDown, CircleHelp, LogOut, Moon, Sun } from "lucide-react";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -57,39 +56,38 @@ function FxSidebarAccount({ name = "User", email = "", collapsed = false }) {
         <button
           type="button"
           aria-label="Open account menu"
-          className={cn(
-            "flex w-full items-center gap-3 rounded-[8px] px-2 py-2 text-left transition-colors hover:bg-[var(--fx-surface-hover)]",
-            collapsed && "justify-center px-0",
-          )}
+          className="flex w-full items-center overflow-hidden rounded-[8px] py-1 text-left transition-colors hover:bg-[var(--fx-surface-hover)]"
         >
-          <span className="flex size-9 shrink-0 items-center justify-center rounded-[8px] bg-[var(--fx-surface-muted)] text-[12px] font-semibold text-[var(--fx-text)]">
-            {getInitials(name)}
+          <span className="flex w-[48px] shrink-0 items-center justify-center">
+            <span className="flex size-9 items-center justify-center rounded-[8px] bg-[var(--fx-surface-muted)] text-[12px] font-semibold text-[var(--fx-text)]">
+              {getInitials(name)}
+            </span>
           </span>
           <span
             aria-hidden={collapsed}
             className={cn(
-              "min-w-0 flex-1 transition-[max-width,opacity] duration-200 ease-out",
-              collapsed ? "max-w-0 opacity-0" : "max-w-[160px] opacity-100",
+              "min-w-0 flex-1 transition-opacity duration-150 ease-out",
+              collapsed ? "opacity-0" : "opacity-100",
             )}
           >
             <span className="block truncate text-[14px] font-medium leading-5 text-[var(--fx-text)]">{name}</span>
             {email ? <span className="block truncate text-[13px] leading-5 text-[var(--fx-text-muted)]">{email}</span> : null}
           </span>
-          {!collapsed ? <ChevronsUpDown className="size-4 shrink-0 text-[var(--fx-text-muted)]" /> : null}
+          <ChevronsUpDown
+            aria-hidden={collapsed}
+            className={cn(
+              "mr-[12px] size-4 shrink-0 text-[var(--fx-text-muted)] transition-opacity duration-150",
+              collapsed ? "opacity-0" : "opacity-100",
+            )}
+          />
         </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start" side="top" className="w-[220px]">
-        <DropdownMenuLabel>{name}</DropdownMenuLabel>
-        <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={(event) => event.preventDefault()} onClick={handleToggleTheme}>
           {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           <span>Theme</span>
           <span className="ml-auto text-[12px] text-[var(--fx-text-muted)]">{isDark ? "Dark" : "Light"}</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <Settings className="size-4" />
-          <span>Settings</span>
         </DropdownMenuItem>
         <DropdownMenuItem>
           <CircleHelp className="size-4" />

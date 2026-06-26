@@ -3,27 +3,16 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
-import {
-  Briefcase,
-  Building2,
-  LayoutDashboard,
-  PanelLeftClose,
-  Settings,
-  Users,
-} from "lucide-react";
+import { FileText, FolderOpen, Inbox, PanelLeftClose, PanelLeftOpen, Settings, Users } from "lucide-react";
 
 import {
   FxAppContent,
-  FxAppFooter,
   FxAppHeader,
   FxAppShell,
   FxAppSidebar,
-  FxNotificationArea,
-  FxRightPanel,
   FxSidebarAccount,
   FxSidebarNavItem,
 } from "@/components/FxUI/AppShell";
-import { FxButton } from "@/components/FxUI/Forms";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { APP_NAME, APP_SHORT_NAME } from "@/lib/FxConstants";
 import { cn } from "@/lib/FxUtils";
@@ -49,12 +38,12 @@ function getCollapsedServerSnapshot() {
   return false;
 }
 
+/* Nav items, icons, and placement mirror the older evality-rfa sidebar. */
 const NAV_ITEMS = [
-  { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { key: "jobs", label: "Jobs", icon: Briefcase },
+  { key: "action-center", label: "Action Center", icon: Inbox },
+  { key: "jobs", label: "Jobs", icon: FileText },
   { key: "candidates", label: "Candidates", icon: Users },
-  { key: "clients", label: "Clients", icon: Building2 },
-  { key: "settings", label: "Settings", icon: Settings },
+  { key: "clients", label: "Clients", icon: FolderOpen },
 ];
 /* - - - - - - - - - - - - - - - - */
 
@@ -69,7 +58,7 @@ function BrandMark() {
 
 export default function WorkspaceShell({ children }) {
   const collapsed = useSyncExternalStore(subscribeCollapsed, getCollapsedSnapshot, getCollapsedServerSnapshot);
-  const [activeKey, setActiveKey] = useState("dashboard");
+  const [activeKey, setActiveKey] = useState("action-center");
 
   function toggleCollapsed() {
     window.localStorage.setItem(SIDEBAR_STORAGE_KEY, String(!collapsed));
@@ -77,8 +66,18 @@ export default function WorkspaceShell({ children }) {
   }
 
   const sidebarHeader = collapsed ? (
-    <button type="button" onClick={toggleCollapsed} aria-label="Expand sidebar" className="cursor-pointer">
-      <BrandMark />
+    <button
+      type="button"
+      onClick={toggleCollapsed}
+      aria-label="Expand sidebar"
+      className="group relative flex size-8 cursor-pointer items-center justify-center rounded-[8px]"
+    >
+      <span className="transition-opacity duration-150 group-hover:opacity-0">
+        <BrandMark />
+      </span>
+      <span className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+        <PanelLeftOpen className="size-[18px] text-[var(--fx-text-muted)]" />
+      </span>
     </button>
   ) : (
     <div className="flex w-full items-center justify-between gap-2">
@@ -112,22 +111,25 @@ export default function WorkspaceShell({ children }) {
     </nav>
   );
 
+  const sidebarFooter = (
+    <div className="space-y-2">
+      <FxSidebarNavItem
+        icon={Settings}
+        label="Settings"
+        active={activeKey === "settings"}
+        collapsed={collapsed}
+        onClick={() => setActiveKey("settings")}
+      />
+      <div className="h-px bg-border" />
+      <FxSidebarAccount name="Alex Morgan" email="alex@evality.ai" collapsed={collapsed} />
+    </div>
+  );
+
   return (
     <TooltipProvider delayDuration={0}>
       <FxAppShell
-        sidebarCollapsed={collapsed}
         sidebar={
-          <FxAppSidebar
-            collapsed={collapsed}
-            header={sidebarHeader}
-            body={sidebarBody}
-            footer={<FxSidebarAccount name="Alex Morgan" email="alex@evality.ai" collapsed={collapsed} />}
-          />
-        }
-        notificationArea={
-          <FxNotificationArea>
-            Shell review route — toggle the sidebar, hover collapsed items for tooltips, and open the avatar menu.
-          </FxNotificationArea>
+          <FxAppSidebar collapsed={collapsed} header={sidebarHeader} body={sidebarBody} footer={sidebarFooter} />
         }
         header={
           <FxAppHeader
@@ -136,42 +138,7 @@ export default function WorkspaceShell({ children }) {
                 {APP_NAME} Workspace
               </p>
             }
-            middle={
-              <div className="flex w-full max-w-[520px] items-center gap-3 border border-border bg-[var(--fx-surface)] px-3 py-2 text-sm text-muted-foreground">
-                <span>Search / middle region</span>
-              </div>
-            }
-            end={
-              <>
-                <FxButton variant="ghost" size="sm">
-                  Docs
-                </FxButton>
-                <FxButton variant="secondary" size="sm">
-                  Invite
-                </FxButton>
-              </>
-            }
           />
-        }
-        rightPanel={
-          <FxRightPanel
-            header={
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Optional</p>
-                <p className="truncate text-sm font-semibold text-foreground">Right Panel</p>
-              </div>
-            }
-            body={
-              <p className="text-sm leading-6 text-muted-foreground">
-                Reserved utility region for future inspectors, activity, or contextual tools.
-              </p>
-            }
-          />
-        }
-        footer={
-          <FxAppFooter hidden={false}>
-            Footer scaffold visible for shell review.
-          </FxAppFooter>
         }
       >
         <FxAppContent padded={false} widthClassName="max-w-none">

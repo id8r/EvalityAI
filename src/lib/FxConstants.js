@@ -36,8 +36,8 @@ export const APP_CONTENT_PADDING = {
 
 /* Canonical shell column widths. FxAppShell owns how these are applied to the grid. */
 export const SIDEBAR_WIDTHS = {
-  expanded: "272px",
-  collapsed: "88px",
+  expanded: "200px",
+  collapsed: "72px",
   rightPanel: "320px",
 };
 

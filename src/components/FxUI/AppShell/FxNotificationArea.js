@@ -20,7 +20,7 @@ function FxNotificationArea({
       data-tone={tone}
       style={{ height: APP_NOTIFICATION_HEIGHT }}
       className={cn(
-        "flex items-center border-b border-border px-6 text-[13px] leading-5 text-foreground",
+        "flex items-center border-b border-[var(--fx-border-light)] px-6 text-[13px] leading-5 text-foreground",
         tone === "info" && "bg-[var(--fx-info-surface)]",
         className,
       )}

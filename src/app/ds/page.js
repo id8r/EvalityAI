@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 
 import { FxBadge } from "@/components/FxUI/DataDisplay";
-import { FxButton, FxCheckboxField, FxInput, FxRadioGroupField, FxSwitchField, FxTextarea } from "@/components/FxUI/Forms";
+import { FxAiButton, FxButton, FxCheckboxField, FxInput, FxRadioGroupField, FxSwitchField, FxTextarea } from "@/components/FxUI/Forms";
 import { FxPanel } from "@/components/FxUI/Layout";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { FxColorTokenCard } from "./FxColorTokenCard";
@@ -222,6 +222,7 @@ function ControlsSection() {
             <FxButton variant="secondary">Secondary</FxButton>
             <FxButton variant="ghost">Ghost</FxButton>
             <FxButton variant="destructive">Delete</FxButton>
+            <FxAiButton>AI Action</FxAiButton>
           </div>
           <div className="mt-4 flex flex-wrap gap-3">
             <Button variant="default">ui/default</Button>

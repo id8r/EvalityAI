@@ -102,8 +102,8 @@ Responsibilities:
 * owns viewport height
 * owns shell-level overflow boundaries
 * owns application background layering
-* owns sidebar and right-panel column widths
-* derives the sidebar column width from `SIDEBAR_WIDTHS` and `sidebarCollapsed` (single source for sidebar width)
+* owns the right-panel column width (`SIDEBAR_WIDTHS.rightPanel`)
+* gives the sidebar an `auto` grid column that follows the sidebar element's own (animated) width
 * lays out notification row first
 * lays out sidebar column, workspace region, and optional right panel
 
@@ -112,7 +112,6 @@ Props:
 * `notificationArea`
 * `header`
 * `sidebar`
-* `sidebarCollapsed`
 * `rightPanel`
 * `footer`
 * `children`
@@ -121,8 +120,7 @@ Props:
 
 Defaults:
 
-* `sidebarCollapsed=false`
-* sidebar and right-panel widths from `SIDEBAR_WIDTHS`
+* right-panel width from `SIDEBAR_WIDTHS.rightPanel`
 
 Does not own:
 
@@ -246,7 +244,7 @@ Purpose:
 Responsibilities:
 
 * defines the sidebar as `header / body / footer`
-* fills the width of the shell sidebar column
+* owns and animates its own width (expanded/collapsed) from `SIDEBAR_WIDTHS`
 * owns internal sidebar scroll region
 
 Props:
@@ -266,7 +264,7 @@ Slots / children:
 Defaults:
 
 * `collapsed=false`
-* fills the shell-provided column width
+* width from `SIDEBAR_WIDTHS` (expanded/collapsed), animated via `transition-[width]`; the shell's `auto` column follows
 
 Optional regions:
 
@@ -275,8 +273,7 @@ Optional regions:
 
 Does not own:
 
-* its own width (FxAppShell owns the sidebar column width via `SIDEBAR_WIDTHS` and `sidebarCollapsed`)
-* collapse state / persistence (a client wrapper owns state and feeds `collapsed` to both the shell and the sidebar)
+* collapse state / persistence (a client wrapper owns state and feeds `collapsed` to the sidebar)
 * route activation logic
 * mobile drawer behavior
 * product-specific nav rules

@@ -19,7 +19,7 @@ function FxAppFooter({
       data-slot="fx-app-footer"
       style={{ height: APP_FOOTER_HEIGHT }}
       className={cn(
-        "flex items-center border-t border-border bg-[var(--fx-surface-subtle)] px-6 text-[13px] text-muted-foreground",
+        "flex items-center border-t border-[var(--fx-border-light)] bg-[var(--fx-surface-subtle)] px-6 text-[13px] text-muted-foreground",
         className,
       )}
     >

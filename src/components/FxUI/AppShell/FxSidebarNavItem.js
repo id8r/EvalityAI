@@ -5,28 +5,32 @@
 import Link from "next/link";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { FX_NAVIGATION } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
+/* Fixed leading icon rail = collapsed sidebar inner width (72 − 2×12px body padding).
+   The icon stays centered in this rail in both states, so it never shifts on collapse. */
+const ICON_RAIL = "w-[48px]";
+
 function FxSidebarNavItem({ icon: Icon, label, href, onClick, active = false, collapsed = false, className }) {
-  const itemClassName = cn(
-    FX_NAVIGATION.itemBase,
-    active ? FX_NAVIGATION.itemActive : FX_NAVIGATION.itemInactive,
-    collapsed ? "justify-center gap-0 px-0" : "",
+  const base = cn(
+    "group relative flex h-11 w-full items-center overflow-hidden rounded-[8px] transition-colors",
+    active
+      ? "bg-[var(--fx-surface-selected)] text-[var(--fx-primary)]"
+      : "text-[var(--fx-text)] hover:bg-[var(--fx-surface-hover)]",
     className,
   );
 
   const inner = (
     <>
-      <span className={FX_NAVIGATION.iconSlot}>
-        {Icon ? <Icon className="size-[20px] shrink-0" strokeWidth={1.8} /> : null}
+      <span className={cn("flex h-full shrink-0 items-center justify-center", ICON_RAIL)}>
+        {Icon ? <Icon className="size-[20px]" strokeWidth={1.8} /> : null}
       </span>
       <span
         aria-hidden={collapsed}
         className={cn(
-          "min-w-0 truncate transition-[max-width,opacity] duration-200 ease-out",
-          collapsed ? "max-w-0 opacity-0" : "max-w-[160px] opacity-100",
+          "min-w-0 flex-1 truncate whitespace-nowrap pr-[12px] text-[14px] font-medium leading-5 transition-opacity duration-150 ease-out",
+          collapsed ? "opacity-0" : "opacity-100",
         )}
       >
         {label}
@@ -35,11 +39,11 @@ function FxSidebarNavItem({ icon: Icon, label, href, onClick, active = false, co
   );
 
   const item = href ? (
-    <Link href={href} onClick={onClick} aria-current={active ? "page" : undefined} className={itemClassName}>
+    <Link href={href} onClick={onClick} aria-current={active ? "page" : undefined} className={base}>
       {inner}
     </Link>
   ) : (
-    <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={cn("w-full text-left", itemClassName)}>
+    <button type="button" onClick={onClick} aria-current={active ? "page" : undefined} className={base}>
       {inner}
     </button>
   );

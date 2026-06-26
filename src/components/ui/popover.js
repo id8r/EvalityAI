@@ -2,6 +2,7 @@
 
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 
+import { FX_SHADOW } from "@/lib/FxTheme";
 import { cn } from "@/lib/utils";
 
 const Popover = PopoverPrimitive.Root;
@@ -16,7 +17,8 @@ function PopoverContent({ className, align = "center", sideOffset = 8, ...props 
         align={align}
         sideOffset={sideOffset}
         className={cn(
-          "z-50 w-72 border border-border bg-[var(--fx-surface-raised)] p-4 text-foreground shadow-[0_16px_40px_rgba(15,23,42,0.12)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "z-50 w-72 rounded-[12px] border border-[var(--fx-border-light)] bg-[var(--fx-surface-raised)] p-4 text-foreground outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          FX_SHADOW.lg,
           className,
         )}
         {...props}

@@ -2,6 +2,7 @@
 
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
+import { FX_SHADOW } from "@/lib/FxTheme";
 import { cn } from "@/lib/utils";
 
 function TooltipProvider({ delayDuration = 0, ...props }) {
@@ -23,7 +24,8 @@ function TooltipContent({ className, sideOffset = 6, ...props }) {
         data-slot="tooltip-content"
         sideOffset={sideOffset}
         className={cn(
-          "z-50 max-w-[220px] overflow-hidden border border-border bg-[var(--fx-surface-raised)] px-3 py-2 text-xs leading-5 text-foreground shadow-[0_10px_24px_rgba(15,23,42,0.12)]",
+          "z-50 max-w-[220px] overflow-hidden rounded-[8px] border border-[var(--fx-border-light)] bg-[var(--fx-surface-raised)] px-3 py-2 text-xs leading-5 text-foreground",
+          FX_SHADOW.md,
           className,
         )}
         {...props}

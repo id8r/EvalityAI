@@ -20,19 +20,19 @@ function FxRightPanel({
     <aside
       data-slot="fx-right-panel"
       className={cn(
-        "h-full w-full min-h-0 overflow-y-auto border-l border-border bg-[var(--fx-surface)]",
+        "h-full w-full min-h-0 overflow-y-auto border-l border-[var(--fx-border-light)] bg-[var(--fx-surface)]",
         className,
       )}
     >
       <div className="flex h-full min-h-0 flex-col">
         {header ? (
-          <div style={{ height: APP_HEADER_HEIGHT }} className="flex items-center border-b border-border px-5">
+          <div style={{ height: APP_HEADER_HEIGHT }} className="flex items-center border-b border-[var(--fx-border-light)] px-5">
             {header}
           </div>
         ) : null}
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">{body}</div>
         {footer ? (
-          <div className="border-t border-border bg-[var(--fx-surface-subtle)] px-5 py-3">
+          <div className="border-t border-[var(--fx-border-light)] bg-[var(--fx-surface-subtle)] px-5 py-3">
             {footer}
           </div>
         ) : null}

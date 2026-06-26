@@ -20,8 +20,8 @@
   --color-primary: var(--fx-primary);
   --color-primary-foreground: var(--fx-primary-foreground);
   --color-secondary: var(--fx-surface-subtle);
-  --color-secondary-foreground: var(--fx-text);
-  --color-muted: var(--fx-bg-soft);
+  --color-secondary-foreground: var(--fx-text-subtle);
+  --color-muted: var(--fx-surface-muted);
   --color-muted-foreground: var(--fx-text-muted);
   --color-accent: var(--fx-surface-hover);
   --color-accent-foreground: var(--fx-text);
@@ -59,6 +59,7 @@
   --fx-primary-hover: #1254b8;
   --fx-primary-foreground: #ffffff;
   --fx-accent: #4f35fd;
+  --fx-ai: #7c3aed;
 
   --fx-bg: #f3f6f9;
   --fx-bg-soft: #f8fafc;
@@ -101,6 +102,7 @@
   --fx-primary-hover: #8ab0ff;
   --fx-primary-foreground: #08111f;
   --fx-accent: #8b7bff;
+  --fx-ai: #a78bfa;
 
   --fx-bg: #1b2230;
   --fx-bg-soft: #212938;
@@ -119,9 +121,9 @@
   --fx-ring: color-mix(in srgb, var(--fx-primary) 28%, transparent);
 
   --fx-text: #edf3fb;
-  --fx-text-muted: #b2bfd2;
-  --fx-text-subtle: #d2dbea;
-  --fx-text-disabled: #7f8ca1;
+  --fx-text-muted: #97a6bd;
+  --fx-text-subtle: #c8d3e3;
+  --fx-text-disabled: #626f86;
 
   --fx-success: #8ccb49;
   --fx-warning: #ffba2f;
@@ -132,7 +134,7 @@
   --fx-dark-panel: #161c27;
 
   --fx-disabled-bg: #334155;
-  --fx-disabled-text: #c7d2e0;
+  --fx-disabled-text: #6f7d94;
   --fx-disabled-border: #516074;
 }
 
@@ -203,3 +205,4 @@
     width: 0;
   }
 }
+/* - - - - - - - - - - - - - - - - */

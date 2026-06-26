@@ -17,7 +17,7 @@ function FxAppHeader({
       data-slot="fx-app-header"
       style={{ height: APP_HEADER_HEIGHT }}
       className={cn(
-        "z-20 grid grid-cols-[minmax(0,1fr)_minmax(240px,720px)_minmax(0,1fr)] items-center gap-4 border-b border-border bg-[color:color-mix(in_srgb,var(--fx-surface)_92%,white)] px-6 backdrop-blur-sm",
+        "z-20 grid grid-cols-[minmax(0,1fr)_minmax(240px,720px)_minmax(0,1fr)] items-center gap-4 border-b border-[var(--fx-border-light)] bg-[color:color-mix(in_srgb,var(--fx-surface)_92%,white)] px-6 backdrop-blur-sm",
         sticky && "sticky top-0",
         className,
       )}
