@@ -56,7 +56,7 @@ function FxSidebarAccount({ name = "User", email = "", collapsed = false }) {
         <button
           type="button"
           aria-label="Open account menu"
-          className="flex w-full items-center overflow-hidden rounded-[8px] py-1 text-left transition-colors hover:bg-[var(--fx-surface-hover)]"
+          className="flex w-full items-center overflow-hidden rounded-[8px] py-1 text-left transition-colors duration-100 hover:bg-[var(--fx-surface-hover)]"
         >
           <span className="flex w-[48px] shrink-0 items-center justify-center">
             <span className="flex size-9 items-center justify-center rounded-[8px] bg-[var(--fx-surface-muted)] text-[12px] font-semibold text-[var(--fx-text)]">

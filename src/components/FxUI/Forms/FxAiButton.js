@@ -2,7 +2,7 @@
 
 import { Sparkles } from "lucide-react";
 
-import { FX_BUTTON, FX_RADIUS } from "@/lib/FxTheme";
+import { FX_BUTTON } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -35,7 +35,7 @@ function FxAiButton({ className, icon: Icon = Sparkles, children, size = "md", t
         "dark:border-[color:color-mix(in_srgb,white_14%,transparent)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.32)] dark:hover:brightness-[1.08] dark:hover:shadow-[0_8px_20px_rgba(0,0,0,0.38)]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:color-mix(in_srgb,var(--fx-ai)_40%,transparent)]",
         "disabled:pointer-events-none disabled:cursor-not-allowed disabled:border-[var(--fx-disabled-border)] disabled:bg-none disabled:bg-[var(--fx-disabled-bg)] disabled:text-[var(--fx-disabled-text)] disabled:shadow-none",
-        FX_RADIUS.md,
+        FX_BUTTON.radius,
         sizeClasses[size],
         className,
       )}

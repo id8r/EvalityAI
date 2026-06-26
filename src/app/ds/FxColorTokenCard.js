@@ -27,9 +27,7 @@ async function copyValue(value) {
 
 function FxColorTokenCard({ token, className }) {
   const [value, setValue] = useState("");
-  const [copied, setCopied] = useState(false);
   const swatchRef = useRef(null);
-  const copyTimerRef = useRef(null);
 
   useEffect(() => {
     if (!swatchRef.current) {
@@ -39,12 +37,6 @@ function FxColorTokenCard({ token, className }) {
     setValue(resolved);
   }, [token]);
 
-  useEffect(() => () => {
-    if (copyTimerRef.current) {
-      window.clearTimeout(copyTimerRef.current);
-    }
-  }, []);
-
   async function handleCopy() {
     if (!value) {
       return;
@@ -52,17 +44,8 @@ function FxColorTokenCard({ token, className }) {
 
     try {
       await copyValue(value);
-      setCopied(true);
-
-      if (copyTimerRef.current) {
-        window.clearTimeout(copyTimerRef.current);
-      }
-
-      copyTimerRef.current = window.setTimeout(() => {
-        setCopied(false);
-      }, 1400);
     } catch {
-      setCopied(false);
+      // Keep the card visually quiet even when clipboard access is blocked.
     }
   }
 
@@ -71,21 +54,20 @@ function FxColorTokenCard({ token, className }) {
       type="button"
       onClick={handleCopy}
       className={cn(
-        "w-full overflow-hidden border border-border bg-[var(--fx-surface)] text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_10px_28px_rgba(15,23,42,0.08)]",
+        "w-full overflow-hidden rounded-[8px] border border-border bg-[var(--fx-surface)] text-left",
         className,
       )}
     >
-      <div ref={swatchRef} className="h-20 border-b border-border" style={{ backgroundColor: `var(${token})` }} />
+      <div className="flex items-center gap-4 px-4 py-3">
+        <div
+          ref={swatchRef}
+          className="h-10 w-10 shrink-0 rounded-full border border-border"
+          style={{ backgroundColor: `var(${token})` }}
+        />
 
-      <div className="flex items-center justify-between gap-4 px-4 py-3">
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1 space-y-1">
           <p className="truncate font-mono text-[11px] text-muted-foreground">{token}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {copied ? <span className="text-[11px] text-muted-foreground">Copied</span> : null}
-          <span className="rounded-full border border-border bg-[var(--fx-surface-subtle)] px-2 py-1 font-mono text-[11px] text-foreground">
-            {value || "—"}
-          </span>
+          <p className="font-mono text-[11px] text-foreground">{value || "—"}</p>
         </div>
       </div>
     </button>

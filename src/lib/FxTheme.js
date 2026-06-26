@@ -36,6 +36,7 @@
 
 /* FX_TYPOGRAPHY | Type roles from the design-system scale. Size + weight + line-height only — never color. */
 export const FX_TYPOGRAPHY = {
+  hero: "text-[36px] font-semibold leading-[44px] tracking-[-0.02em]",
   pageTitle: "text-[28px] font-semibold leading-[34px] tracking-[-0.01em]",
   sectionTitle: "text-[20px] font-semibold leading-[28px]",
   cardTitle: "text-[16px] font-semibold leading-[24px]",
@@ -62,6 +63,7 @@ export const FX_SPACE = {
 
 /* FX_RADIUS | Corner radii. Moderate by design language; pill for fully rounded. */
 export const FX_RADIUS = {
+  xs: "rounded-[4px]",
   sm: "rounded-[6px]",
   md: "rounded-[8px]",
   lg: "rounded-[12px]",
@@ -109,13 +111,25 @@ export const FX_BORDER = {
 /* FX_LAYOUT | Page width framing and content padding (utility-class form).
    Mirrors APP_CONTENT_PADDING from FxConstants (24/32) for class-based consumers. */
 export const FX_LAYOUT = {
-  contentMaxWidth: "max-w-7xl",
+  // Content width frames (carried from the older app's curated set).
   contentNarrow: "max-w-[800px]",
-  contentMedium: "max-w-[1024px]",
-  contentWide: "w-full min-w-0",
+  contentMedium: "max-w-[1200px]",
+  contentWidthNarrow: "max-w-[800px]",
+  contentWidthMedium: "max-w-[1200px]",
+  contentWidthWide: "w-full min-w-0",
+  landingContentWidth: "mx-auto w-full max-w-[1200px]",
+  landingChrome: "mx-auto w-full max-w-[1440px] px-[40px]",
+  landingPageFrame: "mx-auto flex min-h-screen w-full max-w-[1440px] flex-col px-[40px]",
+  contentMax: "max-w-[1440px]",
+  contentFluid: "w-full min-w-0",
+  headerShell: "fixed top-0 left-0 z-40 w-full",
+  pageFrame: "mx-auto flex min-h-screen w-full max-w-[1440px] flex-col px-6 md:px-8",
+  headerRow: "flex h-[64px] items-center justify-between",
+  landingMain: "flex flex-col pb-[96px]",
+  dialogWidth: "max-w-[480px]",
   pagePaddingX: "px-6 md:px-8",
   pagePaddingY: "py-6 md:py-8",
-  siteContainer: "mx-auto w-full max-w-7xl px-6 md:px-8",
+  siteContainer: "mx-auto w-full max-w-[1440px] px-6 md:px-8",
 };
 /* - - - - - - - - - - - - - - - - */
 
@@ -136,18 +150,41 @@ export const FX_CONTROL = {
    live in the cva in components/FxUI/Forms/FxButton.js — this group is for non-cva
    call sites that need button-shaped elements (links, Radix triggers). */
 export const FX_BUTTON = {
+  radius: "rounded-[10px]",
+  gap: "gap-[8px]",
+  transition: "transition-colors duration-150 ease-out",
   height: {
-    sm: "h-[36px]",
+    xs: "h-[30px]",
+    sm: "h-[34px]",
     md: "h-[40px]",
     lg: "h-[44px]",
+    xl: "h-[48px]",
   },
   paddingX: {
+    xs: "px-[10px]",
     sm: "px-[12px]",
     md: "px-[16px]",
     lg: "px-[20px]",
+    xl: "px-[20px]",
   },
   base:
-    "inline-flex cursor-pointer items-center justify-center gap-[8px] whitespace-nowrap rounded-[8px] text-[14px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fx-ring)] disabled:pointer-events-none disabled:cursor-not-allowed",
+    "inline-flex cursor-pointer items-center justify-center whitespace-nowrap border border-transparent text-[14px] font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fx-ring)] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-60",
+};
+/* - - - - - - - - - - - - - - - - */
+
+/* FX_BADGE | Structural badge recipe (shell + size). The tone × variant COLOR matrix
+   (soft / outline / solid across the 7 tones) lives in the cva in
+   components/FxUI/DataDisplay/FxBadge.js — this group is shell + sizing only.
+   Pill shape by default; `border` is always present so the `outline` variant shows it
+   while `soft`/`solid` set it transparent. */
+export const FX_BADGE = {
+  base:
+    "inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full border font-medium leading-none",
+  size: {
+    xs: "h-[18px] px-[6px] text-[11px]",
+    sm: "h-[22px] px-[8px] text-[12px]",
+    md: "h-[26px] px-[10px] text-[13px]",
+  },
 };
 /* - - - - - - - - - - - - - - - - */
 

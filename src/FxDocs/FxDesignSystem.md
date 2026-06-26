@@ -47,6 +47,10 @@ Every `FxUI` component should be generic enough to be reused across future produ
 
 When choosing between two visual approaches, prefer the one that is simpler, calmer, and more timeless.
 
+### Component Architecture Specs
+
+For table architecture, column API, cell presets, and v1 scope, see FxDocs/FxTableArchitecture.md.
+
 ---
 
 ## 🎨 Colors
@@ -59,7 +63,7 @@ This section owns color *intent* only:
 * `--fx-primary` (Hero Brand Blue) is the single interactive brand action color: primary buttons, active navigation, links, CTAs.
 * `--fx-accent` (Indigo) is a secondary accent for AI actions, highlights, and premium moments — never a general-purpose second button color.
 * Surfaces, borders, and text tokens should carry hierarchy through structure and contrast, with borders doing most of the structural work.
-* Semantic tokens (`--fx-success`, `--fx-warning`, `--fx-danger`, `--fx-info-surface`) are reserved for state, not styling.
+* Semantic tokens (`--fx-success`, `--fx-warning`, `--fx-danger`, `--fx-info`, `--fx-info-surface`) are reserved for state, not styling.
 
 ---
 
@@ -99,9 +103,10 @@ This section owns color *intent* only:
 | :--- | :--- |
 | **Input** | `40px` |
 | **Select** | `40px` |
-| **Button Sm** | `36px` |
-| **Button Md** | `40px` |
-| **Button Lg** | `44px` |
+| **Button Sm** | `30px` |
+| **Button Md** | `34px` |
+| **Button Lg** | `40px` |
+| **Button Xl** | `44px` |
 
 ### Sheet Widths
 | Token | Width | Multiplier | Usage |

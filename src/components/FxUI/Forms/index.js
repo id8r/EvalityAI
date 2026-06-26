@@ -2,6 +2,7 @@
 
 export { FxAiButton } from "@/components/FxUI/Forms/FxAiButton";
 export { FxButton } from "@/components/FxUI/Forms/FxButton";
+export { FxIconButton } from "@/components/FxUI/Forms/FxButton";
 export { FxCheckboxField } from "@/components/FxUI/Forms/FxCheckboxField";
 export { FxInput } from "@/components/FxUI/Forms/FxInput";
 export { FxRadioGroupField } from "@/components/FxUI/Forms/FxRadioGroupField";

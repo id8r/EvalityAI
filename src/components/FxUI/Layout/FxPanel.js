@@ -3,18 +3,28 @@
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
-function FxPanel({ className, title, eyebrow, description, children, footer }) {
+function FxPanel({
+  className,
+  title,
+  eyebrow,
+  description,
+  children,
+  footer,
+  eyebrowClassName,
+  titleClassName,
+  descriptionClassName,
+}) {
   return (
     <section className={cn("border border-border bg-[var(--fx-surface)]", className)}>
       {(eyebrow || title || description) ? (
         <header className="space-y-2 border-b border-border px-5 py-4">
           {eyebrow ? (
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+            <p className={cn("text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground", eyebrowClassName)}>
               {eyebrow}
             </p>
           ) : null}
-          {title ? <h3 className="text-[16px] font-semibold text-foreground">{title}</h3> : null}
-          {description ? <p className="text-[13px] leading-5 text-muted-foreground">{description}</p> : null}
+          {title ? <h3 className={cn("text-[16px] font-semibold text-foreground", titleClassName)}>{title}</h3> : null}
+          {description ? <p className={cn("text-[13px] leading-5 text-muted-foreground", descriptionClassName)}>{description}</p> : null}
         </header>
       ) : null}
       <div className="px-5 py-4">{children}</div>

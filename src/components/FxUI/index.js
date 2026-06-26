@@ -5,4 +5,5 @@ export * from "@/components/FxUI/DataDisplay";
 export * from "@/components/FxUI/Forms";
 export * from "@/components/FxUI/Layout";
 export * from "@/components/FxUI/Navigation";
+export * from "@/components/FxUI/Overlays";
 /* - - - - - - - - - - - - - - - - */

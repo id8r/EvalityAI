@@ -9,4 +9,5 @@ export { FxNotificationArea } from "@/components/FxUI/AppShell/FxNotificationAre
 export { FxRightPanel } from "@/components/FxUI/AppShell/FxRightPanel";
 export { FxSidebarAccount } from "@/components/FxUI/AppShell/FxSidebarAccount";
 export { FxSidebarNavItem } from "@/components/FxUI/AppShell/FxSidebarNavItem";
+export { FxThemeToggle } from "@/components/FxUI/AppShell/FxThemeToggle";
 /* - - - - - - - - - - - - - - - - */

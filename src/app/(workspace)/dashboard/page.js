@@ -1,7 +1,5 @@
 /* src/app/(workspace)/dashboard/page.js | Clean AppShell region skeleton review | Sree | 2026-06-25 */
 
-/* - - - - - - - - - - - - - - - - */
-
 function RegionBlock({ label, description, className = "" }) {
   return (
     <div className={`border border-border bg-[var(--fx-surface)] px-5 py-5 ${className}`}>
@@ -18,7 +16,7 @@ function RegionBlock({ label, description, className = "" }) {
 export default function WorkspaceDashboardPage() {
   return (
     <div className="min-h-full">
-      
     </div>
   );
 }
+/* - - - - - - - - - - - - - - - - */

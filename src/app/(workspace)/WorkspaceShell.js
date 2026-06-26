@@ -3,6 +3,7 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
+import Link from "next/link";
 import { FileText, FolderOpen, Inbox, PanelLeftClose, PanelLeftOpen, Settings, Users } from "lucide-react";
 
 import {
@@ -14,11 +15,10 @@ import {
   FxSidebarNavItem,
 } from "@/components/FxUI/AppShell";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { APP_NAME, APP_SHORT_NAME } from "@/lib/FxConstants";
+import { APP_NAME, ROUTES, STORAGE_KEYS } from "@/lib/FxConstants";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
-const SIDEBAR_STORAGE_KEY = "evality.sidebar-collapsed";
 const SIDEBAR_EVENT = "fx-sidebar-collapsed-change";
 
 function subscribeCollapsed(callback) {
@@ -31,7 +31,7 @@ function subscribeCollapsed(callback) {
 }
 
 function getCollapsedSnapshot() {
-  return window.localStorage.getItem(SIDEBAR_STORAGE_KEY) === "true";
+  return window.localStorage.getItem(STORAGE_KEYS.sidebarCollapsed) === "true";
 }
 
 function getCollapsedServerSnapshot() {
@@ -47,11 +47,13 @@ const NAV_ITEMS = [
 ];
 /* - - - - - - - - - - - - - - - - */
 
-function BrandMark() {
+// Logo is a wordmark — shown when expanded (links to root); collapsed shows the expand control only.
+function BrandLogo() {
   return (
-    <span className="flex size-8 shrink-0 items-center justify-center rounded-[8px] bg-[var(--fx-primary)] text-[12px] font-semibold text-[var(--fx-primary-foreground)]">
-      EA
-    </span>
+    <Link href={ROUTES.home} aria-label="Evality home" className="inline-flex items-center">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/evality-logo.svg" alt="Evality" className="h-7 w-auto" />
+    </Link>
   );
 }
 /* - - - - - - - - - - - - - - - - */
@@ -61,7 +63,7 @@ export default function WorkspaceShell({ children }) {
   const [activeKey, setActiveKey] = useState("action-center");
 
   function toggleCollapsed() {
-    window.localStorage.setItem(SIDEBAR_STORAGE_KEY, String(!collapsed));
+    window.localStorage.setItem(STORAGE_KEYS.sidebarCollapsed, String(!collapsed));
     window.dispatchEvent(new Event(SIDEBAR_EVENT));
   }
 
@@ -70,26 +72,18 @@ export default function WorkspaceShell({ children }) {
       type="button"
       onClick={toggleCollapsed}
       aria-label="Expand sidebar"
-      className="group relative flex size-8 cursor-pointer items-center justify-center rounded-[8px]"
+      className="flex size-8 cursor-pointer items-center justify-center rounded-[8px] text-[var(--fx-text-muted)] transition-colors duration-100 hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)]"
     >
-      <span className="transition-opacity duration-150 group-hover:opacity-0">
-        <BrandMark />
-      </span>
-      <span className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-150 group-hover:opacity-100">
-        <PanelLeftOpen className="size-[18px] text-[var(--fx-text-muted)]" />
-      </span>
+      <PanelLeftOpen className="size-[18px]" />
     </button>
   ) : (
     <div className="flex w-full items-center justify-between gap-2">
-      <div className="flex min-w-0 items-center gap-2">
-        <BrandMark />
-        <span className="truncate text-[14px] font-semibold text-[var(--fx-text)]">{APP_SHORT_NAME}</span>
-      </div>
+      <BrandLogo />
       <button
         type="button"
         onClick={toggleCollapsed}
         aria-label="Collapse sidebar"
-        className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-[8px] text-[var(--fx-text-muted)] transition-colors hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)]"
+        className="flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-[8px] text-[var(--fx-text-muted)] transition-colors duration-100 hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)]"
       >
         <PanelLeftClose className="size-[18px]" />
       </button>

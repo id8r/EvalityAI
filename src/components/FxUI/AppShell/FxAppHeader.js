@@ -1,6 +1,7 @@
 /* src/components/FxUI/AppShell/FxAppHeader.js | Workspace shell header scaffold | Sree | 2026-06-25 */
 
 import { APP_HEADER_HEIGHT } from "@/lib/FxConstants";
+import { FX_LAYOUT } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 
 /* - - - - - - - - - - - - - - - - */
@@ -11,27 +12,23 @@ function FxAppHeader({
   middle,
   end,
   sticky = true,
+  height = APP_HEADER_HEIGHT,
+  contentClassName = FX_LAYOUT.siteContainer,
 }) {
   return (
     <header
       data-slot="fx-app-header"
-      style={{ height: APP_HEADER_HEIGHT }}
+      style={{ height }}
       className={cn(
-        "z-20 grid grid-cols-[minmax(0,1fr)_minmax(240px,720px)_minmax(0,1fr)] items-center gap-4 border-b border-[var(--fx-border-light)] bg-[color:color-mix(in_srgb,var(--fx-surface)_92%,white)] px-6 backdrop-blur-sm",
+        "z-20 border-b border-[var(--fx-border-light)] bg-[var(--fx-bg)]/85 backdrop-blur-md",
         sticky && "sticky top-0",
         className,
       )}
     >
-      <div className="flex min-w-0 items-center gap-3">
-        {start}
-      </div>
-
-      <div className="flex min-w-0 items-center justify-center">
-        {middle}
-      </div>
-
-      <div className="flex min-w-0 items-center justify-end gap-2">
-        {end}
+      <div className={cn("grid h-full grid-cols-[minmax(0,1fr)_minmax(240px,720px)_minmax(0,1fr)] items-center gap-4", contentClassName)}>
+        <div className="flex min-w-0 items-center gap-3">{start}</div>
+        <div className="flex min-w-0 items-center justify-center">{middle}</div>
+        <div className="flex min-w-0 items-center justify-end gap-2">{end}</div>
       </div>
     </header>
   );
