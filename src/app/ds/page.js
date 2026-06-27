@@ -525,8 +525,9 @@ function ControlsSection() {
             <FxTabs
               variant="rounded"
               defaultValue="overview"
+              showIcons
               tabs={[
-                { value: "overview", label: "Overview", count: 12 },
+                { value: "overview", label: "Overview", count: 12, icon: Sparkles },
                 { value: "activity", label: "Activity", count: 5 },
                 { value: "history", label: "History", count: 2 },
               ]}
@@ -546,11 +547,12 @@ function ControlsSection() {
           <div className="grid gap-6 xl:grid-cols-2">
             <div className="space-y-2">
               <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Underlined</p>
-              <FxTabs
-                variant="underlined"
-                defaultValue="overview"
-                tabs={[
-                  { value: "overview", label: "Overview" },
+            <FxTabs
+              variant="underlined"
+              defaultValue="overview"
+              underlineFullWidth
+              tabs={[
+                  { value: "overview", label: "Overview", icon: FileText },
                   { value: "filters", label: "Filters", count: 4 },
                   { value: "history", label: "History" },
                 ]}

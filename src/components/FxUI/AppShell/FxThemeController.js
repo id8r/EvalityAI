@@ -34,12 +34,14 @@ export function FxThemeController() {
 
     syncTheme();
 
+    const intervalId = window.setInterval(syncTheme, 400);
     window.addEventListener("storage", syncTheme);
     window.addEventListener("fx-theme-change", syncTheme);
     window.addEventListener("focus", syncTheme);
     document.addEventListener("visibilitychange", syncTheme);
 
     return () => {
+      window.clearInterval(intervalId);
       window.removeEventListener("storage", syncTheme);
       window.removeEventListener("fx-theme-change", syncTheme);
       window.removeEventListener("focus", syncTheme);

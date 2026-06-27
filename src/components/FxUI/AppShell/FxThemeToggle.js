@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 
 import { STORAGE_KEYS, THEMES } from "@/lib/FxConstants";
@@ -12,8 +12,6 @@ import { cn } from "@/lib/FxUtils";
 function subscribeTheme(callback) {
   const observer = new MutationObserver(callback);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-  window.addEventListener("storage", callback);
-  window.addEventListener("fx-theme-change", callback);
   return () => observer.disconnect();
 }
 
@@ -34,14 +32,6 @@ function applyTheme(theme) {
 
 function FxThemeToggle({ className }) {
   const isDark = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getThemeServerSnapshot);
-
-  useEffect(() => {
-    const storedTheme = window.localStorage.getItem(STORAGE_KEYS.theme);
-
-    if (storedTheme === THEMES.DARK || storedTheme === THEMES.LIGHT) {
-      document.documentElement.classList.toggle("dark", storedTheme === THEMES.DARK);
-    }
-  }, []);
 
   return (
     <button

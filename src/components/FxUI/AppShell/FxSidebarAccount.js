@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { STORAGE_KEYS, THEMES } from "@/lib/FxConstants";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -47,7 +48,11 @@ function FxSidebarAccount({ name = "User", email = "", collapsed = false }) {
 
   /* Lightweight visual theme toggle for shell verification — not the full theme system. */
   function handleToggleTheme() {
-    document.documentElement.classList.toggle("dark", !isDark);
+    const nextTheme = isDark ? THEMES.LIGHT : THEMES.DARK;
+
+    document.documentElement.classList.toggle("dark", nextTheme === THEMES.DARK);
+    window.localStorage.setItem(STORAGE_KEYS.theme, nextTheme);
+    window.dispatchEvent(new Event("fx-theme-change"));
   }
 
   return (
