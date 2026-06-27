@@ -3,8 +3,9 @@
 "use client";
 
 import { useState } from "react";
+import { MoreHorizontal } from "lucide-react";
 
-import { FxButton, FxInput } from "@/components/FxUI/Forms";
+import { FxButton, FxIconButton, FxInput } from "@/components/FxUI/Forms";
 import { FxSheet } from "@/components/FxUI/Overlays";
 /* - - - - - - - - - - - - - - - - */
 
@@ -61,7 +62,17 @@ export function FxSheetShowcase() {
         side={side}
         size={size}
         title={`Sheet — ${size} · ${side}`}
-        description="Live FxSheet. Header and footer stay fixed; this body scrolls."
+        description="Esc inside a field cancels the edit, not the sheet."
+        headerActions={
+          <FxIconButton size="xs" variant="ghost" aria-label="More options">
+            <MoreHorizontal className="size-4" />
+          </FxIconButton>
+        }
+        footerStart={
+          <FxButton variant="destructiveSoft" size="sm" onClick={() => setOpen(false)}>
+            Delete
+          </FxButton>
+        }
         footer={
           <>
             <FxButton variant="ghost" size="sm" onClick={() => setOpen(false)}>
