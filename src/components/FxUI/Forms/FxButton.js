@@ -16,9 +16,9 @@ const fxButtonVariants = cva(FX_BUTTON.base, {
       hero:
         "border-transparent bg-[var(--fx-primary)] text-[var(--fx-primary-foreground)] hover:bg-[var(--fx-primary-hover)]",
       secondary:
-        "border-[var(--fx-border)] bg-[var(--fx-surface)] text-[var(--fx-text)] hover:border-[var(--fx-border-strong)] hover:bg-[var(--fx-surface-hover)]",
+        "border-[color:color-mix(in_srgb,var(--fx-primary)_75%,transparent)] bg-[var(--fx-surface)] text-[var(--fx-primary)] hover:border-[color:color-mix(in_srgb,var(--fx-primary-hover)_75%,transparent)] hover:bg-[var(--fx-surface-hover)]",
       outline:
-        "border-[var(--fx-border)] bg-transparent text-[var(--fx-text)] hover:bg-[var(--fx-surface-hover)]",
+        "border-[var(--fx-border)] bg-transparent text-[var(--fx-text)] hover:bg-[var(--fx-surface-hover)] hover:border-[color:color-mix(in_srgb,var(--fx-border-strong)_60%,transparent)]",
       ghost:
         "border-transparent bg-transparent text-[var(--fx-text-muted)] hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)]",
       auth:

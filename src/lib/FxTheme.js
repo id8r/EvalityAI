@@ -150,29 +150,29 @@ export const FX_CONTROL = {
    live in the cva in components/FxUI/Forms/FxButton.js — this group is for non-cva
    call sites that need button-shaped elements (links, Radix triggers). */
 export const FX_BUTTON = {
-  radius: "rounded-[10px]",
+  radius: "rounded-[8px]",
   radiusBySize: {
-    xs: "rounded-[6px]",
+    xs: "rounded-[4px]",
     sm: "rounded-[6px]",
     md: "rounded-[8px]",
-    lg: "rounded-[10px]",
+    lg: "rounded-[8px]",
     xl: "rounded-[10px]",
   },
   gap: "gap-[8px]",
-  transition: "transition-colors duration-150 ease-out",
+  transition: "transition-colors duration-120 ease-out",
   height: {
-    xs: "h-[30px]",
+    xs: "h-[28px]",
     sm: "h-[34px]",
     md: "h-[40px]",
     lg: "h-[44px]",
     xl: "h-[48px]",
   },
   paddingX: {
-    xs: "px-[10px]",
-    sm: "px-[12px]",
+    xs: "px-[8px]",
+    sm: "px-[8px]",
     md: "px-[16px]",
     lg: "px-[20px]",
-    xl: "px-[20px]",
+    xl: "px-[24px]",
   },
   base:
     "inline-flex cursor-pointer items-center justify-center whitespace-nowrap border border-transparent text-[14px] font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fx-ring)] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-60",

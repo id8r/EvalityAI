@@ -6,9 +6,9 @@ import { cn } from "@/lib/FxUtils";
 
 const tabVariantClasses = {
   rounded: {
-    list: "inline-flex w-fit flex-wrap items-center gap-1 rounded-full border border-[color:color-mix(in_srgb,var(--fx-border-strong)_25%,transparent)] bg-[var(--fx-surface-hover)] px-[2px] h-[44px]",
+    list: "inline-flex w-fit flex-wrap items-center gap-1 rounded-full border border-[color:color-mix(in_srgb,var(--fx-border)_75%,transparent)] bg-[var(--fx-surface-hover)] px-[2px] h-[44px]",
     trigger:
-      "h-[40px] whitespace-nowrap rounded-full border border-transparent px-4 text-sm font-medium leading-none text-muted-foreground data-[state=active]:border-[var(--fx-border-light)] data-[state=active]:bg-[var(--fx-surface)] data-[state=active]:text-primary data-[state=active]:shadow-[0_1px_2px_rgba(15,23,42,0.06)]",
+      "h-[40px] whitespace-nowrap rounded-full border border-transparent px-4 text-sm font-medium leading-none text-muted-foreground data-[state=active]:border-[color:color-mix(in_srgb,var(--fx-border)_75%,transparent)] data-[state=active]:bg-[var(--fx-surface)] data-[state=active]:text-primary data-[state=active]:shadow-[0_1px_2px_rgba(15,23,42,0.06)]",
   },
 
   underlined: {

@@ -30,7 +30,6 @@ import {
   FX_SURFACE,
   FX_TYPOGRAPHY,
 } from "@/lib/FxTheme";
-
 /* - - - - - - - - - - - - - - - - */
 
 /* Token names only. Values are read live from the active theme in FxColorTokenCard,
@@ -125,46 +124,51 @@ const buttonSizeSpecs = [
     size: "xs",
     label: "XS",
     sample: "Tiny action",
-    height: "30px",
-    text: "12px / 18px",
-    radius: "6px",
-    padding: "10px x 10px",
+    previewWidth: "w-[96px]",
+    height: "28px",
+    text: "12px",
+    radius: "4px",
+    padding: "8px",
   },
   {
     size: "sm",
     label: "SM",
     sample: "Small option",
+    previewWidth: "w-[96px]",
     height: "34px",
-    text: "13px / 20px",
+    text: "13px",
     radius: "6px",
-    padding: "12px x 12px",
+    padding: "8px",
   },
   {
     size: "md",
     label: "MD",
-    sample: "Medium action",
+    sample: "Medium Action",
+    previewWidth: "w-[120px]",
     height: "40px",
-    text: "14px / 22px",
+    text: "14px",
     radius: "8px",
-    padding: "16px x 16px",
+    padding: "16px",
   },
   {
     size: "lg",
     label: "LG",
-    sample: "Large primary action",
+    sample: "Primary Action",
+    previewWidth: "w-[120px]",
     height: "44px",
-    text: "14px / 22px",
-    radius: "10px",
-    padding: "20px x 20px",
+    text: "14px",
+    radius: "8px",
+    padding: "20px",
   },
   {
     size: "xl",
     label: "XL",
-    sample: "Forty eight pixels",
+    sample: "Login Popup",
+    previewWidth: "w-[120px]",
     height: "48px",
-    text: "14px / 22px",
+    text: "14px",
     radius: "10px",
-    padding: "20px x 20px",
+    padding: "24px",
   },
 ];
 
@@ -389,15 +393,19 @@ function ControlsSection() {
                 {buttonSizeSpecs.map((spec) => (
                   <div
                     key={spec.size}
-                    className="grid grid-cols-[56px_minmax(220px,1fr)_repeat(3,minmax(0,120px))] items-center gap-4 rounded-[12px] border border-border bg-[var(--fx-surface)] px-4 py-3"
+                    className="grid grid-cols-[56px_minmax(220px,1fr)_repeat(4,minmax(0,120px))] items-center gap-4 rounded-[12px] border border-border bg-[var(--fx-surface)] px-4 py-3"
                   >
                     <div>
                       <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">{spec.label}</p>
                       <p className="mt-1 text-xs text-muted-foreground">Button</p>
                     </div>
-                    <FxButton size={spec.size} className="justify-center">
+                    <FxButton size={spec.size} className={`${spec.previewWidth} justify-center`}>
                       {spec.sample}
                     </FxButton>
+                    <div className="text-[12px] leading-5 text-muted-foreground">
+                      <p className="uppercase tracking-[0.12em]">Text</p>
+                      <p className="mt-1 font-medium text-foreground">{spec.text}</p>
+                    </div>
                     <div className="text-[12px] leading-5 text-muted-foreground">
                       <p className="uppercase tracking-[0.12em]">Height</p>
                       <p className="mt-1 font-medium text-foreground">{spec.height}</p>
@@ -814,3 +822,4 @@ export default function DesignSystemPage() {
     </main>
   );
 }
+/* - - - - - - - - - - - - - - - - */
