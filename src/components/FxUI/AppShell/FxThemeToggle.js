@@ -2,43 +2,19 @@
 
 "use client";
 
-import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 
-import { STORAGE_KEYS } from "@/lib/FxConstants";
-import { setStored } from "@/lib/FxStorage";
-import { THEMES } from "@/lib/FxTheme";
+import { toggleTheme, useFxIsDark } from "@/components/FxUI/AppShell/useFxTheme";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
-function subscribeTheme(callback) {
-  const observer = new MutationObserver(callback);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-  return () => observer.disconnect();
-}
-
-function getThemeSnapshot() {
-  return document.documentElement.classList.contains("dark");
-}
-
-function getThemeServerSnapshot() {
-  return false;
-}
-
-function applyTheme(theme) {
-  document.documentElement.classList.toggle("dark", theme === THEMES.DARK);
-  setStored(STORAGE_KEYS.theme, theme);
-  window.dispatchEvent(new Event("fx-theme-change"));
-}
-/* - - - - - - - - - - - - - - - - */
-
 function FxThemeToggle({ className }) {
-  const isDark = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getThemeServerSnapshot);
+  const isDark = useFxIsDark();
 
   return (
     <button
       type="button"
-      onClick={() => applyTheme(isDark ? THEMES.LIGHT : THEMES.DARK)}
+      onClick={() => toggleTheme(isDark)}
       aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
       className={cn(
         "flex size-9 cursor-pointer items-center justify-center rounded-[8px] border border-[var(--fx-border-light)] bg-[var(--fx-surface)] text-[var(--fx-text-muted)] transition-colors duration-100 hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)]",

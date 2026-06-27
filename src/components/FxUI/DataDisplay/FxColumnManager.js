@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 import { Columns3, GripVertical, Lock, RotateCcw } from "lucide-react";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { FX_SHADOW } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -84,7 +85,10 @@ export function FxColumnManager({ controller, label, variant = "button", align =
             role="dialog"
             aria-label="Manage columns"
             style={{ position: "fixed", top: coords.top, ...(align === "right" ? { right: coords.right } : { left: coords.left }) }}
-            className="z-[1000] w-[264px] rounded-[10px] border border-[var(--fx-border)] bg-[var(--fx-surface-raised)] p-2 shadow-[0_20px_60px_rgba(15,23,42,0.14)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.5)]"
+            className={cn(
+              "z-[1000] w-[264px] rounded-[10px] border border-[var(--fx-border)] bg-[var(--fx-surface-raised)] p-2",
+              FX_SHADOW.lg,
+            )}
           >
             <div className="flex items-center justify-between px-2 pb-2 pt-1">
               <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-[var(--fx-text-muted)]">Columns</span>

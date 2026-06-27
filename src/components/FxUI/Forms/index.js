@@ -10,4 +10,5 @@ export { FxInput } from "@/components/FxUI/Forms/FxInput";
 export { FxRadioGroupField } from "@/components/FxUI/Forms/FxRadioGroupField";
 export { FxSwitchField } from "@/components/FxUI/Forms/FxSwitchField";
 export { FxTextarea } from "@/components/FxUI/Forms/FxTextarea";
+export { FxToolbarSearch } from "@/components/FxUI/Forms/FxToolbarSearch";
 /* - - - - - - - - - - - - - - - - */

@@ -32,14 +32,14 @@ export function FxThemeController() {
 
     syncTheme();
 
-    const intervalId = window.setInterval(syncTheme, 400);
+    // Same-tab flips fire fx-theme-change; cross-tab fire storage; focus/visibility cover
+    // the case where the OS or another surface changed it while this tab was hidden.
     window.addEventListener("storage", syncTheme);
     window.addEventListener("fx-theme-change", syncTheme);
     window.addEventListener("focus", syncTheme);
     document.addEventListener("visibilitychange", syncTheme);
 
     return () => {
-      window.clearInterval(intervalId);
       window.removeEventListener("storage", syncTheme);
       window.removeEventListener("fx-theme-change", syncTheme);
       window.removeEventListener("focus", syncTheme);

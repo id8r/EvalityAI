@@ -117,6 +117,33 @@ function SortIndicator({ state }) {
   if (state === "desc") return <ArrowDown className="size-3.5 shrink-0" />;
   return <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" />;
 }
+
+// Module-scoped so its identity is stable across renders — defining it inside FxTable remounts
+// every handle on each render (and resizingKey changes fire a render on every pointer-move).
+function ResizeHandle({ column, active, onStartResize, onAutoFit }) {
+  return (
+    <span
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Resize column"
+      onPointerDown={(event) => onStartResize(event, column)}
+      onDoubleClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onAutoFit(column);
+      }}
+      onClick={(event) => event.stopPropagation()}
+      className="group/resize absolute right-0 top-0 z-[6] flex h-full w-3 cursor-col-resize touch-none select-none items-center justify-end"
+    >
+      <span
+        className={cn(
+          "absolute right-0 top-0 h-full w-px transition-colors",
+          active ? "bg-[var(--fx-border-strong)]" : "bg-transparent group-hover/resize:bg-[var(--fx-border-strong)]",
+        )}
+      />
+    </span>
+  );
+}
 /* - - - - - - - - - - - - - - - - */
 
 export function FxTable({
@@ -327,32 +354,6 @@ export function FxTable({
     return "";
   }
 
-  function ResizeHandle({ column }) {
-    const active = resizingKey === column.key;
-    return (
-      <span
-        role="separator"
-        aria-orientation="vertical"
-        aria-label="Resize column"
-        onPointerDown={(event) => startResize(event, column)}
-        onDoubleClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          autoFitColumn(column);
-        }}
-        onClick={(event) => event.stopPropagation()}
-        className="group/resize absolute right-0 top-0 z-[6] flex h-full w-3 cursor-col-resize touch-none select-none items-center justify-end"
-      >
-        <span
-          className={cn(
-            "absolute right-0 top-0 h-full w-px transition-colors",
-            active ? "bg-[var(--fx-border-strong)]" : "bg-transparent group-hover/resize:bg-[var(--fx-border-strong)]",
-          )}
-        />
-      </span>
-    );
-  }
-
   function renderHeader() {
     return (
       <thead className={headerClassName}>
@@ -417,7 +418,14 @@ export function FxTable({
                 ) : (
                   <span className="block min-w-0 truncate">{column.header}</span>
                 )}
-                {isResizable(column) ? <ResizeHandle column={column} /> : null}
+                {isResizable(column) ? (
+                  <ResizeHandle
+                    column={column}
+                    active={resizingKey === column.key}
+                    onStartResize={startResize}
+                    onAutoFit={autoFitColumn}
+                  />
+                ) : null}
               </th>
             );
           })}

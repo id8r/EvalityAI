@@ -1,26 +1,23 @@
 // src/components/FxUI/AppShell/FxSidebarNavItem.js | Collapsible sidebar nav item | Sree | 2026-06-26
 
-"use client";
-
 import Link from "next/link";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { FX_NAVIGATION } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
 // Icon is left-aligned at px-[12px]; with body px-[12px] + collapsed width 72 it lands centered when collapsed (no shift).
 function FxSidebarNavItem({ icon: Icon, label, href, onClick, active = false, collapsed = false, className }) {
   const base = cn(
-    "group relative flex h-11 w-full items-center gap-[12px] overflow-hidden rounded-[8px] px-[12px] text-left transition-colors duration-100",
-    active
-      ? "bg-[var(--fx-surface-selected)] text-[var(--fx-primary)]"
-      : "text-[var(--fx-text)] hover:bg-[var(--fx-surface-hover)]",
+    FX_NAVIGATION.itemBase,
+    active ? FX_NAVIGATION.itemActive : FX_NAVIGATION.itemInactive,
     className,
   );
 
   const inner = (
     <>
-      <span className="flex size-6 shrink-0 items-center justify-center">
+      <span className={FX_NAVIGATION.iconSlot}>
         {Icon ? <Icon className="size-[20px]" strokeWidth={1.8} /> : null}
       </span>
       <span

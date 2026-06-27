@@ -227,7 +227,12 @@ export function useFxTable({
   /* ---------- sorting ---------- */
   const isSortControlled = sort != null && typeof sort === "object";
   const [internalSort, setInternalSort] = useState(() => normalizeSort(defaultSort));
-  const sortState = isSortControlled ? normalizeSort(sort) : internalSort;
+  // Memoize so a controlled `sort` prop doesn't produce a fresh object every render, which would
+  // re-run the sortedRows sort on every unrelated parent re-render.
+  const sortState = useMemo(
+    () => (isSortControlled ? normalizeSort(sort) : internalSort),
+    [isSortControlled, sort, internalSort],
+  );
 
   const toggleSort = useCallback(
     (key) => {

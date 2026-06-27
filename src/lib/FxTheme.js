@@ -127,18 +127,6 @@ export const FX_LAYOUT = {
 };
 /* - - - - - - - - - - - - - - - - */
 
-/* FX_CONTROL | Form-control sizing + shared field frame. Heights sm 36 / md 40 / lg 44. */
-export const FX_CONTROL = {
-  height: {
-    sm: "h-9",
-    md: "h-10",
-    lg: "h-11",
-  },
-  field:
-    "h-10 w-full rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface)] px-4 text-[14px] leading-[22px] text-[var(--fx-text)] outline-none placeholder:text-[var(--fx-text-disabled)] focus:border-[var(--fx-primary)] focus:ring-2 focus:ring-[var(--fx-ring)]",
-};
-/* - - - - - - - - - - - - - - - - */
-
 /* FX_INPUT | Text-field sizing + variants, composed over the `ui/input` base by `FxInput`. */
 export const FX_INPUT = {
   size: {
@@ -165,7 +153,7 @@ export const FX_BUTTON = {
     xl: "rounded-[10px]",
   },
   gap: "gap-[8px]",
-  transition: "transition-colors duration-120 ease-out",
+  transition: "transition-colors duration-[120ms] ease-out",
   height: {
     xs: "h-[28px]",
     sm: "h-[34px]",
@@ -197,13 +185,14 @@ export const FX_BADGE = {
 };
 /* - - - - - - - - - - - - - - - - */
 
-/* FX_NAVIGATION | Sidebar / nav item recipes (active = selected surface + primary text). */
+/* FX_NAVIGATION | Sidebar / nav item recipes (active = selected surface + primary text). Label
+   typography + collapse animation stay on the item's own label span. */
 export const FX_NAVIGATION = {
   itemBase:
-    "group relative flex h-11 items-center gap-3 rounded-[8px] px-3 text-[14px] font-medium leading-5 transition-colors",
+    "group relative flex h-11 w-full items-center gap-[12px] overflow-hidden rounded-[8px] px-[12px] text-left transition-colors duration-100",
   itemActive: "bg-[var(--fx-surface-selected)] text-[var(--fx-primary)]",
   itemInactive: "text-[var(--fx-text)] hover:bg-[var(--fx-surface-hover)]",
-  iconSlot: "flex w-6 shrink-0 items-center justify-center",
+  iconSlot: "flex size-6 shrink-0 items-center justify-center",
 };
 /* - - - - - - - - - - - - - - - - */
 
@@ -270,5 +259,25 @@ export const FX_STATE = {
     warning: "text-[var(--fx-warning)]",
     success: "text-[var(--fx-success)]",
   },
+};
+/* - - - - - - - - - - - - - - - - */
+
+/* FX_TOOLBAR | FxPageToolbar layout recipes — stacked rows with start/end zones. Layout ONLY:
+   spacing, sticky, responsive wrap, and the contextual bulk-row tint. No widget styling here. */
+export const FX_TOOLBAR = {
+  stack: "flex w-full flex-col",
+  // Row is a wrapping flex line: start zone grows, end zone hugs right and wraps under on narrow widths.
+  row: "flex flex-wrap items-center gap-x-4 gap-y-2 transition-colors duration-[160ms] ease-out",
+  density: {
+    default: "min-h-[56px] py-2",
+    compact: "min-h-[48px] py-1.5",
+  },
+  zoneStart: "flex min-w-0 flex-1 flex-wrap items-center gap-[8px]",
+  zoneEnd: "flex flex-wrap items-center justify-end gap-[8px]",
+  // Sticks to the top of the scroll area (the app header is fixed outside it).
+  sticky: "sticky top-0 z-30 bg-[var(--fx-bg)]",
+  divider: "border-b border-[var(--fx-border)]",
+  // Selected-row tint that eases in (via `row`'s transition) when the bulk strip is shown.
+  bulk: "bg-[var(--fx-surface-selected)]",
 };
 /* - - - - - - - - - - - - - - - - */

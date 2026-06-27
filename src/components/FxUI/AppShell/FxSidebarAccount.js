@@ -2,7 +2,6 @@
 
 "use client";
 
-import { useSyncExternalStore } from "react";
 import { ChevronsUpDown, CircleHelp, LogOut, Moon, Sun } from "lucide-react";
 
 import {
@@ -12,9 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { STORAGE_KEYS } from "@/lib/FxConstants";
-import { setStored } from "@/lib/FxStorage";
-import { THEMES } from "@/lib/FxTheme";
+import { toggleTheme, useFxIsDark } from "@/components/FxUI/AppShell/useFxTheme";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -30,32 +27,8 @@ function getInitials(name) {
 }
 /* - - - - - - - - - - - - - - - - */
 
-function subscribeTheme(callback) {
-  const observer = new MutationObserver(callback);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-  return () => observer.disconnect();
-}
-
-function getThemeSnapshot() {
-  return document.documentElement.classList.contains("dark");
-}
-
-function getThemeServerSnapshot() {
-  return false;
-}
-/* - - - - - - - - - - - - - - - - */
-
 function FxSidebarAccount({ name = "User", email = "", collapsed = false }) {
-  const isDark = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getThemeServerSnapshot);
-
-  /* Lightweight visual theme toggle for shell verification — not the full theme system. */
-  function handleToggleTheme() {
-    const nextTheme = isDark ? THEMES.LIGHT : THEMES.DARK;
-
-    document.documentElement.classList.toggle("dark", nextTheme === THEMES.DARK);
-    setStored(STORAGE_KEYS.theme, nextTheme);
-    window.dispatchEvent(new Event("fx-theme-change"));
-  }
+  const isDark = useFxIsDark();
 
   return (
     <DropdownMenu>
@@ -91,7 +64,7 @@ function FxSidebarAccount({ name = "User", email = "", collapsed = false }) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start" side="top" className="w-[220px]">
-        <DropdownMenuItem onSelect={(event) => event.preventDefault()} onClick={handleToggleTheme}>
+        <DropdownMenuItem onSelect={(event) => event.preventDefault()} onClick={() => toggleTheme(isDark)}>
           {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           <span>Theme</span>
           <span className="ml-auto text-[12px] text-[var(--fx-text-muted)]">{isDark ? "Dark" : "Light"}</span>

@@ -21,6 +21,7 @@ import { FxAiButton, FxButton, FxCheckboxField, FxCreatableSelect, FxEditableFie
 import { FxPanel } from "@/components/FxUI/Layout";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { FxColorTokenCard } from "./FxColorTokenCard";
+import { FxPageToolbarShowcase } from "./FxPageToolbarShowcase";
 import { FxSheetShowcase } from "./FxSheetShowcase";
 import { FxTableShowcase } from "./FxTableShowcase";
 import {
@@ -878,6 +879,7 @@ export default function DesignSystemPage() {
               { value: "foundation", label: "Foundation" },
               { value: "controls", label: "Controls" },
               { value: "surfaces", label: "Surfaces" },
+              { value: "toolbar", label: "Toolbar" },
               { value: "fxui", label: "FxUI" },
             ]}
           >
@@ -889,6 +891,9 @@ export default function DesignSystemPage() {
             </FxTabs.Content>
             <FxTabs.Content value="surfaces">
               <SurfacesSection />
+            </FxTabs.Content>
+            <FxTabs.Content value="toolbar">
+              <FxPageToolbarShowcase />
             </FxTabs.Content>
             <FxTabs.Content value="fxui">
               <FxUISection />
