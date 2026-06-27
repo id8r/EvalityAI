@@ -1,0 +1,46 @@
+[
+  {
+    "id": "",
+    "candidateId": null,
+    "jobId": null,
+    "stage": "",
+    "clientStatus": null,
+    "source": "",
+    "appliedAt": null,
+    "viewedAt": null,
+    "createdAt": null,
+    "updatedAt": null,
+    "stageHistory": [],
+    "matchScore": null,
+    "trustScore": "",
+    "expectedSalary": { "amount": null, "currency": "" },
+    "availability": { "mode": "", "days": null, "date": null, "commuteComfortable": false },
+    "screening": {
+      "status": "",
+      "mode": "",
+      "answers": [],
+      "completedAt": null,
+      "manual": { "completedAt": null, "notes": "" },
+      "email": { "startedAt": null, "attemptCount": 0, "message": "" }
+    },
+    "evaluation": {
+      "cvMatchBreakdown": { "overallScore": null, "sections": [] }
+    },
+    "clientShare": {
+      "sharedAt": null,
+      "recipients": [],
+      "message": "",
+      "mode": "",
+      "includes": []
+    },
+    "interview": {
+      "status": "",
+      "rounds": [],
+      "summary": ""
+    },
+    "rejectionReason": null,
+    "rejectionNote": "",
+    "activity": [],
+    "notes": []
+  }
+]

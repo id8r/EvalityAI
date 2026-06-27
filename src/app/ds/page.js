@@ -835,7 +835,7 @@ function FxUISection() {
 
         <FxPanel {...specPanelTone} eyebrow="App Shell" title="Shell Components">
           <div className="space-y-3 text-sm leading-6 text-muted-foreground">
-            <p>`FxAppShell`, `FxAppHeader`, `FxAppSidebar`, `FxAppContent`, `FxAppFooter`, and `FxNotificationArea` are reviewed at `/dashboard`.</p>
+            <p>`FxAppShell`, `FxAppHeader`, `FxAppSidebar`, `FxAppContent`, `FxAppFooter`, and `FxNotificationArea` are reviewed across the workspace routes (e.g. `/jobs`).</p>
             <p>`/ds` stays focused on visual review.</p>
           </div>
           <div className="mt-4 flex flex-wrap gap-3">

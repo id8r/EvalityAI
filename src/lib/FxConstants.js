@@ -12,12 +12,19 @@ export const APP_TAGLINE = "Calm, structured workspaces for operational teams.";
 
 export const ROUTES = {
   home: "/",
-  dashboard: "/dashboard",
+  dashboard: "/dashboard", // legacy — redirects to /home
   designSystem: "/ds",
   welcome: "/welcome",
   login: "/login",
   signup: "/signup",
   career: "/career",
+  // Workspace (authenticated, under the (workspace) route group)
+  workbench: "/home", // recruiter home/workbench (nav label "Action Center")
+  jobs: "/jobs",
+  jobWorkspace: (jobId) => `/jobs/${jobId}`,
+  candidates: "/candidates",
+  clients: "/clients",
+  settings: "/settings",
 };
 
 // Browser storage: a SINGLE root key (FxID8r) holds one JSON object; each setting is a FIELD inside it, so the dev inspector shows just one expandable key. Values below are those field names — read/write them via getStored/setStored in src/lib/FxStorage.js (never raw localStorage).

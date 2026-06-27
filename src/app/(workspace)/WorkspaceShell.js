@@ -2,8 +2,9 @@
 
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { FileText, FolderOpen, Inbox, PanelLeftClose, PanelLeftOpen, Settings, Users } from "lucide-react";
 
 import {
@@ -17,6 +18,7 @@ import {
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { APP_NAME, ROUTES, STORAGE_KEYS } from "@/lib/FxConstants";
 import { getStored, setStored } from "@/lib/FxStorage";
+import { isAuthenticated, signOut } from "@/lib/EvSession";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -40,12 +42,12 @@ function getCollapsedServerSnapshot() {
   return false;
 }
 
-/* Nav items, icons, and placement mirror the older evality-rfa sidebar. */
+/* Workspace nav → routes. ("Action Center" label, /home URL — the evolving recruiter workbench.) */
 const NAV_ITEMS = [
-  { key: "action-center", label: "Action Center", icon: Inbox },
-  { key: "jobs", label: "Jobs", icon: FileText },
-  { key: "candidates", label: "Candidates", icon: Users },
-  { key: "clients", label: "Clients", icon: FolderOpen },
+  { key: "home", label: "Action Center", icon: Inbox, href: ROUTES.workbench },
+  { key: "jobs", label: "Jobs", icon: FileText, href: ROUTES.jobs },
+  { key: "candidates", label: "Candidates", icon: Users, href: ROUTES.candidates },
+  { key: "clients", label: "Clients", icon: FolderOpen, href: ROUTES.clients },
 ];
 /* - - - - - - - - - - - - - - - - */
 
@@ -62,13 +64,34 @@ function BrandLogo() {
 
 export default function WorkspaceShell({ children }) {
   const collapsed = useSyncExternalStore(subscribeCollapsed, getCollapsedSnapshot, getCollapsedServerSnapshot);
-  const [activeKey, setActiveKey] = useState("action-center");
+  const pathname = usePathname();
+  const router = useRouter();
+  const [authed, setAuthed] = useState(false);
+
+  // Auth gate (demo): unauthenticated visitors are bounced to /login; nothing protected renders until authed.
+  useEffect(() => {
+    if (isAuthenticated()) setAuthed(true);
+    else router.replace(ROUTES.login);
+  }, [router]);
+
+  // Active when on the route or a sub-route (e.g. /jobs and /jobs/123).
+  function isActive(href) {
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
 
   function toggleCollapsed() {
     // toggling to next state: open ("Y") when currently collapsed, else collapsed ("N").
     setStored(STORAGE_KEYS.sidebarOpen, collapsed ? "Y" : "N");
     window.dispatchEvent(new Event(SIDEBAR_EVENT));
   }
+
+  function handleLogout() {
+    // Clear the demo session only — Fx UI prefs (FxID8r) and Ev seed data stay intact.
+    signOut();
+    router.replace(ROUTES.home);
+  }
+
+  if (!authed) return null;
 
   const sidebarHeader = collapsed ? (
     <button
@@ -100,9 +123,9 @@ export default function WorkspaceShell({ children }) {
           key={item.key}
           icon={item.icon}
           label={item.label}
-          active={activeKey === item.key}
+          href={item.href}
+          active={isActive(item.href)}
           collapsed={collapsed}
-          onClick={() => setActiveKey(item.key)}
         />
       ))}
     </nav>
@@ -113,12 +136,12 @@ export default function WorkspaceShell({ children }) {
       <FxSidebarNavItem
         icon={Settings}
         label="Settings"
-        active={activeKey === "settings"}
+        href={ROUTES.settings}
+        active={isActive(ROUTES.settings)}
         collapsed={collapsed}
-        onClick={() => setActiveKey("settings")}
       />
       <div className="h-px bg-border" />
-      <FxSidebarAccount name="Alex Morgan" email="alex@evality.ai" collapsed={collapsed} />
+      <FxSidebarAccount name="Alex Morgan" email="alex@evality.ai" collapsed={collapsed} onLogout={handleLogout} />
     </div>
   );
 

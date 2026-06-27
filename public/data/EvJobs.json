@@ -1,0 +1,45 @@
+[
+  {
+    "id": "",
+    "title": "",
+    "clientId": null,
+    "status": "",
+    "priority": "",
+    "assigneeId": null,
+    "createdById": null,
+    "publishedAt": null,
+    "archivedAt": null,
+    "createdAt": null,
+    "updatedAt": null,
+    "roleSpec": {
+      "positions": null,
+      "experienceFrom": null,
+      "experienceTo": null,
+      "employmentType": "",
+      "workplaceType": "",
+      "city": "",
+      "locality": "",
+      "salaryRange": { "min": null, "max": null, "currency": "" },
+      "hideCompensationFromCandidates": false,
+      "department": "",
+      "domain": ""
+    },
+    "content": {
+      "jobDescription": "",
+      "companyBrief": "",
+      "primarySkills": [],
+      "secondarySkills": [],
+      "responsibilities": [],
+      "benefits": []
+    },
+    "screeningConfig": {
+      "questionFormat": "",
+      "preScreeningMode": "",
+      "questions": []
+    },
+    "evaluationConfig": {
+      "evaluationContext": "",
+      "evaluationRounds": []
+    }
+  }
+]

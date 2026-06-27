@@ -27,7 +27,7 @@ function getInitials(name) {
 }
 /* - - - - - - - - - - - - - - - - */
 
-function FxSidebarAccount({ name = "User", email = "", collapsed = false }) {
+function FxSidebarAccount({ name = "User", email = "", collapsed = false, onLogout }) {
   const isDark = useFxIsDark();
 
   return (
@@ -74,7 +74,7 @@ function FxSidebarAccount({ name = "User", email = "", collapsed = false }) {
           <span>Help</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={onLogout}>
           <LogOut className="size-4" />
           <span>Log out</span>
         </DropdownMenuItem>

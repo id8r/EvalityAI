@@ -9,6 +9,7 @@ import { FxDialog } from "@/components/FxUI/Overlays";
 import { FxButton, FxInput } from "@/components/FxUI/Forms";
 import { AUTH_COPY } from "@/lib/FxCopy";
 import { ROUTES } from "@/lib/FxConstants";
+import { signIn } from "@/lib/EvSession";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -36,17 +37,18 @@ export function AuthDialog({ open, onOpenChange, intent = "signup" }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
 
-  // Demo flow: signup -> onboarding, login -> workspace. No real auth yet.
-  function completeAuth() {
+  // Demo flow: signup -> onboarding, login -> workspace. Sets the demo session, then redirects.
+  function completeAuth(provider) {
+    signIn({ provider, email });
     onOpenChange?.(false);
     setEmail("");
-    router.push(intent === "signup" ? ROUTES.welcome : ROUTES.dashboard);
+    router.push(intent === "signup" ? ROUTES.welcome : ROUTES.jobs);
   }
 
   function handleSubmit(event) {
     event.preventDefault();
     if (email.trim()) {
-      completeAuth();
+      completeAuth("email");
     }
   }
 
@@ -60,7 +62,7 @@ export function AuthDialog({ open, onOpenChange, intent = "signup" }) {
       headerClassName="mx-auto max-w-[360px]"
     >
       <div className="space-y-4">
-        <FxButton size="xl" variant="secondary" className="w-full justify-center" onClick={completeAuth}>
+        <FxButton size="xl" variant="secondary" className="w-full justify-center" onClick={() => completeAuth("google")}>
           <GoogleIcon />
           {AUTH_COPY.continueWithGoogle}
         </FxButton>
@@ -68,7 +70,7 @@ export function AuthDialog({ open, onOpenChange, intent = "signup" }) {
           size="xl"
           variant="secondary"
           className="w-full justify-center border-[#0A66C2] bg-[#0A66C2] text-white hover:border-[#0958A8] hover:bg-[#0958A8] hover:text-white"
-          onClick={completeAuth}
+          onClick={() => completeAuth("linkedin")}
         >
           <LinkedInIcon />
           {AUTH_COPY.continueWithLinkedIn}

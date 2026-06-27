@@ -9,6 +9,7 @@ import { ArrowLeft } from "lucide-react";
 import { FxButton, FxRadioGroupField } from "@/components/FxUI/Forms";
 import { ONBOARDING_COPY } from "@/lib/FxCopy";
 import { ROUTES } from "@/lib/FxConstants";
+import { completeOnboarding } from "@/lib/EvSession";
 import { FX_TYPOGRAPHY } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
@@ -49,7 +50,7 @@ export function OnboardingPage() {
             <ArrowLeft className="size-4" />
             {ONBOARDING_COPY.back}
           </FxButton>
-          <FxButton disabled={!role} onClick={() => router.push(ROUTES.dashboard)}>
+          <FxButton disabled={!role} onClick={() => { completeOnboarding(); router.push(ROUTES.jobs); }}>
             {ONBOARDING_COPY.continue}
           </FxButton>
         </div>

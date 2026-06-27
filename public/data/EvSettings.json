@@ -1,0 +1,49 @@
+{
+  "company": {
+    "companyName": "",
+    "companyWebsite": "",
+    "companyLinkedIn": "",
+    "aboutCompany": "",
+    "companySize": "",
+    "careerPageUrl": "",
+    "logoUrl": "",
+    "industries": []
+  },
+  "workspace": {
+    "workspaceType": "",
+    "persona": "",
+    "ownerUserId": null
+  },
+  "screeningDefaults": {
+    "channels": [],
+    "prescreenMode": ""
+  },
+  "email": {
+    "providerConnections": { "gmail": null, "outlook": null },
+    "senderAccount": "",
+    "signature": "",
+    "communicationPreferences": {
+      "routeReplies": false,
+      "copyRecruiters": false,
+      "sendReminders": false
+    }
+  },
+  "calendar": {
+    "providerConnections": { "googleCalendar": null, "outlookCalendar": null },
+    "defaultAccount": "",
+    "timezone": "",
+    "weeklyAvailability": [],
+    "preferences": {
+      "useConnectedCalendar": false,
+      "blockBusyTime": false,
+      "preventDoubleBooking": false,
+      "sendSchedulingReminders": false
+    }
+  },
+  "credits": {
+    "plan": null,
+    "balance": null,
+    "usage": {}
+  },
+  "updatedAt": null
+}

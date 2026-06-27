@@ -1,0 +1,19 @@
+[
+  {
+    "id": "",
+    "name": "",
+    "email": "",
+    "phone": "",
+    "currentCompany": "",
+    "currentTitle": "",
+    "totalExperienceYears": null,
+    "currentSalary": { "amount": null, "currency": "" },
+    "location": "",
+    "resume": { "fileName": "", "url": "", "text": "" },
+    "source": "",
+    "archivedAt": null,
+    "createdById": null,
+    "createdAt": null,
+    "updatedAt": null
+  }
+]
