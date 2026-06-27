@@ -27,7 +27,7 @@ function FxTextarea({
       ) : null}
       <Textarea
         id={fieldId}
-        className={cn("min-h-28", textareaClassName)}
+        className={textareaClassName}
         aria-invalid={Boolean(message)}
         {...props}
       />

@@ -25,7 +25,7 @@ function FxInput({
           {required ? <span className="ml-1 text-[var(--fx-danger)]">*</span> : null}
         </Label>
       ) : null}
-      <Input id={fieldId} className={cn("h-10", inputClassName)} aria-invalid={Boolean(message)} {...props} />
+      <Input id={fieldId} className={inputClassName} aria-invalid={Boolean(message)} {...props} />
       {message ? (
         <p className="text-[13px] text-[var(--fx-danger)]">{message}</p>
       ) : hint ? (

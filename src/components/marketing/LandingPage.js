@@ -1,4 +1,4 @@
-// src/components/marketing/LandingPage.js | Public landing page | Sree | 2026-06-26
+/* src/components/marketing/LandingPage.js | Public landing page | Sree | 2026-06-26 */
 
 "use client";
 
@@ -274,7 +274,7 @@ export function LandingPage() {
                 href={`#${item.id}`}
                 className={cn(
                   FX_TYPOGRAPHY.clickable,
-                  "rounded-full px-[10px] py-[6px] text-[var(--fx-text-muted)] transition-colors duration-100 hover:bg-[var(--fx-bg-soft)] hover:text-[var(--fx-text)]",
+                  "rounded-[6px] px-[16px] py-[8px] text-[var(--fx-text-muted)] transition-colors duration-100 hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)]",
                 )}
               >
                 {item.label}

@@ -95,6 +95,11 @@ export function useFxTable({
   onVisibleColumnKeysChange,
   columnOrder,
   onColumnOrderChange,
+
+  // column sizing (width overrides, in px)
+  columnSizing,
+  defaultColumnSizing,
+  onColumnSizingChange,
 } = {}) {
   const allKeys = useMemo(() => columns.map((column) => column.key), [columns]);
   const lockedKeys = useMemo(() => columns.filter(isLockedColumn).map((column) => column.key), [columns]);
@@ -120,6 +125,28 @@ export function useFxTable({
   const visibleControlled = Array.isArray(visibleColumnKeys);
   const visibleKeys = visibleControlled ? visibleColumnKeys : internalVisible;
   const visibleSet = useMemo(() => new Set(visibleKeys), [visibleKeys]);
+
+  /* ---------- column sizing (width overrides) ---------- */
+  const [internalSizing, setInternalSizing] = useState(() => ({ ...(defaultColumnSizing || {}) }));
+  const sizingControlled = columnSizing != null && typeof columnSizing === "object";
+  const sizing = sizingControlled ? columnSizing : internalSizing;
+  const commitSizing = useCallback(
+    (next) => {
+      if (!sizingControlled) setInternalSizing(next);
+      onColumnSizingChange?.(next);
+    },
+    [sizingControlled, onColumnSizingChange],
+  );
+  const setColumnWidth = useCallback((key, width) => commitSizing({ ...sizing, [key]: width }), [commitSizing, sizing]);
+  const resetColumnWidth = useCallback(
+    (key) => {
+      const next = { ...sizing };
+      delete next[key];
+      commitSizing(next);
+    },
+    [commitSizing, sizing],
+  );
+  const resetSizing = useCallback(() => commitSizing({}), [commitSizing]);
 
   const toggleColumn = useCallback(
     (key) => {
@@ -171,7 +198,8 @@ export function useFxTable({
     if (!visibleControlled) setInternalVisible(defaultVisible);
     onColumnOrderChange?.(defaultOrder);
     onVisibleColumnKeysChange?.(defaultVisible);
-  }, [orderControlled, visibleControlled, defaultOrder, defaultVisible, onColumnOrderChange, onVisibleColumnKeysChange]);
+    resetSizing();
+  }, [orderControlled, visibleControlled, defaultOrder, defaultVisible, onColumnOrderChange, onVisibleColumnKeysChange, resetSizing]);
 
   const resolvedColumns = useMemo(
     () =>
@@ -302,6 +330,13 @@ export function useFxTable({
       toggleColumn,
       moveColumn,
       reset: resetColumns,
+    },
+    // column sizing
+    sizing: {
+      widths: sizing,
+      setColumnWidth,
+      resetColumnWidth,
+      resetSizing,
     },
   };
 }

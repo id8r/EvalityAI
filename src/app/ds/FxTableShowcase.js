@@ -141,7 +141,7 @@ export function FxTableShowcase() {
           </FxButton>
         </div>
         <p className="font-mono text-[11px] text-muted-foreground">
-          {message ? `→ ${message}` : "Sort · select · reorder columns · row actions"}
+          {message ? `→ ${message}` : "Sort · select · resize (drag border / dbl-click to fit) · reorder · row actions"}
         </p>
       </div>
 
@@ -163,6 +163,7 @@ export function FxTableShowcase() {
           controller={table}
           className="h-full"
           sortable
+          resizable
           stickyHeader
           scrollX
           columnManager={<FxColumnManager controller={table} variant="icon" align="right" />}
@@ -174,7 +175,7 @@ export function FxTableShowcase() {
 
       <p className="font-mono text-[11px] leading-5 text-muted-foreground">
         Cells: link (+dot indicator) · text · badge · score · number · currency · availability · stacked · date · actions.
-        Sticky selection + Candidate (left), actions (right); sticky header; H/V scroll; controller-backed sort, selection, and column manager (toggle + drag reorder + reset).
+        Sticky selection + Candidate (left), actions (right); sticky header; H/V scroll; column resize (drag the header border, double-click to auto-fit); controller-backed sort, selection, sizing, and column manager (toggle + drag reorder + reset).
       </p>
     </div>
   );

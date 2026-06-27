@@ -3,7 +3,6 @@
 import { APP_HEADER_HEIGHT } from "@/lib/FxConstants";
 import { FX_LAYOUT } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
-
 /* - - - - - - - - - - - - - - - - */
 
 function FxAppHeader({
@@ -20,7 +19,7 @@ function FxAppHeader({
       data-slot="fx-app-header"
       style={{ height }}
       className={cn(
-        "z-20 border-b border-[var(--fx-border-light)] bg-[var(--fx-bg)]/85 backdrop-blur-md",
+        "z-20 border-b border-[var(--fx-border-light)] bg-[var(--fx-surface)]/85 backdrop-blur-md",
         sticky && "sticky top-0",
         className,
       )}
@@ -33,5 +32,6 @@ function FxAppHeader({
     </header>
   );
 }
-
+/* - - - - - - - - - - - - - - - - */
 export { FxAppHeader };
+/* - - - - - - - - - - - - - - - - */

@@ -1,4 +1,4 @@
-// src/components/marketing/AuthDialog.js | Landing auth dialog (signup/login intents) | Sree | 2026-06-26
+/* src/components/marketing/AuthDialog.js | Landing auth dialog (signup/login intents) | Sree | 2026-06-26 */
 
 "use client";
 
@@ -88,7 +88,11 @@ export function AuthDialog({ open, onOpenChange, intent = "signup" }) {
             placeholder={AUTH_COPY.email}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            inputClassName={cn("h-[48px] rounded-[10px] px-4 text-[16px]")}
+            inputClassName={cn("text-[14px] h-[48px]")}
+            autoComplete="email"
+            data-1p-ignore
+            data-lpignore="true"
+            data-form-type="other"
           />
           <FxButton
             type="submit"

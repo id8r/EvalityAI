@@ -1,4 +1,4 @@
-/* src/components/FxUI/DataDisplay/FxTable.js | Dense data-table primitive (v1.1) | Sree | 2026-06-26 */
+/* src/components/FxUI/DataDisplay/FxTable.js | Dense data-table primitive (v1.1 + resize) | Sree | 2026-06-27 */
 
 "use client";
 
@@ -16,7 +16,11 @@ const DEFAULT_MIN_WIDTH = 140;
 const ACTIONS_DEFAULT_WIDTH = 64;
 const SELECTION_KEY = "__fx_selection__";
 const SELECTION_WIDTH = 48;
+const MIN_RESIZE_WIDTH = 56;
+const CELL_PADDING_X = 32; // px-4 both sides
+const AUTOFIT_BUFFER = 8;
 const BODY_CELL_Y = "py-[10px]"; // compact-but-not-cramped row height (overrides recipe py-2)
+const EMPTY_SIZING = {};
 
 function cssPx(value) {
   return typeof value === "number" ? `${value}px` : value;
@@ -40,10 +44,19 @@ function isFixedWidthColumn(column) {
   return column.__selection || column.type === "actions";
 }
 
-function resolveColumnStyle(column) {
+function clampWidth(column, width) {
+  return Math.max(column.minWidth ?? MIN_RESIZE_WIDTH, Math.round(width));
+}
+
+// `overrideWidth` (px) from controller sizing pins the column to an exact width.
+function resolveColumnStyle(column, overrideWidth) {
   if (isFixedWidthColumn(column)) {
     const size = column.width ?? (column.__selection ? SELECTION_WIDTH : ACTIONS_DEFAULT_WIDTH);
     return { width: cssPx(size), minWidth: cssPx(size), maxWidth: cssPx(size) };
+  }
+  if (overrideWidth != null) {
+    const value = cssPx(clampWidth(column, overrideWidth));
+    return { width: value, minWidth: value, maxWidth: value };
   }
   const style = {};
   if (!column.grow && column.width != null) style.width = cssPx(column.width);
@@ -52,28 +65,27 @@ function resolveColumnStyle(column) {
   return style;
 }
 
-function stickyColumnWidth(column) {
-  const style = resolveColumnStyle(column);
+function widthOf(style) {
   return toPx(style.width) ?? toPx(style.minWidth) ?? DEFAULT_MIN_WIDTH;
 }
 
-function getTableMinWidth(columns, minTableWidth) {
+function getTableMinWidth(columns, styles, minTableWidth) {
   const sum = columns.reduce((total, column) => {
-    const style = resolveColumnStyle(column);
+    const style = styles.get(column.key);
     return total + (toPx(style.minWidth) ?? toPx(style.width) ?? DEFAULT_MIN_WIDTH);
   }, 0);
   return `${Math.max(sum, toPx(minTableWidth) ?? 0)}px`;
 }
 
 // Cumulative left/right offsets so multiple pinned columns stack correctly, honoring column order.
-function buildStickyOffsets(columns) {
+function buildStickyOffsets(columns, styles) {
   const left = new Map();
   const right = new Map();
   let accumulatedLeft = 0;
   columns.forEach((column) => {
     if (column.sticky === "left") {
       left.set(column.key, accumulatedLeft);
-      accumulatedLeft += stickyColumnWidth(column);
+      accumulatedLeft += widthOf(styles.get(column.key));
     }
   });
   let accumulatedRight = 0;
@@ -81,7 +93,7 @@ function buildStickyOffsets(columns) {
     const column = columns[index];
     if (column.sticky === "right") {
       right.set(column.key, accumulatedRight);
-      accumulatedRight += stickyColumnWidth(column);
+      accumulatedRight += widthOf(styles.get(column.key));
     }
   }
   return { left, right };
@@ -129,6 +141,7 @@ export function FxTable({
   // render behaviour
   columnManager, // optional node (e.g. <FxColumnManager variant="icon" />) rendered in the last column header
   sortable = false,
+  resizable = false,
   stickyHeader = false,
   stickyFirstColumn = false,
   stickyLastColumn = false,
@@ -168,10 +181,13 @@ export function FxTable({
   });
   const table = controller ?? internal;
   const { rows: displayRows, columns: productColumns, selection, sortKey, sortDirection, toggleSort, getRowId: resolveRowId } = table;
+  const widthOverrides = table.sizing?.widths ?? EMPTY_SIZING;
 
   const scrollRef = useRef(null);
+  const measurerRef = useRef(null);
   const [hasOverflowLeft, setHasOverflowLeft] = useState(false);
   const [hasOverflowRight, setHasOverflowRight] = useState(false);
+  const [resizingKey, setResizingKey] = useState(null);
 
   // Apply sticky-first/last convenience onto product columns, then inject the selection column.
   const renderColumns = useMemo(() => {
@@ -194,8 +210,12 @@ export function FxTable({
     return [selectionColumn, ...withSticky];
   }, [productColumns, selection.enabled, stickyFirstColumn, stickyLastColumn]);
 
-  const tableMinWidth = useMemo(() => getTableMinWidth(renderColumns, minTableWidth), [renderColumns, minTableWidth]);
-  const stickyOffsets = useMemo(() => buildStickyOffsets(renderColumns), [renderColumns]);
+  const columnStyles = useMemo(
+    () => new Map(renderColumns.map((column) => [column.key, resolveColumnStyle(column, widthOverrides[column.key])])),
+    [renderColumns, widthOverrides],
+  );
+  const tableMinWidth = useMemo(() => getTableMinWidth(renderColumns, columnStyles, minTableWidth), [renderColumns, columnStyles, minTableWidth]);
+  const stickyOffsets = useMemo(() => buildStickyOffsets(renderColumns, columnStyles), [renderColumns, columnStyles]);
   const columnsKey = useMemo(() => renderColumns.map((column) => column.key).join(","), [renderColumns]);
 
   useEffect(() => {
@@ -221,6 +241,80 @@ export function FxTable({
     };
   }, [scrollX, columnsKey, tableMinWidth, displayRows.length, loading]);
 
+  // Remove the off-screen auto-fit measurer on unmount.
+  useEffect(() => () => {
+    if (measurerRef.current) {
+      measurerRef.current.remove();
+      measurerRef.current = null;
+    }
+  }, []);
+
+  function isResizable(column) {
+    return resizable && column.resizable !== false && !isFixedWidthColumn(column);
+  }
+
+  function startResize(event, column) {
+    // NOTE: do not preventDefault() here — it suppresses the native dblclick (auto-fit).
+    event.stopPropagation();
+    const headerCell = event.currentTarget.closest("th");
+    const startX = event.clientX;
+    const startWidth = headerCell ? headerCell.getBoundingClientRect().width : widthOf(columnStyles.get(column.key));
+    setResizingKey(column.key);
+
+    function onMove(moveEvent) {
+      const next = clampWidth(column, startWidth + (moveEvent.clientX - startX));
+      table.sizing.setColumnWidth(column.key, next);
+    }
+    function onUp() {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+      setResizingKey(null);
+    }
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "col-resize";
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  }
+
+  // Double-click auto-fit: measure each body cell's natural (untruncated) content width via an
+  // off-screen clone, then snap the column to the widest + padding.
+  function autoFitColumn(column) {
+    const root = scrollRef.current;
+    if (!root || typeof document === "undefined") return;
+    let measurer = measurerRef.current;
+    if (!measurer) {
+      measurer = document.createElement("div");
+      measurer.setAttribute("aria-hidden", "true");
+      Object.assign(measurer.style, { position: "absolute", top: "0", left: "-99999px", visibility: "hidden", pointerEvents: "none", whiteSpace: "nowrap" });
+      document.body.appendChild(measurer);
+      measurerRef.current = measurer;
+    }
+    const key = typeof CSS !== "undefined" && CSS.escape ? CSS.escape(column.key) : column.key;
+    const cells = root.querySelectorAll(`td[data-col-key="${key}"]`);
+    let max = 0;
+    cells.forEach((cell) => {
+      const content = cell.firstElementChild;
+      if (!content) return;
+      const clone = content.cloneNode(true);
+      clone.querySelectorAll("*").forEach((node) => {
+        node.style.maxWidth = "none";
+        node.style.width = "auto";
+        node.style.overflow = "visible";
+        node.style.whiteSpace = "nowrap";
+      });
+      clone.style.maxWidth = "none";
+      clone.style.width = "auto";
+      clone.style.overflow = "visible";
+      clone.style.whiteSpace = "nowrap";
+      measurer.replaceChildren(clone);
+      max = Math.max(max, clone.scrollWidth || clone.getBoundingClientRect().width);
+    });
+    measurer.replaceChildren();
+    if (max > 0) table.sizing.setColumnWidth(column.key, clampWidth(column, max + CELL_PADDING_X + AUTOFIT_BUFFER));
+  }
+
   function stickyStyleFor(column) {
     if (column.sticky === "left") return { left: `${stickyOffsets.left.get(column.key) ?? 0}px` };
     if (column.sticky === "right") return { right: `${stickyOffsets.right.get(column.key) ?? 0}px` };
@@ -233,12 +327,38 @@ export function FxTable({
     return "";
   }
 
+  function ResizeHandle({ column }) {
+    const active = resizingKey === column.key;
+    return (
+      <span
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize column"
+        onPointerDown={(event) => startResize(event, column)}
+        onDoubleClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          autoFitColumn(column);
+        }}
+        onClick={(event) => event.stopPropagation()}
+        className="group/resize absolute right-0 top-0 z-[6] flex h-full w-3 cursor-col-resize touch-none select-none items-center justify-end"
+      >
+        <span
+          className={cn(
+            "absolute right-0 top-0 h-full w-px transition-colors",
+            active ? "bg-[var(--fx-border-strong)]" : "bg-transparent group-hover/resize:bg-[var(--fx-border-strong)]",
+          )}
+        />
+      </span>
+    );
+  }
+
   function renderHeader() {
     return (
       <thead className={headerClassName}>
         <tr>
           {renderColumns.map((column, index) => {
-            const resolvedStyle = resolveColumnStyle(column);
+            const resolvedStyle = columnStyles.get(column.key);
             const headerStickyClass = column.sticky ? cn(stickyCellClass(column, ""), "z-30") : "";
             const isLastColumn = index === renderColumns.length - 1;
 
@@ -270,6 +390,7 @@ export function FxTable({
                 aria-sort={isSorted ? (sortDirection === "desc" ? "descending" : "ascending") : isSortable ? "none" : undefined}
                 className={cn(
                   FX_TABLE.headerCell,
+                  "relative",
                   alignClass(column.align),
                   stickyHeader && "sticky top-0 z-20",
                   headerStickyClass,
@@ -296,6 +417,7 @@ export function FxTable({
                 ) : (
                   <span className="block min-w-0 truncate">{column.header}</span>
                 )}
+                {isResizable(column) ? <ResizeHandle column={column} /> : null}
               </th>
             );
           })}
@@ -313,7 +435,7 @@ export function FxTable({
               <td
                 key={column.key}
                 className={cn(FX_TABLE.bodyCell, BODY_CELL_Y, stickyCellClass(column, "bg-inherit"))}
-                style={{ ...resolveColumnStyle(column), ...stickyStyleFor(column) }}
+                style={{ ...columnStyles.get(column.key), ...stickyStyleFor(column) }}
               >
                 <div className="h-3 w-3/5 animate-pulse rounded bg-[var(--fx-surface-muted)]" />
               </td>
@@ -361,15 +483,11 @@ export function FxTable({
                     <td
                       key={column.key}
                       className={cn(FX_TABLE.bodyCell, BODY_CELL_Y, "px-0 text-center", stickyCellClass(column, "bg-inherit"))}
-                      style={{ ...resolveColumnStyle(column), ...stickyStyleFor(column) }}
+                      style={{ ...columnStyles.get(column.key), ...stickyStyleFor(column) }}
                       onClick={(event) => event.stopPropagation()}
                     >
                       <div className="flex h-full items-center justify-center">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => selection.toggleRow(rowId)}
-                          aria-label="Select row"
-                        />
+                        <Checkbox checked={isSelected} onCheckedChange={() => selection.toggleRow(rowId)} aria-label="Select row" />
                       </div>
                     </td>
                   );
@@ -377,6 +495,7 @@ export function FxTable({
                 return (
                   <td
                     key={column.key}
+                    data-col-key={column.key}
                     className={cn(
                       FX_TABLE.bodyCell,
                       BODY_CELL_Y,
@@ -384,7 +503,7 @@ export function FxTable({
                       stickyCellClass(column, "bg-inherit"),
                       column.cellClassName,
                     )}
-                    style={{ ...resolveColumnStyle(column), ...stickyStyleFor(column) }}
+                    style={{ ...columnStyles.get(column.key), ...stickyStyleFor(column) }}
                   >
                     {renderCellContent(column, row, rowIndex)}
                   </td>

@@ -1,14 +1,16 @@
-# FxTable Architecture (Frozen Spec)
+# FxTable Architecture
 
-Status: **proposal for sign-off** — no implementation yet.
+Status: **Implemented — v1.1 + column resize** (DS primitive, not yet wired into product pages).
 Goal: give `FxTable` the same "compose, don't rebuild" treatment as `FxAppShell`, so that
 product list pages (Jobs, Candidates, Clients, Action Center, Job Workspace) become column
 definitions + data, not bespoke `<table>` markup.
 
-This document is in two parts:
+This document has three parts:
 
-- **Part A — Audit** of what the previous Evality (`evality-rfa/components/FxTable.js`) supports today.
-- **Part B — Canonical architecture** we freeze before building.
+- **Part A — Audit** of what the previous Evality (`evality-rfa/components/FxTable.js`) supported.
+- **Part B — Canonical architecture** as frozen before building (historical rationale).
+- **Part C — As-built reference** — the authoritative prop/API surface as actually shipped.
+  **Where B and C differ, C wins.**
 
 ---
 
@@ -321,4 +323,180 @@ for every type in A.2; sticky header/columns + offsets; scroll indicators; densi
 loading skeleton + rich empty slot; `actions` cell preset (kebab + inline). Out of scope for v1:
 pagination, column resizing, user-driven pin toggles, row grouping/expansion, responsive card mode,
 roving-focus keyboard nav, virtualization.
+
+---
+
+## Part C — As-built reference (v1.1 + resize)
+
+> Authoritative API surface as shipped. Where this differs from Part B, **C wins.**
+> Files (all under `src/components/FxUI/DataDisplay/`, exported via the `DataDisplay` barrel):
+> `FxTable.js` · `useFxTable.js` · `FxTableCells.js` · `FxColumnManager.js`.
+
+### C.0 What shipped vs. Part B
+
+| Area | As-built |
+|---|---|
+| Cell model | ✅ typed `column.type` + `cell()` + `row[key]` fallback (as frozen) |
+| Engine | ✅ custom, no TanStack (as frozen) |
+| Sort | ✅ controller-backed (opt-in via `sortable`) |
+| Selection | ✅ injected sticky-left checkbox column (Radix checkbox) |
+| Column manager | ✅ `FxColumnManager` (visibility **+ drag reorder + reset**) — supersedes the planned `FxColumnPicker` |
+| Pinning | ✅ per-column `sticky:"left"\|"right"` (+ `stickyFirstColumn`/`stickyLastColumn` convenience) |
+| Column resize | ✅ opt-in (`resizable`) — drag border + double-click auto-fit. *(Was "future" in B.8; added 2026-06-27.)* |
+| Zebra striping | ✅ `even:` row stripe via opaque `--fx-table-row-alt` token |
+| Loading / empty | ✅ skeleton rows + `empty` node slot / `emptyMessage` fallback |
+| Indicators | ✅ status-dot treatment on text/link/stacked cells |
+| **Not built yet** | ❌ search UI, filter UI, pagination, bulk-actions UI, `density` prop, `storageKey` persistence, `toolbarStart/End` slots, `renderBulkActions`, responsive card mode, virtualization, keyboard cell-nav |
+
+### C.1 `<FxTable>` props
+
+```jsx
+<FxTable
+  /* EITHER share a controller (required for FxColumnManager / external selection state) … */
+  controller={useFxTable(...)}        // a useFxTable() instance; when present, columns/rows/etc come from it
+
+  /* … OR pass data + config and FxTable builds its own controller internally */
+  columns={FxColumn[]} rows={object[]} getRowId={(row)=>row.id}
+  sort defaultSort={{key,direction}} onSortChange            // sorting (state in controller)
+  enableRowSelection selectedRowKeys defaultSelectedRowKeys onSelectedRowKeysChange
+  visibleColumnKeys defaultVisibleColumnKeys onVisibleColumnKeysChange
+  columnOrder onColumnOrderChange
+  columnSizing defaultColumnSizing onColumnSizingChange      // width overrides (px)
+
+  /* render behaviour */
+  columnManager={<FxColumnManager variant="icon" />}  // node rendered in the LAST column header
+  sortable={false}                    // master switch: show sort affordance on sortable columns
+  resizable={false}                   // master switch: enable drag-resize + dbl-click auto-fit
+  stickyHeader stickyFirstColumn stickyLastColumn
+  scrollX={true} minTableWidth onRowClick={(row,event)=>{}}
+
+  /* states */
+  loading={false} loadingRowCount={8}
+  empty={<FxEmptyState/>} emptyMessage="No rows to display."
+
+  /* style hooks */
+  className surfaceClassName headerClassName bodyClassName rowClassName
+/>
+```
+
+- **Controller pattern:** `controller` lets `FxTable` and `FxColumnManager` share one `useFxTable()`
+  instance. Omit it and `FxTable` builds an internal controller from the data/config props (simple tables).
+- `sortable` / `resizable` are master switches; individual columns opt out via `column.sortable` /
+  `column.resizable !== false`. Selection and `actions`-type columns are never resizable.
+
+### C.2 `FxColumn` shape (as built)
+
+```ts
+FxColumn = {
+  key: string                                  // identity + default accessor (row[key])
+  header: ReactNode | string
+  accessor?: (row) => any                       // when displayed value ≠ row[key]
+  menuLabel?: string                            // FxColumnManager label when header is empty/JSX
+
+  // sizing
+  width?, minWidth?, maxWidth?: number          // minWidth also clamps drag/auto-fit
+  grow?: number                                 // fluid (no fixed width) until resized
+  align?: "left" | "center" | "right"
+  resizable?: boolean                           // default true (when table `resizable`); false to pin width
+
+  // structure
+  sticky?: "left" | "right"                     // pinning; offsets stack in render order
+  locked?: boolean                              // (and `hideable:false`) → always visible + not draggable in manager
+  defaultVisible?: boolean                      // default true; false = hidden until toggled on
+
+  // sorting
+  sortable?: boolean
+  sortType?: "string" | "number" | "date" | ((a,b)=>number)
+  sortAccessor?: (row) => any
+
+  // rendering
+  type?: "text"|"link"|"badge"|"score"|"number"|"currency"|"date"|"availability"|"stacked"|"actions"
+  cell?: (row, ctx) => ReactNode                // ctx = { row, rowIndex, column }; always wins
+  cellProps?: (row) => object                   // typed props for the preset
+  cellClassName?, headerClassName?: string
+}
+```
+
+Resolution order per cell: `cell(row,ctx)` → preset(`type`, value=`accessor?.(row) ?? row[key]`, `cellProps?.(row)`) → raw `row[key]`.
+
+### C.3 `useFxTable(config)` → controller
+
+Config keys mirror the FxTable data/config props in C.1. Returns:
+
+```ts
+{
+  rows,                 // sorted rows
+  columns,              // resolved: ordered + visible product columns (no injected selection col)
+  getRowId,
+  sortKey, sortDirection, toggleSort(key),
+  selection: { enabled, selectedKeys, selectedKeySet, count,
+               isAllVisibleSelected, isIndeterminate,
+               isSelected(id), toggleRow(id), toggleAllVisible(), clear() },
+  columnManager: { items:[{key,label,visible,locked}], visibleKeys, order,
+                   toggleColumn(key), moveColumn(draggedKey,targetKey), reset() },
+  sizing: { widths:{[key]:px}, setColumnWidth(key,px), resetColumnWidth(key), resetSizing() },
+}
+```
+
+- `moveColumn` reorders only non-locked columns; locked columns keep their absolute positions.
+- `columnManager.reset()` restores default order + visibility **and** clears width overrides.
+
+### C.4 Cell presets (`FxTableCells`)
+
+`FX_TABLE_CELL_PRESETS` maps `type` → `(value, props, ctx) => ReactNode`. Components are also exported
+directly (`FxTextCell`, `FxLinkCell`, `FxBadgeCell`, `FxScoreCell`, `FxNumberCell`, `FxCurrencyCell`,
+`FxDateCell`, `FxAvailabilityCell`, `FxStackedCell`, `FxActionsCell`, `FxCellDot`).
+
+| `type` | value | key `cellProps` |
+|---|---|---|
+| `text` | text | `{ muted, title, indicator }` |
+| `link` | text | `{ href, onClick, tone:"primary"\|"text", title, indicator }` |
+| `badge` | label | `{ tone, variant:"soft"\|"outline"\|"solid", size, dot, label }` |
+| `score` | number | `{ tone, suffix="%", onClick }` (chip when tone/onClick, else plain) |
+| `number` | number | `{ href }` |
+| `currency` | amount | `{ currency="USD" }` |
+| `date` | date | `{ mode:"relative"\|"compact" }` |
+| `availability` | days | — |
+| `stacked` | — | `{ primary, secondary, onClick, indicator }` |
+| `actions` | — | `{ inline:[{icon,label,onClick,tone}], items:[{label,onClick?,href?,icon?,tone?,separatorBefore?}], align, menuLabel }` |
+
+**Indicator / status dot** (`text`/`link`/`stacked`): `indicator` accepts a tone string (`"warning"`),
+an object `{ tone, pulse, title }`, or `true`/`{ tone:null }` to **reserve an invisible gutter** so text
+stays aligned across rows. Tones match `FxBadge`: `neutral·subtle·primary·success·warning·danger·info`.
+
+Exported formatters: `formatCurrency`, `formatCompactDate`, `formatRelativeTime`, `formatAvailability`.
+
+### C.5 `<FxColumnManager>`
+
+```jsx
+<FxColumnManager controller={table} variant="button"|"icon" label="Columns" align="right" />
+```
+
+Compact body-portal popover (so it isn't clipped by the table's overflow when placed in a header cell).
+Toggle visibility, drag-to-reorder (locked columns shown with a lock, non-draggable), reset. Native HTML5
+drag-and-drop (no menu primitive intercepting pointers). `variant="icon"` is the bare header-slot trigger;
+pass it to `FxTable`'s `columnManager` prop to render it in the last (kebab) column header.
+
+### C.6 Resize behaviour
+
+Enabled by `resizable` on `FxTable`. Each resizable column's header right edge is a drag handle:
+hover shows a soft `--fx-border-strong` line + `col-resize` cursor (no glyph); drag updates width live
+(clamped to `minWidth`); **double-click auto-fits** to the column's max content width (measured by cloning
+each body cell off-screen with `white-space:nowrap`, so badges/links/stacked all measure correctly).
+Widths live in `controller.sizing` and feed the same width→offset→min-width math as everything else; a
+`grow` column becomes fixed-width once dragged. Widths are session-only (no persistence yet).
+
+### C.7 Tokens touched
+
+- `--fx-info` (light/dark) added for the 7th `FxBadge` tone.
+- `--fx-table-row-alt` made **opaque** (light `#f9fbfd`, dark `#293140`) so zebra striping renders and
+  sticky cells (`bg-inherit`) stay opaque over scrolled content.
+- `ui/checkbox.js` → `rounded-[5px]`; `ui/radio-group.js` → `rounded-full` (both Radix primitives).
+
+### C.8 DS showcase
+
+`src/app/ds/FxTableShowcase.js` (Surfaces tab → "Data Table") exercises every feature with **local mock
+data only** (no product seed data, not wired to Jobs/Candidates/Clients): typed cells incl. dot indicator,
+selection toggle, sticky left/right + header, zebra, sort, drag-resize + auto-fit, and the column manager
+(toggle + reorder + reset) in the kebab header.
 ```
