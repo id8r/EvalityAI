@@ -4,7 +4,9 @@
 
 import { useEffect } from "react";
 
-import { STORAGE_KEYS, THEMES } from "@/lib/FxConstants";
+import { STORAGE_KEYS } from "@/lib/FxConstants";
+import { getStored } from "@/lib/FxStorage";
+import { THEMES } from "@/lib/FxTheme";
 
 function applyTheme(theme) {
   if (typeof document === "undefined") {
@@ -15,11 +17,7 @@ function applyTheme(theme) {
 }
 
 function readStoredTheme() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  return window.localStorage.getItem(STORAGE_KEYS.theme);
+  return getStored(STORAGE_KEYS.theme);
 }
 
 export function FxThemeController() {

@@ -1,4 +1,9 @@
-/* src/lib/FxConstants.js | Global immutable app constants | Sree | 2026-06-25 */
+/* src/lib/FxConstants.js | App/product constants — names, routes, storage keys | Sree | 2026-06-27 */
+
+/*
+  This file owns APP/PRODUCT constants only: app names, route maps, storage keys, navigation ids, and product enums/lookups later.
+  Visual + layout VALUES (shell geometry, sidebar widths, content padding, theme ids) live with the design system in `src/lib/FxTheme.js`; color values live in `src/app/globals.css`.
+*/
 
 export const APP_NAME = "Evality AI";
 export const APP_SHORT_NAME = "Evality";
@@ -15,44 +20,12 @@ export const ROUTES = {
   career: "/career",
 };
 
-// Browser storage keys reserved for future client leaf behavior.
+// Browser storage: a SINGLE root key (FxID8r) holds one JSON object; each setting is a FIELD inside it, so the dev inspector shows just one expandable key. Values below are those field names — read/write them via getStored/setStored in src/lib/FxStorage.js (never raw localStorage).
+export const FX_STORAGE_ROOT = "FxID8r";
+
 export const STORAGE_KEYS = {
-  sidebarCollapsed: "evality.sidebar-collapsed",
-  theme: "evality.theme",
-};
-
-export const THEMES = {
-  LIGHT: "light",
-  DARK: "dark",
-};
-
-// Desktop-first shell viewport; the workspace shell owns the full app frame.
-export const APP_VIEWPORT_HEIGHT = "100dvh";
-
-// Fixed top header height for shared and workspace headers.
-export const APP_HEADER_HEIGHT = "56px";
-
-// Taller header used on public / marketing pages.
-export const APP_PUBLIC_HEADER_HEIGHT = "64px";
-
-// Full-width notification row height (pushes the shell down when rendered).
-export const APP_NOTIFICATION_HEIGHT = "44px";
-
-// Optional bottom footer height.
-export const APP_FOOTER_HEIGHT = "48px";
-
-// Default page padding used by FxAppContent.
-export const APP_CONTENT_PADDING = {
-  baseX: "24px",
-  baseY: "24px",
-  wideX: "32px",
-  wideY: "32px",
-};
-
-// Canonical shell column widths. FxAppSidebar owns its animated width; the shell column follows.
-export const SIDEBAR_WIDTHS = {
-  expanded: "200px",
-  collapsed: "72px",
-  rightPanel: "320px",
+  theme: "Theme", // "light" | "dark"
+  sidebarOpen: "Sidebar-Open", // "Y" | "N"
+  role: "Role", // selected/created role from FxCreatableSelect (onboarding)
 };
 /* - - - - - - - - - - - - - - - - */

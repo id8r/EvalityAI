@@ -52,8 +52,8 @@ function DropdownMenuSubContent({ className, ...props }) {
     <DropdownMenuPrimitive.SubContent
       data-slot="dropdown-menu-sub-content"
       className={cn(
-        "z-50 min-w-[160px] overflow-hidden rounded-[12px] border border-[var(--fx-border-light)] bg-[var(--fx-surface-raised)] p-[2px] text-foreground",
-        FX_SHADOW.lg,
+        "z-[120] min-w-[160px] overflow-hidden rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface-raised)] p-[2px] text-foreground",
+        FX_SHADOW.md,
         className,
       )}
       {...props}
@@ -68,8 +68,8 @@ function DropdownMenuContent({ className, sideOffset = 8, ...props }) {
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         className={cn(
-          "z-50 min-w-[160px] overflow-hidden rounded-[12px] border border-[var(--fx-border-light)] bg-[var(--fx-surface-raised)] p-[2px] text-foreground",
-          FX_SHADOW.lg,
+          "z-[120] min-w-[160px] overflow-hidden rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface-raised)] p-[2px] text-foreground",
+          FX_SHADOW.md,
           className,
         )}
         {...props}
@@ -137,7 +137,7 @@ function DropdownMenuLabel({ className, inset, ...props }) {
   return (
     <DropdownMenuPrimitive.Label
       data-slot="dropdown-menu-label"
-      className={cn("px-[8px] py-[8px] text-[12px] font-medium uppercase tracking-[0.12em] text-muted-foreground", inset && "pl-[32px]", className)}
+      className={cn("px-[8px] py-[6px] text-[12px] font-medium leading-[16px] text-muted-foreground", inset && "pl-[32px]", className)}
       {...props}
     />
   );

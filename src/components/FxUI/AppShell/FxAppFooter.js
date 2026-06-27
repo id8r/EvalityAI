@@ -1,6 +1,6 @@
 /* src/components/FxUI/AppShell/FxAppFooter.js | Workspace shell footer scaffold | Sree | 2026-06-25 */
 
-import { APP_FOOTER_HEIGHT } from "@/lib/FxConstants";
+import { APP_FOOTER_HEIGHT } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 
 /* - - - - - - - - - - - - - - - - */

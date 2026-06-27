@@ -10,8 +10,8 @@ import { FxButton } from "@/components/FxUI/Forms";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { AuthDialog } from "@/components/marketing/AuthDialog";
 import { LANDING_COPY } from "@/lib/FxCopy";
-import { APP_PUBLIC_HEADER_HEIGHT, ROUTES } from "@/lib/FxConstants";
-import { FX_LAYOUT, FX_SURFACE, FX_TYPOGRAPHY } from "@/lib/FxTheme";
+import { ROUTES } from "@/lib/FxConstants";
+import { APP_PUBLIC_HEADER_HEIGHT, FX_LAYOUT, FX_SURFACE, FX_TYPOGRAPHY } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -304,7 +304,7 @@ export function LandingPage() {
             <h1 className={cn(FX_TYPOGRAPHY.hero, "whitespace-pre-line text-[var(--fx-text)]")}>{copy.hero.headline}</h1>
             <p className={cn(FX_TYPOGRAPHY.body, "max-w-[56ch] text-[15px] text-[var(--fx-text-muted)]")}>{copy.hero.tagline}</p>
             <div className="flex flex-wrap items-center gap-3">
-              <FxButton size="lg" variant="hero" className="rounded-full px-[28px]" onClick={() => openAuth("signup")}>
+              <FxButton size="lg" variant="hero" className="px-[28px]" onClick={() => openAuth("signup")}>
                 {copy.hero.cta}
               </FxButton>
             </div>

@@ -1,6 +1,6 @@
 /* src/components/FxUI/AppShell/FxNotificationArea.js | Workspace shell notification scaffold | Sree | 2026-06-25 */
 
-import { APP_NOTIFICATION_HEIGHT } from "@/lib/FxConstants";
+import { APP_NOTIFICATION_HEIGHT } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 
 /* - - - - - - - - - - - - - - - - */

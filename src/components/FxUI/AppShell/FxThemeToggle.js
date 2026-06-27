@@ -5,7 +5,9 @@
 import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 
-import { STORAGE_KEYS, THEMES } from "@/lib/FxConstants";
+import { STORAGE_KEYS } from "@/lib/FxConstants";
+import { setStored } from "@/lib/FxStorage";
+import { THEMES } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -25,7 +27,7 @@ function getThemeServerSnapshot() {
 
 function applyTheme(theme) {
   document.documentElement.classList.toggle("dark", theme === THEMES.DARK);
-  window.localStorage.setItem(STORAGE_KEYS.theme, theme);
+  setStored(STORAGE_KEYS.theme, theme);
   window.dispatchEvent(new Event("fx-theme-change"));
 }
 /* - - - - - - - - - - - - - - - - */

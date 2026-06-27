@@ -109,7 +109,7 @@ Avoid commenting every `<div>`.
 * Prefer `cn()` for conditional classes.
 * Reuse existing spacing, typography, radius and layout recipes.
 * Consume reusable class recipes from `src/lib/FxTheme.js` (`FX_TYPOGRAPHY`, `FX_SURFACE`, `FX_RADIUS`, etc.) instead of re-inlining arbitrary values.
-* Keep immovable global dimensions and route maps in `src/lib/FxConstants.js`; `FxTheme.js` owns class recipes, `globals.css` owns color values.
+* Responsibility split — `globals.css` owns **visual token values** (colors, CSS variables, light/dark); `src/lib/FxTheme.js` owns **visual + layout recipes AND shell geometry values** (`FX_*` class recipes plus dimension constants like `APP_HEADER_HEIGHT`, `SIDEBAR_WIDTHS`, `APP_CONTENT_PADDING`, and the `THEMES` ids); `src/lib/FxConstants.js` owns **app/product constants only** (`APP_NAME`, `ROUTES`, `STORAGE_KEYS`, nav ids, product enums).
 
 ---
 
@@ -130,6 +130,13 @@ Do not place product-specific logic inside `FxUI`.
 * Extend the design system instead of creating one-off patterns.
 * Prefer reuse over duplication.
 * Import app-wide constants from `@/lib/FxConstants`.
+
+## Storage Keys
+
+* Never bake a client/project name (e.g. "evality") into persisted keys — clients change, the code keeps the `Fx` signature.
+* There is exactly ONE localStorage key — the app root **`FxID8r`** (`FX_STORAGE_ROOT`) — holding a single JSON object; every setting is a FIELD inside it, so the dev inspector shows just one expandable key.
+* Field names live in `STORAGE_KEYS` (`src/lib/FxConstants.js`); read/write them ONLY via `getStored` / `setStored` from `src/lib/FxStorage.js` — never touch `window.localStorage` directly at a call site.
+* Keep field names and values terse and self-evident (e.g. `Theme: "light" | "dark"`, `Sidebar-Open: "Y" | "N"`).
 
 ## General Rule
 

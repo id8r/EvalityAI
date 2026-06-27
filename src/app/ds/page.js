@@ -2,11 +2,13 @@
 
 import {
   Bell,
+  ChevronDown,
   CircleHelp,
   FileText,
   Filter,
   Folder,
   Inbox,
+  LogOut,
   Plus,
   Search,
   Settings,
@@ -15,12 +17,22 @@ import {
 } from "lucide-react";
 
 import { FxBadge } from "@/components/FxUI/DataDisplay";
-import { FxAiButton, FxButton, FxCheckboxField, FxIconButton, FxInput, FxRadioGroupField, FxSwitchField, FxTextarea } from "@/components/FxUI/Forms";
+import { FxAiButton, FxButton, FxCheckboxField, FxCreatableSelect, FxEditableField, FxIconButton, FxInput, FxRadioGroupField, FxSwitchField, FxTextarea } from "@/components/FxUI/Forms";
 import { FxPanel } from "@/components/FxUI/Layout";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { FxColorTokenCard } from "./FxColorTokenCard";
+import { FxSheetShowcase } from "./FxSheetShowcase";
 import { FxTableShowcase } from "./FxTableShowcase";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { STORAGE_KEYS } from "@/lib/FxConstants";
 import {
   FX_BORDER,
   FX_LAYOUT,
@@ -176,6 +188,13 @@ const spacingScale = ["8", "16", "24", "32", "48", "64", "96"];
 const iconSet = [Search, Filter, Plus, Inbox, Folder, FileText, Bell, Settings, User, CircleHelp, Sparkles];
 const surfaceRoles = ["surface", "subtle", "raised", "muted", "hover", "selected"];
 const badgeTones = ["neutral", "subtle", "primary", "success", "warning", "danger", "info"];
+const roleOptions = [
+  { value: "agency-recruiter", label: "Agency Recruiter", description: "Hiring across multiple clients." },
+  { value: "in-house-recruiter", label: "In-house Recruiter", description: "Hiring for a single company." },
+  { value: "hiring-manager", label: "Hiring Manager", description: "Owns a team's open roles." },
+  { value: "founder", label: "Founder / CEO", description: "Hiring for an early-stage team." },
+  { value: "talent-lead", label: "Talent Lead", description: "Leads a recruiting function." },
+];
 const specPanelTone = {
   eyebrowClassName: "font-mono text-[11px] uppercase tracking-[0.16em] text-muted-foreground",
   titleClassName: "font-mono text-[13px] font-medium uppercase tracking-[0.16em] text-muted-foreground",
@@ -380,12 +399,11 @@ function ControlsSection() {
     <div className="space-y-8">
       <SectionHeader
         eyebrow="Controls"
-        title="Buttons, fields, selection, tabs, and badges"
-        note="Everyday interaction patterns."
+        title="Buttons, inputs, selection, tabs, menus, and badges"
+        note="Everyday interaction patterns, in composition order."
       />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <FxPanel {...specPanelTone} eyebrow="Buttons" title="Action Hierarchy">
+      <FxPanel {...specPanelTone} eyebrow="Buttons" title="Action Hierarchy">
           <div className="space-y-6">
             <div className="space-y-3">
               <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Sizes</p>
@@ -430,9 +448,9 @@ function ControlsSection() {
                 <FxButton variant="secondary">Secondary</FxButton>
                 <FxButton variant="outline">Outline</FxButton>
                 <FxButton variant="ghost">Ghost</FxButton>
-                <FxButton variant="auth">Auth</FxButton>
                 <FxButton variant="destructive">Delete</FxButton>
                 <FxButton variant="destructiveOutline">Delete Outline</FxButton>
+                <FxButton variant="destructiveSoft">Delete Soft</FxButton>
                 <FxAiButton>AI Action</FxAiButton>
               </div>
             </div>
@@ -455,58 +473,40 @@ function ControlsSection() {
               </div>
             </div>
           </div>
-        </FxPanel>
-
-        <FxPanel {...specPanelTone} eyebrow="Badges" title="Tones, Variants, And Sizes">
-          <div className="space-y-5">
-            {["soft", "outline", "solid"].map((variant) => (
-              <div key={variant} className="space-y-2">
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">{variant}</p>
-                <div className="flex flex-wrap items-center gap-2">
-                  {badgeTones.map((tone) => (
-                    <FxBadge key={tone} tone={tone} variant={variant}>
-                      {tone}
-                    </FxBadge>
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            <div className="space-y-2">
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Sizes</p>
-              <div className="flex flex-wrap items-center gap-2">
-                <FxBadge size="xs" tone="primary">xs</FxBadge>
-                <FxBadge size="sm" tone="primary">sm</FxBadge>
-                <FxBadge size="md" tone="primary">md</FxBadge>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">With Status Dot</p>
-              <div className="flex flex-wrap items-center gap-2">
-                <FxBadge tone="success" dot>Active</FxBadge>
-                <FxBadge tone="warning" dot>Pending</FxBadge>
-                <FxBadge tone="danger" dot>Blocked</FxBadge>
-                <FxBadge tone="subtle" dot>Draft</FxBadge>
-              </div>
-            </div>
-          </div>
-        </FxPanel>
-      </div>
+      </FxPanel>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <FxPanel {...specPanelTone} eyebrow="Inputs" title="Text Fields">
           <div className="space-y-4">
             <FxInput label="Workspace Name" defaultValue="Revenue Ops" />
             <FxInput label="Owner Email" placeholder="owner@evality.ai" message="Please enter a valid work email." />
-            <FxTextarea label="Internal Note" defaultValue="Keep workbook naming aligned with the source system." />
+
             <div className="space-y-2">
-              <p className="text-[12px] font-medium uppercase tracking-[0.12em] text-muted-foreground">Select</p>
-              <div className="flex h-10 items-center justify-between border border-border bg-[var(--fx-surface)] px-3 text-sm text-foreground">
-                <span>Pending primitive</span>
-                <span className="text-muted-foreground">v</span>
-              </div>
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Sizes (sm 34 · md 40 · lg 44)</p>
+              <FxInput size="sm" placeholder="Small — 34px (default)" />
+              <FxInput size="md" placeholder="Medium — 40px" />
+              <FxInput size="lg" placeholder="Large — 44px" />
             </div>
+
+            <div className="space-y-2">
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Underline variant</p>
+              <FxInput variant="underline" placeholder="Bottom-bordered field" />
+              <FxInput variant="underline" size="md" defaultValue="Inline editable value" />
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
+                Inline editable · pencil → edit (all selected) · Esc/✕ cancel · Enter/✓ save
+              </p>
+              <FxEditableField label="Name" value="Sree" />
+              <FxEditableField label="Title" value="Founder" pencil="left" />
+            </div>
+
+            <p className="text-[11px] text-muted-foreground">
+              Fields are clearable by default — type into any field above to reveal the clear ✕.
+            </p>
+
+            <FxTextarea label="Internal Note" defaultValue="Keep workbook naming aligned with the source system." />
           </div>
         </FxPanel>
 
@@ -625,6 +625,94 @@ function ControlsSection() {
           </div>
         </div>
       </FxPanel>
+
+      <FxPanel {...specPanelTone} eyebrow="Menus" title="Dropdown And Creatable Select">
+        <div className="grid gap-8 xl:grid-cols-2">
+          <div className="space-y-3">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Dropdown menu</p>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <FxButton variant="outline" size="sm">
+                  Open menu
+                  <ChevronDown className="size-4" />
+                </FxButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[220px]">
+                <DropdownMenuLabel>Account</DropdownMenuLabel>
+                <DropdownMenuItem>
+                  <User className="size-4" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Settings className="size-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <CircleHelp className="size-4" />
+                  Help
+                </DropdownMenuItem>
+                <DropdownMenuItem className="text-[var(--fx-danger)]">
+                  <LogOut className="size-4" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <p className="text-[12px] leading-5 text-muted-foreground">
+              Soft elevation + defined border, calm hover, sentence-case label — sits above dialogs.
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Creatable select · persists to localStorage</p>
+            <FxCreatableSelect
+              options={roleOptions}
+              placeholder="Select your role"
+              createLabel="Create new role"
+              storageKey={STORAGE_KEYS.role}
+            />
+            <p className="text-[12px] leading-5 text-muted-foreground">
+              Search, pick, or type a new role and Create. Saved under <code className="font-mono text-[11px]">FxID8r.Role</code> — survives reload.
+            </p>
+          </div>
+        </div>
+      </FxPanel>
+
+      <FxPanel {...specPanelTone} eyebrow="Badges" title="Tones, Variants, And Sizes">
+        <div className="space-y-5">
+          {["soft", "outline", "solid"].map((variant) => (
+            <div key={variant} className="space-y-2">
+              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">{variant}</p>
+              <div className="flex flex-wrap items-center gap-2">
+                {badgeTones.map((tone) => (
+                  <FxBadge key={tone} tone={tone} variant={variant}>
+                    {tone}
+                  </FxBadge>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          <div className="space-y-2">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Sizes</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <FxBadge size="xs" tone="primary">xs</FxBadge>
+              <FxBadge size="sm" tone="primary">sm</FxBadge>
+              <FxBadge size="md" tone="primary">md</FxBadge>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">With Status Dot</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <FxBadge tone="success" dot>Active</FxBadge>
+              <FxBadge tone="warning" dot>Pending</FxBadge>
+              <FxBadge tone="danger" dot>Blocked</FxBadge>
+              <FxBadge tone="subtle" dot>Draft</FxBadge>
+            </div>
+          </div>
+        </div>
+      </FxPanel>
     </div>
   );
 }
@@ -653,18 +741,7 @@ function SurfacesSection() {
         </FxPanel>
 
         <FxPanel {...specPanelTone} eyebrow="Sheet" title="Sheet Preview">
-          <div className="grid min-h-[220px] grid-cols-[minmax(0,1fr)_420px] overflow-hidden border border-border">
-            <div className="bg-[var(--fx-bg-soft)]" />
-            <div className="border-l border-border bg-[var(--fx-surface-raised)] px-6 py-5 shadow-[-6px_0_18px_rgba(15,23,42,0.04)]">
-              <p className="text-[20px] font-semibold text-foreground">Configuration Sheet</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">Working pane with low visual weight.</p>
-              <div className="mt-6 space-y-3">
-                <div className="h-10 border border-border bg-[var(--fx-surface-subtle)]" />
-                <div className="h-10 border border-border bg-[var(--fx-surface-subtle)]" />
-                <div className="h-28 border border-border bg-[var(--fx-surface-subtle)]" />
-              </div>
-            </div>
-          </div>
+          <FxSheetShowcase />
         </FxPanel>
       </div>
 

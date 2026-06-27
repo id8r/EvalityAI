@@ -6,7 +6,7 @@ import {
   APP_NOTIFICATION_HEIGHT,
   APP_VIEWPORT_HEIGHT,
   SIDEBAR_WIDTHS,
-} from "@/lib/FxConstants";
+} from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 

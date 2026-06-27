@@ -1,4 +1,4 @@
-// src/components/marketing/OnboardingPage.js | Post-signup onboarding (role + purpose) | Sree | 2026-06-26
+/* src/components/marketing/OnboardingPage.js | Post-signup onboarding (role + purpose) | Sree | 2026-06-26 */
 
 "use client";
 

@@ -1,6 +1,6 @@
 /* src/components/FxUI/AppShell/FxRightPanel.js | Workspace shell right utility pane scaffold | Sree | 2026-06-25 */
 
-import { APP_HEADER_HEIGHT } from "@/lib/FxConstants";
+import { APP_HEADER_HEIGHT } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 
 /* - - - - - - - - - - - - - - - - */

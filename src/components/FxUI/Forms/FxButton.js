@@ -21,12 +21,13 @@ const fxButtonVariants = cva(FX_BUTTON.base, {
         "border-[var(--fx-border)] bg-transparent text-[var(--fx-text)] hover:bg-[var(--fx-surface-hover)] hover:border-[color:color-mix(in_srgb,var(--fx-border-strong)_60%,transparent)]",
       ghost:
         "border-transparent bg-transparent text-[var(--fx-text-muted)] hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)]",
-      auth:
-        "border-[var(--fx-border)] bg-[var(--fx-surface)] text-[var(--fx-text)] hover:border-[var(--fx-border-strong)] hover:bg-[var(--fx-surface-hover)]",
       destructive:
         "border-transparent bg-[var(--fx-danger)] text-white hover:bg-[color:color-mix(in_srgb,var(--fx-danger)_88%,black)]",
       destructiveOutline:
         "border-[var(--fx-danger)] bg-transparent text-[var(--fx-danger)] hover:bg-[color:color-mix(in_srgb,var(--fx-danger)_10%,transparent)]",
+      // Soft danger: red border + subtle red fill — a low-emphasis, secondary-style danger action.
+      destructiveSoft:
+        "border-[color:color-mix(in_srgb,var(--fx-danger)_45%,transparent)] bg-[color:color-mix(in_srgb,var(--fx-danger)_10%,var(--fx-surface))] text-[var(--fx-danger)] hover:bg-[color:color-mix(in_srgb,var(--fx-danger)_16%,var(--fx-surface))]",
     },
     size: {
       xs: cn(FX_BUTTON.height.xs, FX_BUTTON.paddingX.xs, "text-[12px]"),
@@ -62,7 +63,8 @@ function FxButton({
   ...props
 }) {
   const isDisabled = loading || disabled;
-  const radiusClass = FX_BUTTON.radiusBySize[size ?? "md"] ?? FX_BUTTON.radius;
+  // Hero is the pill-shaped marketing CTA — fully rounded regardless of size.
+  const radiusClass = variant === "hero" ? "rounded-full" : FX_BUTTON.radiusBySize[size ?? "md"] ?? FX_BUTTON.radius;
 
   return (
     <ButtonPrimitive

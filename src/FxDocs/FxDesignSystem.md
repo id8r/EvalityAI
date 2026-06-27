@@ -51,6 +51,12 @@ When choosing between two visual approaches, prefer the one that is simpler, cal
 
 For table architecture, column API, cell presets, and v1 scope, see FxDocs/FxTableArchitecture.md.
 
+### Where things live
+
+* `src/app/globals.css` — visual **token values** (colors, CSS variables, light/dark).
+* `src/lib/FxTheme.js` — visual + **layout recipes** (`FX_*`) **and shell geometry values** (viewport/header/footer heights, sidebar widths, content padding, and the `THEMES` ids).
+* `src/lib/FxConstants.js` — **app/product constants** only (`APP_NAME`, `ROUTES`, `STORAGE_KEYS`, nav ids, product enums).
+
 ---
 
 ## 🎨 Colors

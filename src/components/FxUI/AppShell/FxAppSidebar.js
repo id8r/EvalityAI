@@ -1,6 +1,6 @@
 /* src/components/FxUI/AppShell/FxAppSidebar.js | Workspace shell sidebar scaffold | Sree | 2026-06-25 */
 
-import { APP_HEADER_HEIGHT, SIDEBAR_WIDTHS } from "@/lib/FxConstants";
+import { APP_HEADER_HEIGHT, SIDEBAR_WIDTHS } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 

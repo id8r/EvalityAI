@@ -1,7 +1,6 @@
 /* src/components/FxUI/AppShell/FxAppHeader.js | Workspace shell header scaffold | Sree | 2026-06-25 */
 
-import { APP_HEADER_HEIGHT } from "@/lib/FxConstants";
-import { FX_LAYOUT } from "@/lib/FxTheme";
+import { APP_HEADER_HEIGHT, FX_LAYOUT } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 

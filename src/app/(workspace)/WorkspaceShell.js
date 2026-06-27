@@ -16,6 +16,7 @@ import {
 } from "@/components/FxUI/AppShell";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { APP_NAME, ROUTES, STORAGE_KEYS } from "@/lib/FxConstants";
+import { getStored, setStored } from "@/lib/FxStorage";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -31,7 +32,8 @@ function subscribeCollapsed(callback) {
 }
 
 function getCollapsedSnapshot() {
-  return window.localStorage.getItem(STORAGE_KEYS.sidebarCollapsed) === "true";
+  // Sidebar-Open is "Y" | "N"; collapsed only when explicitly "N" (default expanded).
+  return getStored(STORAGE_KEYS.sidebarOpen) === "N";
 }
 
 function getCollapsedServerSnapshot() {
@@ -63,7 +65,8 @@ export default function WorkspaceShell({ children }) {
   const [activeKey, setActiveKey] = useState("action-center");
 
   function toggleCollapsed() {
-    window.localStorage.setItem(STORAGE_KEYS.sidebarCollapsed, String(!collapsed));
+    // toggling to next state: open ("Y") when currently collapsed, else collapsed ("N").
+    setStored(STORAGE_KEYS.sidebarOpen, collapsed ? "Y" : "N");
     window.dispatchEvent(new Event(SIDEBAR_EVENT));
   }
 

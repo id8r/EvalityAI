@@ -1,37 +1,36 @@
 /* src/lib/FxTheme.js | Reusable Tailwind class-recipe layer for the Fx design system | Sree | 2026-06-26 */
 
 /*
-  WHAT THIS FILE IS
-  -----------------
-  A semantic recipe layer: named groups of Tailwind class strings that components
-  consume instead of re-inlining arbitrary values. It is the realization of the
-  FX_TYPOGRAPHY / FX_LAYOUT token groups promised in FxCodingConventions.md.
+  Semantic recipe layer: named Tailwind class-string groups (+ a few raw layout values) so
+  components compose tokens instead of inlining arbitrary values.
 
-  SOURCE OF TRUTH
-  ---------------
-  - Color VALUES live only in `src/app/globals.css` as `--fx-*` custom properties.
-    Recipes here reference those tokens (e.g. `bg-[var(--fx-surface)]`) and never
-    hardcode hex. globals.css is canonical; this file is class recipes only.
-  - Raw shell DIMENSIONS used in inline styles (header height, sidebar widths,
-    content padding) live in `src/lib/FxConstants.js`. This file owns class recipes;
-    FxConstants owns immovable pixel dimensions. Where both express the same spacing
-    (e.g. content padding 24/32), they are intentionally parallel — one for inline
-    style, one for utility classes.
+  Source of truth:
+  - Colors → globals.css (`--fx-*`); recipes here only reference tokens, never hardcode hex.
+  - Shell geometry + theme ids → this file (FX_THEMES / FX_SHELL below) — visual/layout values.
+  - App/product constants (names, routes, storage keys) → FxConstants.js.
 
-  DUAL-THEME MODEL (read before adding "dark" variants)
-  -----------------------------------------------------
-  These recipes are theme-agnostic BY CONSTRUCTION. Because color recipes reference
-  semantic `--fx-*` tokens, and globals.css already redefines those tokens under the
-  `.dark` selector, a single recipe resolves to the correct color in BOTH light and
-  dark automatically. There is deliberately NO duplicate `FX_*_LIGHT` / `FX_*_DARK`
-  object — that would re-duplicate values and contradict the single-source rule.
-
-  The only recipes that need explicit per-theme treatment are ones whose correctness
-  is NOT captured by a token swap — elevation and overlays read too weak in dark mode.
-  Those carry inline `dark:` utilities (globals.css registers the `dark` variant), so
-  the SAME recipe still works regardless of the active theme.
+  Dual-theme by construction: token-driven recipes resolve in light/dark automatically; only
+  elevation/overlay need explicit `dark:` overrides.
 */
 
+/* - - - - - - - - - - - - - - - - */
+
+/* FX_THEMES | Theme identifiers. The active theme drives the `.dark` class on <html>; the
+   color VALUES per theme live in globals.css. */
+export const THEMES = {
+  LIGHT: "light",
+  DARK: "dark",
+};
+/* - - - - - - - - - - - - - - - - */
+
+/* FX_SHELL | Raw shell geometry (inline-style values) for the AppShell pieces. */
+export const APP_VIEWPORT_HEIGHT = "100dvh"; // full app frame
+export const APP_HEADER_HEIGHT = "56px"; // workspace header
+export const APP_PUBLIC_HEADER_HEIGHT = "64px"; // public / marketing header
+export const APP_NOTIFICATION_HEIGHT = "44px"; // notification row
+export const APP_FOOTER_HEIGHT = "48px"; // footer
+export const APP_CONTENT_PADDING = { baseX: "24px", baseY: "24px", wideX: "32px", wideY: "32px" };
+export const SIDEBAR_WIDTHS = { expanded: "200px", collapsed: "72px", rightPanel: "320px" };
 /* - - - - - - - - - - - - - - - - */
 
 /* FX_TYPOGRAPHY | Type roles from the design-system scale. Size + weight + line-height only — never color. */
@@ -48,8 +47,7 @@ export const FX_TYPOGRAPHY = {
 };
 /* - - - - - - - - - - - - - - - - */
 
-/* FX_SPACE | The 8px spacing vocabulary. Raw values so components compose them into
-   `gap-[…]` / `p-[…]` / inline style. Not exploded into every utility permutation. */
+/* FX_SPACE | 8px spacing vocabulary as raw values, composed into gap-[…] / p-[…] / inline style. */
 export const FX_SPACE = {
   xs: "8px",
   sm: "16px",
@@ -71,9 +69,7 @@ export const FX_RADIUS = {
 };
 /* - - - - - - - - - - - - - - - - */
 
-/* FX_SHADOW | Elevation. Soft and minimal; borders do most structural work.
-   Theme-aware: each level carries a `dark:` override because shadows read too
-   weak against dark surfaces when only the token swaps. */
+/* FX_SHADOW | Elevation, soft + minimal. Each level carries a `dark:` override (shadows read weak on dark surfaces). */
 export const FX_SHADOW = {
   none: "shadow-none",
   sm: "shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:shadow-[0_1px_2px_rgba(0,0,0,0.32)]",
@@ -82,8 +78,7 @@ export const FX_SHADOW = {
 };
 /* - - - - - - - - - - - - - - - - */
 
-/* FX_SURFACE | Background/surface compositions. Token-driven, so dual-theme by default.
-   `overlay` is the modal/sheet backdrop and carries a dark variant for adequate dimming. */
+/* FX_SURFACE | Background/surface compositions. Token-driven, so dual-theme by default. `overlay` is the modal/sheet backdrop and carries a dark variant for adequate dimming. */
 export const FX_SURFACE = {
   page: "bg-[var(--fx-bg)] text-[var(--fx-text)]",
   canvas: "bg-[var(--fx-bg-soft)]",
@@ -108,8 +103,7 @@ export const FX_BORDER = {
 };
 /* - - - - - - - - - - - - - - - - */
 
-/* FX_LAYOUT | Page width framing and content padding (utility-class form).
-   Mirrors APP_CONTENT_PADDING from FxConstants (24/32) for class-based consumers. */
+/* FX_LAYOUT | Page width frames + content padding (utility-class form). Mirrors APP_CONTENT_PADDING above. */
 export const FX_LAYOUT = {
   // Content width frames (carried from the older app's curated set).
   contentNarrow: "max-w-[800px]",
@@ -133,8 +127,7 @@ export const FX_LAYOUT = {
 };
 /* - - - - - - - - - - - - - - - - */
 
-/* FX_CONTROL | Form-control sizing and the shared field frame.
-   Heights: sm 36 / md 40 / lg 44 (md is the default input/select height). */
+/* FX_CONTROL | Form-control sizing + shared field frame. Heights sm 36 / md 40 / lg 44. */
 export const FX_CONTROL = {
   height: {
     sm: "h-9",
@@ -146,9 +139,22 @@ export const FX_CONTROL = {
 };
 /* - - - - - - - - - - - - - - - - */
 
-/* FX_BUTTON | Structural button recipes (height, padding, base shell). Color VARIANTS
-   live in the cva in components/FxUI/Forms/FxButton.js — this group is for non-cva
-   call sites that need button-shaped elements (links, Radix triggers). */
+/* FX_INPUT | Text-field sizing + variants, composed over the `ui/input` base by `FxInput`. */
+export const FX_INPUT = {
+  size: {
+    sm: "h-[34px] px-3 text-[14px]",
+    md: "h-[40px] px-4 text-[14px]",
+    lg: "h-[44px] px-4 text-[14px]",
+  },
+  variant: {
+    outline: "", // the ui/input base already provides the boxed outline look
+    underline:
+      "rounded-none border-0 border-b border-[var(--fx-border)] bg-transparent px-0 shadow-none focus-visible:border-[var(--fx-primary)]",
+  },
+};
+/* - - - - - - - - - - - - - - - - */
+
+/* FX_BUTTON | Structural button recipes (height/padding/base). Color variants live in the FxButton cva; this is for non-cva call sites (links, triggers). */
 export const FX_BUTTON = {
   radius: "rounded-[8px]",
   radiusBySize: {
@@ -179,11 +185,7 @@ export const FX_BUTTON = {
 };
 /* - - - - - - - - - - - - - - - - */
 
-/* FX_BADGE | Structural badge recipe (shell + size). The tone × variant COLOR matrix
-   (soft / outline / solid across the 7 tones) lives in the cva in
-   components/FxUI/DataDisplay/FxBadge.js — this group is shell + sizing only.
-   Pill shape by default; `border` is always present so the `outline` variant shows it
-   while `soft`/`solid` set it transparent. */
+/* FX_BADGE | Structural badge recipe (shell + size). Tone×variant colors live in the FxBadge cva. Pill by default; `border` always present so `outline` shows it. */
 export const FX_BADGE = {
   base:
     "inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full border font-medium leading-none",
@@ -195,8 +197,7 @@ export const FX_BADGE = {
 };
 /* - - - - - - - - - - - - - - - - */
 
-/* FX_NAVIGATION | Sidebar / nav item recipes. Active state uses the selected surface
-   + primary text; consumed by the workspace sidebar when nav rendering lands. */
+/* FX_NAVIGATION | Sidebar / nav item recipes (active = selected surface + primary text). */
 export const FX_NAVIGATION = {
   itemBase:
     "group relative flex h-11 items-center gap-3 rounded-[8px] px-3 text-[14px] font-medium leading-5 transition-colors",
@@ -217,8 +218,7 @@ export const FX_TABLE = {
 };
 /* - - - - - - - - - - - - - - - - */
 
-/* FX_SHEET | Side-sheet recipes. Widths from the design-system sheet scale
-   (Sm 512 / Md 768 / Lg 1024 / Xl 1184). Motion tokens are theme-agnostic. */
+/* FX_SHEET | Side-sheet recipes. Widths sm 512 / md 768 / lg 1024 / xl 1184; motion tokens theme-agnostic. */
 export const FX_SHEET = {
   width: {
     sm: "w-[512px] max-w-[calc(100vw-2rem)]",
@@ -247,8 +247,7 @@ export const FX_SHEET = {
 };
 /* - - - - - - - - - - - - - - - - */
 
-/* FX_STATE | Field validation + interaction state recipes. Frame/label/message tones
-   per state, plus shared focus ring and disabled treatment. Token-driven (dual-theme). */
+/* FX_STATE | Field validation/interaction recipes — frame/label/message tones per state + focus ring + disabled. */
 export const FX_STATE = {
   focusRing: "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fx-ring)]",
   disabledControl:

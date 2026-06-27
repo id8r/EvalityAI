@@ -290,14 +290,16 @@ export function useFxTable({
     [selectedKeySet, selectedKeys, setSelected],
   );
 
+  // Gmail-style header toggle: any selection present (all OR indeterminate) clears it; only an
+  // empty selection selects all visible rows.
   const toggleAllVisible = useCallback(() => {
-    if (isAllVisibleSelected) {
+    if (isAllVisibleSelected || isSomeVisibleSelected) {
       const visibleSetLocal = new Set(visibleRowKeys);
       setSelected(selectedKeys.filter((key) => !visibleSetLocal.has(key)));
       return;
     }
     setSelected([...selectedKeys, ...visibleRowKeys]);
-  }, [isAllVisibleSelected, visibleRowKeys, selectedKeys, setSelected]);
+  }, [isAllVisibleSelected, isSomeVisibleSelected, visibleRowKeys, selectedKeys, setSelected]);
 
   const clearSelection = useCallback(() => setSelected([]), [setSelected]);
 

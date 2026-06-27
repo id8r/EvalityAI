@@ -1,6 +1,6 @@
 /* src/components/FxUI/AppShell/FxAppContent.js | Workspace shell content scaffold | Sree | 2026-06-25 */
 
-import { APP_CONTENT_PADDING } from "@/lib/FxConstants";
+import { APP_CONTENT_PADDING } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 
 /* - - - - - - - - - - - - - - - - */
