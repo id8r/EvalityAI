@@ -262,12 +262,12 @@ export default function JobsPage() {
         <FxPageToolbar.Row>
           <FxPageToolbar.Start>
             <FxTabs
-              variant="segmented"
+              variant="rounded"
               value={tab}
               onValueChange={setTab}
               tabs={[
-                { value: "active", label: "Active", count: activeCount },
-                { value: "archived", label: "Archived", count: archivedCount },
+                { value: "active", label: `Active (${activeCount})` },
+                { value: "archived", label: `Archived (${archivedCount})` },
               ]}
             />
           </FxPageToolbar.Start>

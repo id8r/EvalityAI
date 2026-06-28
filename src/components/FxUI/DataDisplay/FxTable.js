@@ -402,16 +402,21 @@ export function FxTable({
   }
 
   function stickyEdgeClass(column) {
-    if (!hasHorizontalOverflow) return "";
     if (column.sticky === "left" && column.key === stickyMeta.leftBoundaryKey) {
-      return hasOverflowLeft
-        ? "shadow-[4px_0_10px_rgba(15,23,42,0.06)] dark:shadow-[4px_0_10px_rgba(0,0,0,0.28)] border-r border-[var(--fx-border-light)]"
-        : "";
+      return cn(
+        "border-r border-[color:color-mix(in_srgb,var(--fx-border-light)_70%,transparent)]",
+        hasHorizontalOverflow && hasOverflowLeft
+          ? "shadow-[4px_0_10px_rgba(15,23,42,0.06)] dark:shadow-[4px_0_10px_rgba(0,0,0,0.28)]"
+          : "",
+      );
     }
     if (column.sticky === "right" && column.key === stickyMeta.rightBoundaryKey) {
-      return hasOverflowLeft && hasOverflowRight
-        ? "shadow-[-4px_0_10px_rgba(15,23,42,0.06)] dark:shadow-[-4px_0_10px_rgba(0,0,0,0.28)] border-l border-[var(--fx-border-light)]"
-        : "";
+      return cn(
+        "border-l border-[color:color-mix(in_srgb,var(--fx-border-light)_70%,transparent)]",
+        hasHorizontalOverflow && hasOverflowLeft && hasOverflowRight
+          ? "shadow-[-4px_0_10px_rgba(15,23,42,0.06)] dark:shadow-[-4px_0_10px_rgba(0,0,0,0.28)]"
+          : "",
+      );
     }
     return "";
   }

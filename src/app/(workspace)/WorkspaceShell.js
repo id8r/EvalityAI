@@ -191,6 +191,7 @@ export default function WorkspaceShell({ children }) {
         }
         header={
           <FxAppHeader
+            contentClassName="w-full px-6 md:px-8"
             start={
               title ? <h1 className={cn(FX_TYPOGRAPHY.sectionTitle, "truncate text-[var(--fx-text)]")}>{title}</h1> : null
             }
