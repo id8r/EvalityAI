@@ -58,10 +58,12 @@ function FxTabs({
   variant = "rounded",
   showIcons = false,
   underlineFullWidth = false,
+  fullWidth = false,
   children,
 }) {
   const resolved = tabVariantClasses[variant] ?? tabVariantClasses.rounded;
-  const listClassName = resolved.list;
+  const listClassName = cn(resolved.list, fullWidth && "flex w-full");
+  const triggerClassName = cn(resolved.trigger, fullWidth && "flex-1");
 
   return (
     <Tabs
@@ -74,7 +76,7 @@ function FxTabs({
         <div className={tabVariantClasses.underlined.wrapper}>
           <TabsList className={listClassName}>
             {tabs.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} disabled={tab.disabled} className={cn(resolved.trigger)}>
+              <TabsTrigger key={tab.value} value={tab.value} disabled={tab.disabled} className={triggerClassName}>
                 {renderTabLabel(tab, showIcons)}
               </TabsTrigger>
             ))}
@@ -83,7 +85,7 @@ function FxTabs({
       ) : (
         <TabsList className={listClassName}>
           {tabs.map((tab) => (
-            <TabsTrigger key={tab.value} value={tab.value} disabled={tab.disabled} className={cn(resolved.trigger)}>
+            <TabsTrigger key={tab.value} value={tab.value} disabled={tab.disabled} className={triggerClassName}>
               {renderTabLabel(tab, showIcons)}
             </TabsTrigger>
           ))}

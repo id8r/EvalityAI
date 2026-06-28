@@ -7,6 +7,7 @@ function Sonner(props) {
     <Toaster
       theme="light"
       richColors
+      position="bottom-center"
       toastOptions={{
         classNames: {
           toast: "border border-border bg-[var(--fx-surface-raised)] text-foreground shadow-[0_16px_40px_rgba(15,23,42,0.12)]",

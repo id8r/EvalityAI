@@ -9,7 +9,7 @@ function FxRadioGroupField({ label, description, options = [], className, ...pro
     <div className={cn("space-y-3", className)}>
       {label ? (
         <div className="space-y-1">
-          <p className="text-[12px] font-medium uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
+          <p className="text-[14px] font-medium leading-[20px] text-muted-foreground">{label}</p>
           {description ? <p className="text-[13px] text-muted-foreground">{description}</p> : null}
         </div>
       ) : null}

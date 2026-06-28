@@ -49,7 +49,7 @@ export function DemoResetControl() {
   }
 
   return (
-    <div className="fixed bottom-3 right-3 z-[60] print:hidden">
+    <div className="fixed bottom-3 left-3 z-[60] print:hidden">
       <Popover open={menuOpen} onOpenChange={setMenuOpen}>
         <PopoverTrigger asChild>
           <button

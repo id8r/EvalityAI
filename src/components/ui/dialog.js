@@ -41,7 +41,7 @@ function DialogContent({ className, children, showCloseButton = true, ...props }
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-[calc(100%-2rem)] max-w-[560px] -translate-x-1/2 -translate-y-1/2 gap-5 border border-border bg-[var(--fx-surface-raised)] p-6 text-card-foreground shadow-[0_20px_60px_rgba(15,23,42,0.14)] duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "fixed top-1/2 left-1/2 z-50 grid w-[calc(100%-2rem)] max-w-[560px] -translate-x-1/2 -translate-y-1/2 gap-5 rounded-[16px] border border-border bg-[var(--fx-surface-raised)] p-6 text-card-foreground shadow-[0_20px_60px_rgba(15,23,42,0.14)] duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           className,
         )}
         {...props}

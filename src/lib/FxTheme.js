@@ -130,9 +130,9 @@ export const FX_LAYOUT = {
 /* FX_INPUT | Text-field sizing + variants, composed over the `ui/input` base by `FxInput`. */
 export const FX_INPUT = {
   size: {
-    sm: "h-[34px] px-3 text-[14px]",
-    md: "h-[40px] px-4 text-[14px]",
-    lg: "h-[44px] px-4 text-[14px]",
+    sm: "h-[34px] px-3 text-[15px]",
+    md: "h-[40px] px-4 text-[15px]",
+    lg: "h-[44px] px-4 text-[15px]",
   },
   variant: {
     outline: "", // the ui/input base already provides the boxed outline look
@@ -207,8 +207,10 @@ export const FX_TABLE = {
 };
 /* - - - - - - - - - - - - - - - - */
 
-/* FX_SHEET | Side-sheet recipes. Widths sm 512 / md 768 / lg 1024 / xl 1184; motion tokens theme-agnostic. */
+/* FX_SHEET | Workspace-container recipes — the single source of truth for FxSheet (spec: src/FxDocs/FxSheetWorkspace.md).
+   Overlay-only v1. Tweak widths / pane widths / paddings / motion here; the components only read from this. */
 export const FX_SHEET = {
+  // Sheet envelope widths (the `size` prop). `full` keeps a 96px peek of the app behind it.
   width: {
     sm: "w-[512px] max-w-[calc(100vw-2rem)]",
     md: "w-[768px] max-w-[calc(100vw-2rem)]",
@@ -216,22 +218,35 @@ export const FX_SHEET = {
     xl: "w-[1184px] max-w-[calc(100vw-2rem)]",
     full: "w-[calc(100vw-96px)] max-w-none",
   },
-  headerHeight: "h-16",
-  footerHeight: "h-14",
-  bodyPadding: "px-6 py-6",
+  // Default per-pane widths by role (px). `primary` fills the rest (flex-1).
+  paneWidth: { secondary: 240, tertiary: 360 },
+  // Suggested default `size` per layout — reference for callers; FxSheet does not auto-apply it.
+  layoutSize: { single: "md", two: "lg", three: "xl", custom: "full" },
+  // Region paddings.
+  header: { padding: "px-6 py-5" },
+  toolbar: { padding: "px-6 py-3" },
+  footer: { padding: "px-6 py-4" },
+  pane: {
+    padding: { primary: "px-6 py-5", secondary: "px-4 py-4", tertiary: "px-5 py-5" },
+    divider: "border-border",
+  },
   title: FX_TYPOGRAPHY.cardTitle,
   subtitle: FX_TYPOGRAPHY.meta,
+  // Motion — transform-only, snappy/productive (enter 200 · exit 150). Applied as data-state Tailwind utilities.
   motion: {
-    openDurationMs: 280,
-    closeDurationMs: 220,
+    openDurationMs: 200,
+    closeDurationMs: 150,
     openEase: "cubic-bezier(0.16, 1, 0.3, 1)",
     closeEase: "cubic-bezier(0.4, 0, 1, 1)",
-    contentOpen:
-      "data-[state=open]:duration-[280ms] data-[state=open]:ease-[cubic-bezier(0.16,1,0.3,1)]",
-    contentClose:
-      "data-[state=closed]:duration-[220ms] data-[state=closed]:ease-[cubic-bezier(0.4,0,1,1)]",
-    overlayOpen: "data-[state=open]:duration-[220ms] data-[state=open]:ease-out",
-    overlayClose: "data-[state=closed]:duration-[220ms] data-[state=closed]:ease-out",
+    // Panel (SheetContent): per-phase duration + easing; reduced-motion zeroes the timing.
+    panel:
+      "data-[state=open]:duration-[200ms] data-[state=open]:ease-[cubic-bezier(0.16,1,0.3,1)] " +
+      "data-[state=closed]:duration-[150ms] data-[state=closed]:ease-[cubic-bezier(0.4,0,1,1)] " +
+      "motion-reduce:!duration-0",
+    // Scrim (SheetOverlay): opacity fade only.
+    overlay:
+      "data-[state=open]:duration-[150ms] data-[state=closed]:duration-[120ms] " +
+      "data-[state=open]:ease-out data-[state=closed]:ease-out motion-reduce:!duration-0",
   },
 };
 /* - - - - - - - - - - - - - - - - */

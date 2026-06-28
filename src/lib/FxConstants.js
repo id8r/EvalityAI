@@ -21,7 +21,7 @@ export const ROUTES = {
   // Workspace (authenticated, under the (workspace) route group)
   workbench: "/home", // recruiter home/workbench (nav label "Action Center")
   jobs: "/jobs",
-  jobWorkspace: (jobId) => `/jobs/${jobId}`,
+  jobWorkspace: (jobId, tab = "unscreened") => `/jobs/${jobId}?tab=${tab}`,
   candidates: "/candidates",
   clients: "/clients",
   settings: "/settings",

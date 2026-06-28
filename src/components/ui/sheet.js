@@ -4,6 +4,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cva } from "class-variance-authority";
 import { X } from "lucide-react";
 
+import { FX_SHEET } from "@/lib/FxTheme";
 import { cn } from "@/lib/utils";
 
 const Sheet = DialogPrimitive.Root;
@@ -11,8 +12,9 @@ const SheetTrigger = DialogPrimitive.Trigger;
 const SheetClose = DialogPrimitive.Close;
 const SheetPortal = DialogPrimitive.Portal;
 
+// Motion (duration/easing) comes from FX_SHEET.motion — applied on SheetContent. Transform-only slide per side.
 const sheetVariants = cva(
-  "fixed z-50 flex flex-col overflow-hidden bg-[var(--fx-surface-raised)] text-foreground transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=open]:duration-200",
+  "fixed z-50 flex flex-col overflow-hidden bg-[var(--fx-surface-raised)] text-foreground data-[state=open]:animate-in data-[state=closed]:animate-out motion-reduce:!animate-none",
   {
     variants: {
       side: {
@@ -42,7 +44,8 @@ function SheetOverlay({ className, ...props }) {
     <DialogPrimitive.Overlay
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-40 bg-[color:color-mix(in_srgb,var(--fx-dark-panel)_22%,transparent)] backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        "fixed inset-0 z-40 bg-[color:color-mix(in_srgb,var(--fx-dark-panel)_22%,transparent)] backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 motion-reduce:!animate-none",
+        FX_SHEET.motion.overlay,
         className,
       )}
       {...props}
@@ -56,7 +59,7 @@ function SheetContent({ className, children, side = "right", onEscapeKeyDown, ..
       <SheetOverlay />
       <DialogPrimitive.Content
         data-slot="sheet-content"
-        className={cn(sheetVariants({ side }), className)}
+        className={cn(sheetVariants({ side }), FX_SHEET.motion.panel, className)}
         onEscapeKeyDown={(event) => {
           if (isEditableEscapeTarget(event.target) || isEditableEscapeTarget(document.activeElement)) {
             event.preventDefault();

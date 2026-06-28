@@ -33,8 +33,18 @@
     "content": {
       "jobDescription": "Build scalable backend services powering payments and financial workflows.",
       "companyBrief": "Series A fintech product company.",
-      "primarySkills": ["Java", "Spring Boot", "Microservices", "AWS"],
-      "secondarySkills": ["Kafka", "Redis", "Docker", "Kubernetes"],
+      "primarySkills": [
+        "Java",
+        "Spring Boot",
+        "Microservices",
+        "AWS"
+      ],
+      "secondarySkills": [
+        "Kafka",
+        "Redis",
+        "Docker",
+        "Kubernetes"
+      ],
       "responsibilities": [
         "Design scalable backend systems",
         "Build REST APIs",
@@ -144,7 +154,7 @@
       "id": "job_003",
       "title": "Product Manager",
       "clientId": "cli_002",
-      "status": "published",
+      "status": "draft",
       "priority": "medium",
       "assigneeId": "usr_001",
       "createdById": "usr_001",
@@ -239,8 +249,18 @@
     "content": {
       "jobDescription": "Design and maintain automated test suites to keep product quality high across releases.",
       "companyBrief": "AI and data engineering consultancy.",
-      "primarySkills": ["Selenium", "Java", "TestNG", "Cypress"],
-      "secondarySkills": ["API Testing", "CI/CD", "Jenkins", "Postman"],
+      "primarySkills": [
+        "Selenium",
+        "Java",
+        "TestNG",
+        "Cypress"
+      ],
+      "secondarySkills": [
+        "API Testing",
+        "CI/CD",
+        "Jenkins",
+        "Postman"
+      ],
       "responsibilities": [
         "Build and maintain automation frameworks",
         "Write end-to-end and regression tests",
@@ -264,7 +284,7 @@
       ]
     },
     "evaluationConfig": {
-      "evaluationContext": "QA automation for data-heavy products.",
+      "evaluationContext": "",
       "evaluationRounds": []
     }
   },
@@ -302,8 +322,18 @@
     "content": {
       "jobDescription": "Own CI/CD, infrastructure-as-code, and reliability for a fast-scaling SaaS platform.",
       "companyBrief": "Enterprise SaaS platform serving global customers.",
-      "primarySkills": ["AWS", "Kubernetes", "Docker", "Terraform"],
-      "secondarySkills": ["CI/CD", "Prometheus", "Linux", "Helm"],
+      "primarySkills": [
+        "AWS",
+        "Kubernetes",
+        "Docker",
+        "Terraform"
+      ],
+      "secondarySkills": [
+        "CI/CD",
+        "Prometheus",
+        "Linux",
+        "Helm"
+      ],
       "responsibilities": [
         "Build and operate CI/CD pipelines",
         "Manage Kubernetes clusters",
@@ -328,6 +358,1459 @@
     },
     "evaluationConfig": {
       "evaluationContext": "DevOps and platform reliability for SaaS.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_006",
+      "title": "Senior Data Engineer",
+      "clientId": "cli_003",
+      "status": "published",
+      "priority": "high",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-28T06:30:00Z"
+    },
+    "roleSpec": {
+      "positions": 2,
+      "experienceFrom": 5,
+      "experienceTo": 9,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Bengaluru",
+      "locality": "Whitefield",
+      "salaryRange": {
+        "min": 2800000,
+        "max": 4200000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Data",
+      "domain": "Data Platform"
+    },
+    "content": {
+      "jobDescription": "Build and scale the data platform powering enterprise analytics products.",
+      "companyBrief": "Analytics and data products company serving enterprise clients.",
+      "primarySkills": [
+        "Apache Spark",
+        "Scala",
+        "Airflow",
+        "AWS"
+      ],
+      "secondarySkills": [
+        "Kafka",
+        "Snowflake",
+        "Python",
+        "dbt"
+      ],
+      "responsibilities": [
+        "Design and own batch and streaming data pipelines",
+        "Model warehouse schemas for analytics",
+        "Ensure data quality and lineage",
+        "Partner with analysts on data needs"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_006_q1",
+          "text": "Tell us about your experience with Apache Spark."
+        },
+        {
+          "id": "job_006_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Senior Data Engineer for Analytics and data products company serving enterprise clients.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_007",
+      "title": "Machine Learning Engineer",
+      "clientId": "cli_003",
+      "status": "published",
+      "priority": "high",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-27T11:15:00Z"
+    },
+    "roleSpec": {
+      "positions": 2,
+      "experienceFrom": 3,
+      "experienceTo": 6,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Hyderabad",
+      "locality": "HITEC City",
+      "salaryRange": {
+        "min": 2500000,
+        "max": 4000000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Data Science",
+      "domain": "Machine Learning"
+    },
+    "content": {
+      "jobDescription": "Ship ML models for recommendations and forecasting into production.",
+      "companyBrief": "Analytics and data products company serving enterprise clients.",
+      "primarySkills": [
+        "Python",
+        "PyTorch",
+        "MLOps",
+        "SQL"
+      ],
+      "secondarySkills": [
+        "Docker",
+        "Kubernetes",
+        "AWS SageMaker"
+      ],
+      "responsibilities": [
+        "Frame business problems as ML/statistical models",
+        "Build, evaluate and ship models to production",
+        "Run experiments and measure impact",
+        "Communicate findings to stakeholders"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_007_q1",
+          "text": "Tell us about your experience with Python."
+        },
+        {
+          "id": "job_007_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Machine Learning Engineer for Analytics and data products company serving enterprise clients.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_008",
+      "title": "Engineering Manager",
+      "clientId": "cli_002",
+      "status": "published",
+      "priority": "high",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-28T04:10:00Z"
+    },
+    "roleSpec": {
+      "positions": 1,
+      "experienceFrom": 9,
+      "experienceTo": 14,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Bengaluru",
+      "locality": "Koramangala",
+      "salaryRange": {
+        "min": 5000000,
+        "max": 7000000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Engineering",
+      "domain": "Platform"
+    },
+    "content": {
+      "jobDescription": "Lead a platform team building the core of our SaaS product.",
+      "companyBrief": "Enterprise SaaS company building cloud collaboration tools.",
+      "primarySkills": [
+        "People Management",
+        "System Design",
+        "Java",
+        "Agile"
+      ],
+      "secondarySkills": [
+        "AWS",
+        "Microservices"
+      ],
+      "responsibilities": [
+        "Design and build scalable services",
+        "Write clean, well-tested code",
+        "Review PRs and uphold quality",
+        "Collaborate with product and design"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_008_q1",
+          "text": "Tell us about your experience with People Management."
+        },
+        {
+          "id": "job_008_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Engineering Manager for Enterprise SaaS company building cloud collaboration tools.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_009",
+      "title": "Android Developer",
+      "clientId": "cli_002",
+      "status": "published",
+      "priority": "medium",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-25T09:00:00Z"
+    },
+    "roleSpec": {
+      "positions": 2,
+      "experienceFrom": 3,
+      "experienceTo": 6,
+      "employmentType": "full_time",
+      "workplaceType": "on_site",
+      "city": "Pune",
+      "locality": "Hinjewadi",
+      "salaryRange": {
+        "min": 1600000,
+        "max": 2800000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Mobile",
+      "domain": "Android"
+    },
+    "content": {
+      "jobDescription": "Build the Android experience for our collaboration app.",
+      "companyBrief": "Enterprise SaaS company building cloud collaboration tools.",
+      "primarySkills": [
+        "Kotlin",
+        "Jetpack Compose",
+        "MVVM",
+        "REST APIs"
+      ],
+      "secondarySkills": [
+        "Coroutines",
+        "Firebase"
+      ],
+      "responsibilities": [
+        "Build and ship customer-facing app features",
+        "Optimize app performance and stability",
+        "Integrate REST APIs and SDKs",
+        "Own releases through the store pipeline"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_009_q1",
+          "text": "Tell us about your experience with Kotlin."
+        },
+        {
+          "id": "job_009_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Android Developer for Enterprise SaaS company building cloud collaboration tools.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_010",
+      "title": "iOS Developer",
+      "clientId": "cli_002",
+      "status": "published",
+      "priority": "medium",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-26T13:45:00Z"
+    },
+    "roleSpec": {
+      "positions": 1,
+      "experienceFrom": 3,
+      "experienceTo": 6,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Bengaluru",
+      "locality": "Indiranagar",
+      "salaryRange": {
+        "min": 1800000,
+        "max": 3000000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Mobile",
+      "domain": "iOS"
+    },
+    "content": {
+      "jobDescription": "Own iOS feature development for a fast-moving product team.",
+      "companyBrief": "Enterprise SaaS company building cloud collaboration tools.",
+      "primarySkills": [
+        "Swift",
+        "SwiftUI",
+        "Combine",
+        "REST APIs"
+      ],
+      "secondarySkills": [
+        "Core Data",
+        "XCTest"
+      ],
+      "responsibilities": [
+        "Build and ship customer-facing app features",
+        "Optimize app performance and stability",
+        "Integrate REST APIs and SDKs",
+        "Own releases through the store pipeline"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_010_q1",
+          "text": "Tell us about your experience with Swift."
+        },
+        {
+          "id": "job_010_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "iOS Developer for Enterprise SaaS company building cloud collaboration tools.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_011",
+      "title": "Full Stack Developer",
+      "clientId": null,
+      "status": "published",
+      "priority": "medium",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-28T07:20:00Z"
+    },
+    "roleSpec": {
+      "positions": 3,
+      "experienceFrom": 2,
+      "experienceTo": 5,
+      "employmentType": "full_time",
+      "workplaceType": "remote",
+      "city": "Remote",
+      "locality": null,
+      "salaryRange": {
+        "min": 1400000,
+        "max": 2400000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Engineering",
+      "domain": "Web"
+    },
+    "content": {
+      "jobDescription": "Build full-stack features across our internal recruiting tooling.",
+      "companyBrief": "Evality Recruiting Studio — internal hiring.",
+      "primarySkills": [
+        "React",
+        "Node.js",
+        "TypeScript",
+        "PostgreSQL"
+      ],
+      "secondarySkills": [
+        "GraphQL",
+        "AWS",
+        "Docker"
+      ],
+      "responsibilities": [
+        "Design and build scalable services",
+        "Write clean, well-tested code",
+        "Review PRs and uphold quality",
+        "Collaborate with product and design"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Fully Remote",
+        "Home-office Stipend",
+        "Learning Budget"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_011_q1",
+          "text": "Tell us about your experience with React."
+        },
+        {
+          "id": "job_011_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Full Stack Developer for Evality Recruiting Studio — internal hiring.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_012",
+      "title": "Site Reliability Engineer",
+      "clientId": "cli_001",
+      "status": "published",
+      "priority": "high",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-27T16:05:00Z"
+    },
+    "roleSpec": {
+      "positions": 2,
+      "experienceFrom": 4,
+      "experienceTo": 8,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Bengaluru",
+      "locality": "Bellandur",
+      "salaryRange": {
+        "min": 3000000,
+        "max": 4500000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Infrastructure",
+      "domain": "SRE"
+    },
+    "content": {
+      "jobDescription": "Keep payments infrastructure reliable, observable and secure.",
+      "companyBrief": "Fast-growing fintech building digital lending and payments products.",
+      "primarySkills": [
+        "Kubernetes",
+        "Terraform",
+        "Prometheus",
+        "Go"
+      ],
+      "secondarySkills": [
+        "AWS",
+        "Linux",
+        "CI/CD"
+      ],
+      "responsibilities": [
+        "Build reliable, observable infrastructure",
+        "Automate provisioning and deployments",
+        "Own incident response and on-call",
+        "Improve security and cost efficiency"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_012_q1",
+          "text": "Tell us about your experience with Kubernetes."
+        },
+        {
+          "id": "job_012_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Site Reliability Engineer for Fast-growing fintech building digital lending and payments products.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_013",
+      "title": "Data Scientist",
+      "clientId": "cli_003",
+      "status": "published",
+      "priority": "high",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-24T10:30:00Z"
+    },
+    "roleSpec": {
+      "positions": 1,
+      "experienceFrom": 4,
+      "experienceTo": 7,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Gurugram",
+      "locality": "Cyber City",
+      "salaryRange": {
+        "min": 2400000,
+        "max": 3800000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Data Science",
+      "domain": "Analytics"
+    },
+    "content": {
+      "jobDescription": "Turn product and customer data into decisions and models.",
+      "companyBrief": "Analytics and data products company serving enterprise clients.",
+      "primarySkills": [
+        "Python",
+        "Statistics",
+        "Machine Learning",
+        "SQL"
+      ],
+      "secondarySkills": [
+        "Tableau",
+        "A/B Testing",
+        "Spark"
+      ],
+      "responsibilities": [
+        "Frame business problems as ML/statistical models",
+        "Build, evaluate and ship models to production",
+        "Run experiments and measure impact",
+        "Communicate findings to stakeholders"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_013_q1",
+          "text": "Tell us about your experience with Python."
+        },
+        {
+          "id": "job_013_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Data Scientist for Analytics and data products company serving enterprise clients.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_014",
+      "title": "Business Analyst",
+      "clientId": "cli_001",
+      "status": "published",
+      "priority": "medium",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-23T08:50:00Z"
+    },
+    "roleSpec": {
+      "positions": 2,
+      "experienceFrom": 3,
+      "experienceTo": 6,
+      "employmentType": "full_time",
+      "workplaceType": "on_site",
+      "city": "Mumbai",
+      "locality": "Bandra Kurla Complex",
+      "salaryRange": {
+        "min": 1200000,
+        "max": 2000000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Product",
+      "domain": "Business Analysis"
+    },
+    "content": {
+      "jobDescription": "Bridge business and engineering for lending product squads.",
+      "companyBrief": "Fast-growing fintech building digital lending and payments products.",
+      "primarySkills": [
+        "SQL",
+        "Requirements Gathering",
+        "Stakeholder Management",
+        "Excel"
+      ],
+      "secondarySkills": [
+        "Power BI",
+        "JIRA"
+      ],
+      "responsibilities": [
+        "Translate business needs into clear requirements",
+        "Analyze data to inform decisions",
+        "Coordinate across engineering and design",
+        "Track delivery against outcomes"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_014_q1",
+          "text": "Tell us about your experience with SQL."
+        },
+        {
+          "id": "job_014_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Business Analyst for Fast-growing fintech building digital lending and payments products.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_015",
+      "title": "Senior Product Designer",
+      "clientId": "cli_002",
+      "status": "published",
+      "priority": "high",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-28T05:40:00Z"
+    },
+    "roleSpec": {
+      "positions": 1,
+      "experienceFrom": 5,
+      "experienceTo": 8,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Bengaluru",
+      "locality": "HSR Layout",
+      "salaryRange": {
+        "min": 2200000,
+        "max": 3500000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Design",
+      "domain": "Product Design"
+    },
+    "content": {
+      "jobDescription": "Own end-to-end design for core product surfaces.",
+      "companyBrief": "Enterprise SaaS company building cloud collaboration tools.",
+      "primarySkills": [
+        "Figma",
+        "Design Systems",
+        "User Research",
+        "Prototyping"
+      ],
+      "secondarySkills": [
+        "Usability Testing",
+        "Accessibility"
+      ],
+      "responsibilities": [
+        "Own end-to-end design for key flows",
+        "Run user research and usability testing",
+        "Contribute to the design system",
+        "Partner closely with engineering"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_015_q1",
+          "text": "Tell us about your experience with Figma."
+        },
+        {
+          "id": "job_015_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Senior Product Designer for Enterprise SaaS company building cloud collaboration tools.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_016",
+      "title": "UI/UX Designer",
+      "clientId": "cli_002",
+      "status": "draft",
+      "priority": "medium",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": null,
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-22T12:00:00Z"
+    },
+    "roleSpec": {
+      "positions": 1,
+      "experienceFrom": 2,
+      "experienceTo": 5,
+      "employmentType": "full_time",
+      "workplaceType": "remote",
+      "city": "Remote",
+      "locality": null,
+      "salaryRange": {
+        "min": 1200000,
+        "max": 2200000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Design",
+      "domain": "UX"
+    },
+    "content": {
+      "jobDescription": "Design intuitive flows and contribute to the design system.",
+      "companyBrief": "Enterprise SaaS company building cloud collaboration tools.",
+      "primarySkills": [
+        "Figma",
+        "Wireframing",
+        "Interaction Design",
+        "User Flows"
+      ],
+      "secondarySkills": [
+        "Design Tokens",
+        "HTML/CSS"
+      ],
+      "responsibilities": [
+        "Own end-to-end design for key flows",
+        "Run user research and usability testing",
+        "Contribute to the design system",
+        "Partner closely with engineering"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Fully Remote",
+        "Home-office Stipend",
+        "Learning Budget"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_016_q1",
+          "text": "Tell us about your experience with Figma."
+        },
+        {
+          "id": "job_016_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "UI/UX Designer for Enterprise SaaS company building cloud collaboration tools.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_017",
+      "title": "Technical Program Manager",
+      "clientId": "cli_002",
+      "status": "published",
+      "priority": "medium",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-26T15:25:00Z"
+    },
+    "roleSpec": {
+      "positions": 1,
+      "experienceFrom": 7,
+      "experienceTo": 11,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Hyderabad",
+      "locality": "Gachibowli",
+      "salaryRange": {
+        "min": 3500000,
+        "max": 5500000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Program",
+      "domain": "TPM"
+    },
+    "content": {
+      "jobDescription": "Drive complex cross-team programs to on-time delivery.",
+      "companyBrief": "Enterprise SaaS company building cloud collaboration tools.",
+      "primarySkills": [
+        "Program Management",
+        "Stakeholder Management",
+        "Agile",
+        "Roadmapping"
+      ],
+      "secondarySkills": [
+        "JIRA",
+        "Risk Management"
+      ],
+      "responsibilities": [
+        "Drive cross-functional program delivery",
+        "Manage dependencies, risks and timelines",
+        "Keep stakeholders aligned and informed",
+        "Improve delivery processes"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_017_q1",
+          "text": "Tell us about your experience with Program Management."
+        },
+        {
+          "id": "job_017_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Technical Program Manager for Enterprise SaaS company building cloud collaboration tools.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_018",
+      "title": "Cloud Architect",
+      "clientId": "cli_002",
+      "status": "published",
+      "priority": "high",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-27T09:35:00Z"
+    },
+    "roleSpec": {
+      "positions": 1,
+      "experienceFrom": 8,
+      "experienceTo": 12,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Bengaluru",
+      "locality": "Whitefield",
+      "salaryRange": {
+        "min": 4500000,
+        "max": 6500000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Infrastructure",
+      "domain": "Cloud"
+    },
+    "content": {
+      "jobDescription": "Define cloud architecture and standards across the platform.",
+      "companyBrief": "Enterprise SaaS company building cloud collaboration tools.",
+      "primarySkills": [
+        "AWS",
+        "Azure",
+        "Terraform",
+        "System Design"
+      ],
+      "secondarySkills": [
+        "Kubernetes",
+        "Networking",
+        "Security"
+      ],
+      "responsibilities": [
+        "Build reliable, observable infrastructure",
+        "Automate provisioning and deployments",
+        "Own incident response and on-call",
+        "Improve security and cost efficiency"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_018_q1",
+          "text": "Tell us about your experience with AWS."
+        },
+        {
+          "id": "job_018_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Cloud Architect for Enterprise SaaS company building cloud collaboration tools.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_019",
+      "title": "Cybersecurity Analyst",
+      "clientId": "cli_001",
+      "status": "published",
+      "priority": "medium",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-25T14:10:00Z"
+    },
+    "roleSpec": {
+      "positions": 2,
+      "experienceFrom": 3,
+      "experienceTo": 6,
+      "employmentType": "full_time",
+      "workplaceType": "on_site",
+      "city": "Chennai",
+      "locality": "OMR",
+      "salaryRange": {
+        "min": 1800000,
+        "max": 3000000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Security",
+      "domain": "InfoSec"
+    },
+    "content": {
+      "jobDescription": "Detect, investigate and respond to security threats.",
+      "companyBrief": "Fast-growing fintech building digital lending and payments products.",
+      "primarySkills": [
+        "SIEM",
+        "Threat Detection",
+        "Incident Response",
+        "Networking"
+      ],
+      "secondarySkills": [
+        "Python",
+        "SOC",
+        "ISO 27001"
+      ],
+      "responsibilities": [
+        "Monitor and triage security alerts",
+        "Lead incident response and investigations",
+        "Harden systems against threats",
+        "Drive security awareness and compliance"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_019_q1",
+          "text": "Tell us about your experience with SIEM."
+        },
+        {
+          "id": "job_019_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Cybersecurity Analyst for Fast-growing fintech building digital lending and payments products.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_020",
+      "title": "Database Administrator",
+      "clientId": "cli_001",
+      "status": "closed",
+      "priority": "low",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": "2026-06-20T10:00:00Z",
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-18T10:00:00Z"
+    },
+    "roleSpec": {
+      "positions": 1,
+      "experienceFrom": 4,
+      "experienceTo": 8,
+      "employmentType": "full_time",
+      "workplaceType": "on_site",
+      "city": "Pune",
+      "locality": "Kharadi",
+      "salaryRange": {
+        "min": 1600000,
+        "max": 2800000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Infrastructure",
+      "domain": "Database"
+    },
+    "content": {
+      "jobDescription": "Own database performance, reliability and backups.",
+      "companyBrief": "Fast-growing fintech building digital lending and payments products.",
+      "primarySkills": [
+        "PostgreSQL",
+        "MySQL",
+        "Query Optimization",
+        "Backup & Recovery"
+      ],
+      "secondarySkills": [
+        "MongoDB",
+        "AWS RDS"
+      ],
+      "responsibilities": [
+        "Build reliable, observable infrastructure",
+        "Automate provisioning and deployments",
+        "Own incident response and on-call",
+        "Improve security and cost efficiency"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_020_q1",
+          "text": "Tell us about your experience with PostgreSQL."
+        },
+        {
+          "id": "job_020_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Database Administrator for Fast-growing fintech building digital lending and payments products.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_021",
+      "title": "Solutions Architect",
+      "clientId": "cli_002",
+      "status": "published",
+      "priority": "high",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-28T03:15:00Z"
+    },
+    "roleSpec": {
+      "positions": 1,
+      "experienceFrom": 8,
+      "experienceTo": 13,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Bengaluru",
+      "locality": "Marathahalli",
+      "salaryRange": {
+        "min": 4800000,
+        "max": 7000000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Engineering",
+      "domain": "Solutions"
+    },
+    "content": {
+      "jobDescription": "Design solutions and support pre-sales for enterprise deals.",
+      "companyBrief": "Enterprise SaaS company building cloud collaboration tools.",
+      "primarySkills": [
+        "System Design",
+        "Cloud Architecture",
+        "Pre-Sales",
+        "Java"
+      ],
+      "secondarySkills": [
+        "AWS",
+        "Microservices",
+        "Stakeholder Management"
+      ],
+      "responsibilities": [
+        "Design and build scalable services",
+        "Write clean, well-tested code",
+        "Review PRs and uphold quality",
+        "Collaborate with product and design"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_021_q1",
+          "text": "Tell us about your experience with System Design."
+        },
+        {
+          "id": "job_021_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Solutions Architect for Enterprise SaaS company building cloud collaboration tools.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_022",
+      "title": "Talent Acquisition Specialist",
+      "clientId": null,
+      "status": "published",
+      "priority": "medium",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-24T17:30:00Z"
+    },
+    "roleSpec": {
+      "positions": 2,
+      "experienceFrom": 2,
+      "experienceTo": 5,
+      "employmentType": "full_time",
+      "workplaceType": "on_site",
+      "city": "Mumbai",
+      "locality": "Andheri East",
+      "salaryRange": {
+        "min": 800000,
+        "max": 1500000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Human Resources",
+      "domain": "Recruiting"
+    },
+    "content": {
+      "jobDescription": "Run technical recruiting end-to-end for our studio.",
+      "companyBrief": "Evality Recruiting Studio — internal hiring.",
+      "primarySkills": [
+        "Technical Recruiting",
+        "Sourcing",
+        "Stakeholder Management",
+        "ATS"
+      ],
+      "secondarySkills": [
+        "Boolean Search",
+        "Employer Branding"
+      ],
+      "responsibilities": [
+        "Own full-cycle technical recruiting",
+        "Source and engage strong candidates",
+        "Partner with hiring managers on intake",
+        "Deliver a great candidate experience"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_022_q1",
+          "text": "Tell us about your experience with Technical Recruiting."
+        },
+        {
+          "id": "job_022_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Talent Acquisition Specialist for Evality Recruiting Studio — internal hiring.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_023",
+      "title": "Customer Success Manager",
+      "clientId": "cli_002",
+      "status": "published",
+      "priority": "medium",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-26T11:05:00Z"
+    },
+    "roleSpec": {
+      "positions": 2,
+      "experienceFrom": 4,
+      "experienceTo": 8,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Bengaluru",
+      "locality": "Koramangala",
+      "salaryRange": {
+        "min": 1500000,
+        "max": 2600000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Customer Success",
+      "domain": "SaaS"
+    },
+    "content": {
+      "jobDescription": "Own customer onboarding, adoption and renewals.",
+      "companyBrief": "Enterprise SaaS company building cloud collaboration tools.",
+      "primarySkills": [
+        "Account Management",
+        "Onboarding",
+        "Upselling",
+        "SaaS"
+      ],
+      "secondarySkills": [
+        "CRM",
+        "Churn Analysis"
+      ],
+      "responsibilities": [
+        "Own onboarding and account health",
+        "Drive adoption, renewals and upsell",
+        "Be the voice of the customer internally",
+        "Reduce churn through proactive outreach"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_023_q1",
+          "text": "Tell us about your experience with Account Management."
+        },
+        {
+          "id": "job_023_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Customer Success Manager for Enterprise SaaS company building cloud collaboration tools.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_024",
+      "title": "Finance Analyst",
+      "clientId": null,
+      "status": "published",
+      "priority": "low",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-05T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-02T10:00:00Z",
+      "updatedAt": "2026-06-21T09:20:00Z"
+    },
+    "roleSpec": {
+      "positions": 1,
+      "experienceFrom": 2,
+      "experienceTo": 5,
+      "employmentType": "full_time",
+      "workplaceType": "on_site",
+      "city": "Mumbai",
+      "locality": "Powai",
+      "salaryRange": {
+        "min": 1000000,
+        "max": 1800000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Finance",
+      "domain": "FP&A"
+    },
+    "content": {
+      "jobDescription": "Support planning, budgeting and management reporting.",
+      "companyBrief": "Evality Recruiting Studio — internal hiring.",
+      "primarySkills": [
+        "Financial Modeling",
+        "Excel",
+        "Budgeting",
+        "Forecasting"
+      ],
+      "secondarySkills": [
+        "SQL",
+        "Power BI"
+      ],
+      "responsibilities": [
+        "Build financial models and forecasts",
+        "Own budgeting and variance analysis",
+        "Partner with leadership on planning",
+        "Automate recurring reporting"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget",
+        "Annual Bonus"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "job_024_q1",
+          "text": "Tell us about your experience with Financial Modeling."
+        },
+        {
+          "id": "job_024_q2",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Finance Analyst for Evality Recruiting Studio — internal hiring.",
       "evaluationRounds": []
     }
   }

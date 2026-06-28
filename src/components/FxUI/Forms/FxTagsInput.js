@@ -168,7 +168,7 @@ function FxTagsInput({
               if (event.target === event.currentTarget) inputRef.current?.focus();
             }}
             className={cn(
-              "flex w-full flex-wrap items-center gap-2 rounded-[6px] border border-[var(--fx-border)] bg-[var(--fx-surface)] px-3 py-1.5 text-[14px] text-[var(--fx-text)] transition-colors focus-within:border-[var(--fx-primary)] focus-within:ring-2 focus-within:ring-[var(--fx-ring)]",
+              "flex w-full flex-wrap items-center gap-2 rounded-[6px] border border-[var(--fx-border)] bg-[var(--fx-surface)] px-3 py-1.5 text-[15px] text-[var(--fx-text)] transition-colors focus-within:border-[var(--fx-primary)] focus-within:ring-2 focus-within:ring-[var(--fx-ring)]",
               FRAME_MIN_HEIGHT[size] ?? FRAME_MIN_HEIGHT.md,
               disabled ? "cursor-not-allowed opacity-60" : "cursor-text",
             )}

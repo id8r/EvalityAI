@@ -21,6 +21,7 @@ import { FxAiButton, FxButton, FxCheckboxField, FxCreatableSelect, FxEditableFie
 import { FxPanel } from "@/components/FxUI/Layout";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { FxColorTokenCard } from "./FxColorTokenCard";
+import { FxFormControlsShowcase } from "./FxFormControlsShowcase";
 import { FxPageToolbarShowcase } from "./FxPageToolbarShowcase";
 import { FxSheetShowcase } from "./FxSheetShowcase";
 import { FxTableShowcase } from "./FxTableShowcase";
@@ -714,6 +715,8 @@ function ControlsSection() {
           </div>
         </div>
       </FxPanel>
+
+      <FxFormControlsShowcase panelTone={specPanelTone} />
     </div>
   );
 }

@@ -31,6 +31,7 @@ const FxInput = forwardRef(function FxInput(
     value,
     defaultValue,
     onChange,
+    onKeyDown,
     ...props
   },
   ref,
@@ -94,6 +95,7 @@ const FxInput = forwardRef(function FxInput(
           value={value}
           defaultValue={defaultValue}
           onChange={handleChange}
+          onKeyDown={onKeyDown}
           {...props}
         />
         {showClear ? (

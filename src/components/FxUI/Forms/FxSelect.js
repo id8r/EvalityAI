@@ -30,6 +30,7 @@ function FxSelect({
   value,
   defaultValue = "",
   onChange,
+  onKeyDown,
   placeholder = "Select an option",
   size = "sm",
   label,
@@ -76,6 +77,7 @@ function FxSelect({
               FX_INPUT.size[size] ?? FX_INPUT.size.sm,
               !selected ? "text-[var(--fx-text-muted)]" : "",
             )}
+            onKeyDown={onKeyDown}
             {...props}
           >
             <span className="min-w-0 flex-1 truncate">{selected?.label || placeholder}</span>

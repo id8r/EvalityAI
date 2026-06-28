@@ -216,3 +216,115 @@
   }
 }
 /* - - - - - - - - - - - - - - - - */
+
+/* FX_PROSE | Single source of truth for rich-text rendering — shared by FxRichTextEditor (editable) and
+   FxRichText (read-only) so authored content and its display look identical. */
+.fx-prose {
+  color: var(--fx-text);
+  font-size: 14px;
+  line-height: 1.65;
+  word-break: break-word;
+}
+.fx-prose :where(h1, h2, h3) {
+  font-weight: 600;
+  color: var(--fx-text);
+  line-height: 1.3;
+}
+.fx-prose :where(h1) {
+  font-size: 20px;
+  margin: 0.9em 0 0.45em;
+}
+.fx-prose :where(h2) {
+  font-size: 17px;
+  margin: 0.9em 0 0.4em;
+}
+.fx-prose :where(h3) {
+  font-size: 15px;
+  margin: 0.8em 0 0.35em;
+}
+.fx-prose :where(p) {
+  margin: 0.5em 0;
+}
+.fx-prose :where(ul, ol) {
+  margin: 0.5em 0;
+  padding-left: 1.4em;
+}
+.fx-prose :where(ul) {
+  list-style: disc;
+}
+.fx-prose :where(ol) {
+  list-style: decimal;
+}
+.fx-prose :where(li) {
+  margin: 0.2em 0;
+}
+.fx-prose :where(li p) {
+  margin: 0;
+}
+.fx-prose :where(a) {
+  color: var(--fx-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.fx-prose :where(strong) {
+  font-weight: 600;
+}
+.fx-prose :where(em) {
+  font-style: italic;
+}
+.fx-prose :where(blockquote) {
+  border-left: 3px solid var(--fx-border);
+  padding-left: 0.9em;
+  margin: 0.6em 0;
+  color: var(--fx-text-muted);
+}
+.fx-prose :where(code) {
+  background: var(--fx-surface-subtle);
+  border: 1px solid var(--fx-border);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+  font-family: var(--font-mono, ui-monospace, "SF Mono", Menlo, monospace);
+  font-size: 0.86em;
+}
+.fx-prose :where(pre) {
+  background: var(--fx-surface-subtle);
+  border: 1px solid var(--fx-border);
+  border-radius: 8px;
+  padding: 0.8em 1em;
+  overflow-x: auto;
+  margin: 0.6em 0;
+}
+.fx-prose :where(pre code) {
+  background: none;
+  border: 0;
+  padding: 0;
+}
+.fx-prose :where(hr) {
+  border: 0;
+  border-top: 1px solid var(--fx-border);
+  margin: 1em 0;
+}
+.fx-prose :where(> :first-child) {
+  margin-top: 0;
+}
+.fx-prose :where(> :last-child) {
+  margin-bottom: 0;
+}
+
+/* Editable surface (the ProseMirror contenteditable carries .fx-prose .fx-rte-content). */
+.fx-rte-content {
+  outline: none;
+  min-height: var(--fx-rte-min, 200px);
+}
+.fx-rte-content:focus {
+  outline: none;
+}
+/* Tiptap placeholder (empty editor) */
+.fx-rte-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--fx-text-disabled);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+/* - - - - - - - - - - - - - - - - */
