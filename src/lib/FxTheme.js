@@ -200,7 +200,7 @@ export const FX_NAVIGATION = {
 export const FX_TABLE = {
   container: "w-full overflow-hidden rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface)]",
   headerCell:
-    "h-12 border-b border-[var(--fx-border)] bg-[var(--fx-table-header)] px-4 text-left align-middle text-[12px] font-medium leading-[16px] text-[var(--fx-text-muted)]",
+    "h-12 border-b border-[var(--fx-border)] bg-[var(--fx-table-header)] px-4 text-left align-middle text-[13px] font-medium leading-[18px] text-[var(--fx-text-muted)]",
   bodyCell: "border-b border-[var(--fx-border-light)] px-4 py-2 align-middle text-[14px] leading-[22px] text-[var(--fx-text)]",
   row: "bg-[var(--fx-surface)] even:bg-[var(--fx-table-row-alt)] hover:bg-[var(--fx-surface-hover)]",
   empty: "px-4 py-4 text-[14px] leading-[22px] text-[var(--fx-text-muted)]",

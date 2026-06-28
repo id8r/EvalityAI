@@ -1,6 +1,8 @@
 import "./globals.css";
 
 import { FxThemeController } from "@/components/FxUI/AppShell/FxThemeController";
+import { Sonner } from "@/components/ui/sonner";
+import { DemoResetControl } from "@/components/dev/DemoResetControl";
 
 export const metadata = {
   title: "Create Next App",
@@ -13,6 +15,8 @@ export default function RootLayout({ children }) {
       <body>
         <FxThemeController />
         {children}
+        <Sonner />
+        <DemoResetControl />
       </body>
     </html>
   );

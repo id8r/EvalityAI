@@ -93,6 +93,20 @@ export function clearEvData() {
   window.dispatchEvent(new Event(EV_DATA_EVENT));
 }
 
+// All Ev demo localStorage roots (domain runtime · view/table prefs · session). FxID8r (theme/sidebar) is a
+// design-system root and is intentionally excluded by default.
+const EV_DEMO_ROOTS = [ROOT, "EvUIData", "EvSession"];
+const FX_UI_ROOT = "FxID8r";
+
+// Full hard reset — wipe ALL Ev demo state so the next load is a brand-new visitor (logged out, default prefs,
+// re-seeded data). Keeps FxID8r (theme/sidebar) unless `keepTheme: false`. Caller should reload the app after.
+export function hardResetEvData({ keepTheme = true } = {}) {
+  if (typeof window === "undefined") return;
+  const roots = keepTheme ? EV_DEMO_ROOTS : [...EV_DEMO_ROOTS, FX_UI_ROOT];
+  roots.forEach((key) => window.localStorage.removeItem(key));
+  window.dispatchEvent(new Event(EV_DATA_EVENT));
+}
+
 // Reactivity for a future useSyncExternalStore hook: fires on same-tab writes + cross-tab storage changes.
 export function subscribeEvData(callback) {
   if (typeof window === "undefined") return () => {};

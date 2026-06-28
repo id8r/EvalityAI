@@ -107,6 +107,10 @@ export function createJob(input = {}) {
   setCollection("jobs", [...getJobs(), job]);
   return job;
 }
+export function deleteJob(id) {
+  setCollection("jobs", getJobs().filter((job) => job.core?.id !== id));
+  setCollection("applications", getApplications().filter((app) => app.jobId !== id));
+}
 
 /* ---------- Candidates ---------- */
 export function getCandidates() {

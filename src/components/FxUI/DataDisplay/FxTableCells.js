@@ -208,13 +208,46 @@ export function FxScoreCell({ value, suffix = "%", tone, onClick, className }) {
   return <span className={cn("font-medium tabular-nums text-[var(--fx-text)]", className)}>{text}</span>;
 }
 
-export function FxNumberCell({ value, href, className }) {
+export function FxNumberCell({ value, href, onClick, title, className }) {
   const text = isBlank(value) ? EMPTY : value;
+  const interactive = !isBlank(value) && (href || onClick);
+  const content = (
+    <span
+      className={cn(
+        "inline-flex min-w-[56px] items-center justify-center rounded-[8px] px-[8px] py-[4px] text-center text-[14px] leading-[22px]",
+        interactive ? "font-medium text-[var(--fx-primary)]" : "tabular-nums text-[var(--fx-text)]",
+        className,
+      )}
+    >
+      {text}
+    </span>
+  );
+
   if (href && !isBlank(value)) {
     return (
-      <Link href={href} onClick={stop} className={cn("tabular-nums text-[var(--fx-primary)] hover:text-[var(--fx-text)]", className)}>
-        {text}
+      <Link
+        href={href}
+        onClick={stop}
+        title={title}
+        className="inline-flex w-full items-center justify-center rounded-[6px] text-[var(--fx-primary)] transition-none hover:bg-[color:color-mix(in_srgb,var(--fx-bg-soft)_90%,var(--fx-surface)_88%)] hover:text-[color:color-mix(in_srgb,var(--fx-primary)_82%,black_18%)]"
+      >
+        {content}
       </Link>
+    );
+  }
+  if (onClick && !isBlank(value)) {
+    return (
+      <button
+        type="button"
+        onClick={(event) => {
+          stop(event);
+          onClick(event);
+        }}
+        title={title}
+        className="inline-flex w-full items-center justify-center rounded-[8px] text-[var(--fx-primary)] transition-colors hover:bg-[color:color-mix(in_srgb,var(--fx-bg-soft)_72%,var(--fx-surface)_28%)] hover:text-[color:color-mix(in_srgb,var(--fx-primary)_82%,black_18%)]"
+      >
+        {content}
+      </button>
     );
   }
   return <span className={cn("tabular-nums text-[var(--fx-text)]", className)}>{text}</span>;
@@ -275,8 +308,12 @@ function FxInlineAction({ icon: Icon, label, onClick, tone, disabled = false }) 
         onClick?.(event);
       }}
       className={cn(
-        "inline-flex size-8 items-center justify-center rounded-[6px] transition-colors hover:bg-[var(--fx-surface-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fx-ring)] disabled:pointer-events-none disabled:opacity-50",
-        tone === "danger" ? "text-[var(--fx-danger)]" : "text-[var(--fx-text-muted)] hover:text-[var(--fx-text)]",
+        "inline-flex size-8 items-center justify-center rounded-[6px] transition-colors hover:bg-[var(--fx-bg-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fx-ring)] disabled:pointer-events-none disabled:opacity-50",
+        tone === "danger"
+          ? "text-[var(--fx-danger)]"
+          : tone === "warning"
+            ? "text-[var(--fx-warning)]"
+            : "text-[var(--fx-text-muted)] hover:text-[var(--fx-text)]",
       )}
     >
       {Icon ? <Icon className="size-4" /> : null}
@@ -298,7 +335,7 @@ export function FxActionsCell({ items = [], inline = [], align = "right", menuLa
             <button
               type="button"
               aria-label={menuLabel}
-              className="inline-flex size-8 items-center justify-center rounded-[6px] text-[var(--fx-text-muted)] transition-colors hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fx-ring)]"
+              className="inline-flex size-8 items-center justify-center rounded-[6px] text-[var(--fx-text-muted)] transition-colors hover:bg-[var(--fx-bg-soft)] hover:text-[var(--fx-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fx-ring)]"
             >
               <MoreHorizontal className="size-4" />
             </button>
@@ -316,14 +353,16 @@ export function FxActionsCell({ items = [], inline = [], align = "right", menuLa
 
 function FxActionItem({ item }) {
   const Icon = item.icon;
-  const toneClass = item.tone === "danger" ? "text-[var(--fx-danger)]" : "";
+  const toneClass =
+    item.tone === "danger" ? "text-[var(--fx-danger)]" : item.tone === "warning" ? "text-[var(--fx-warning)]" : "";
+  const disabled = item.disabled === true;
   const content = (
     <>
       {Icon ? <Icon className="size-4" /> : null}
       {item.label}
     </>
   );
-  if (item.href) {
+  if (item.href && !disabled) {
     return (
       <>
         {item.separatorBefore ? <DropdownMenuSeparator /> : null}
@@ -338,7 +377,7 @@ function FxActionItem({ item }) {
   return (
     <>
       {item.separatorBefore ? <DropdownMenuSeparator /> : null}
-      <DropdownMenuItem className={toneClass} onClick={item.onClick}>
+      <DropdownMenuItem className={toneClass} disabled={disabled} onClick={disabled ? undefined : item.onClick}>
         {content}
       </DropdownMenuItem>
     </>

@@ -4,22 +4,24 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Archive, Plus, Pencil, Trash2 } from "lucide-react";
+import { Archive, Plus } from "lucide-react";
 
-import { FxBadge, FxColumnManager, FxTable, useFxTable } from "@/components/FxUI/DataDisplay";
+import { FxColumnManager, FxTable, useFxTable } from "@/components/FxUI/DataDisplay";
 import { FxButton, FxToolbarSearch } from "@/components/FxUI/Forms";
 import { FxPageToolbar } from "@/components/FxUI/Layout";
 import { FxTabs } from "@/components/FxUI/Navigation";
-import { getApplicationsByJob, getJobs } from "@/lib/EvData";
-import { experienceLabel, jobClientName, jobLocationLabel, stageLabel } from "@/lib/EvSelectors";
+import { FxDialog } from "@/components/FxUI/Overlays";
+import { archiveJob, deleteJob, getApplicationsByJob, getJobs, restoreJob } from "@/lib/EvData";
+import { jobLocationLabel, stageLabel } from "@/lib/EvSelectors";
 import { ROUTES } from "@/lib/FxConstants";
-import { useEvData } from "@/lib/useEvData";
 import { cn } from "@/lib/FxUtils";
+import { useEvData } from "@/lib/useEvData";
 /* - - - - - - - - - - - - - - - - */
 
 const STAGE_COLUMNS = [
   { key: "unscreened", label: stageLabel("unscreened") },
-  { key: "pre_screened", label: stageLabel("pre_screened") },
+  // Jobs-list summary labels the pre_screened stage "Screened" (shorter than the workspace tab).
+  { key: "pre_screened", label: "Screened" },
   { key: "shortlisted", label: stageLabel("shortlisted") },
 ];
 
@@ -64,7 +66,7 @@ function getLatestActivity(job) {
 function matchesJobSearch(row, query) {
   const q = query.trim().toLowerCase();
   if (!q) return true;
-  return [row.id, row.title, row.client, row.location].filter(Boolean).some((value) => String(value).toLowerCase().includes(q));
+  return [row.id, row.title, row.location].filter(Boolean).some((value) => String(value).toLowerCase().includes(q));
 }
 
 function EmptyStateCard({ icon: Icon, title, body, action }) {
@@ -90,6 +92,7 @@ export default function JobsPage() {
   const router = useRouter();
   const [tab, setTab] = useState("active");
   const [query, setQuery] = useState("");
+  const [pendingDeleteJob, setPendingDeleteJob] = useState(null);
 
   const jobs = ready ? getJobs() : [];
   const activeCount = jobs.filter((job) => !job.core?.archivedAt).length;
@@ -98,18 +101,14 @@ export default function JobsPage() {
   const rows = jobs
     .filter((job) => (tab === "archived" ? Boolean(job.core?.archivedAt) : !job.core?.archivedAt))
     .map((job) => {
-      const clientName = jobClientName(job) ?? "Internal";
       const location = jobLocationLabel(job.roleSpec);
-      const experience = experienceLabel(job.roleSpec);
       const lastActivity = getLatestActivity(job);
       const counts = getJobCounts(job.core.id);
       return {
         id: job.core.id,
         title: job.core.title,
         status: job.core.status,
-        client: clientName,
         location,
-        experience,
         positions: job.roleSpec?.positions ?? 0,
         lastActivity,
         archived: Boolean(job.core?.archivedAt),
@@ -144,65 +143,35 @@ export default function JobsPage() {
           </button>
         ),
       },
-      { key: "client", header: "Client", type: "text", sortable: true, sortType: "string", width: 180, minWidth: 150 },
       { key: "positions", header: "Positions", type: "number", align: "center", sortable: true, sortType: "number", width: 100, minWidth: 92 },
-      { key: "location", header: "Location", type: "text", sortable: true, sortType: "string", width: 180, minWidth: 140 },
-      { key: "experience", header: "Experience", type: "text", sortable: true, sortType: "string", width: 130, minWidth: 110 },
+      { key: "location", header: "Location", type: "text", sortable: false, width: 180, minWidth: 140 },
       ...STAGE_COLUMNS.map((stage) => ({
         key: stage.key,
         header: stage.label,
+        type: "number",
         sortable: true,
         sortType: "number",
         align: "center",
         width: 112,
         minWidth: 96,
-        cell: (row) => {
-          const count = row[stage.key] ?? 0;
-          return (
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                router.push(`${ROUTES.jobWorkspace(row.id)}?stage=${stage.key}`);
-              }}
-              aria-label={`${stage.label} stage for ${row.title}`}
-              title={`Open ${stage.label} stage`}
-              className="inline-flex justify-center"
-            >
-              <FxBadge tone={count > 0 ? "primary" : "subtle"} variant="soft" size="xs">
-                {count}
-              </FxBadge>
-            </button>
-          );
-        },
+        cellProps: (row) => ({
+          href: `${ROUTES.jobWorkspace(row.id)}?stage=${stage.key}`,
+          title: `Open ${stage.label} stage`,
+        }),
       })),
       {
         key: "shared",
         header: "Shared",
+        type: "number",
         sortable: true,
         sortType: "number",
         align: "center",
         width: 96,
         minWidth: 88,
-        cell: (row) => {
-          const count = row.shared ?? 0;
-          return (
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                router.push(`${ROUTES.jobWorkspace(row.id)}?view=shared`);
-              }}
-              aria-label={`Shared pipeline for ${row.title}`}
-              title="Open shared items"
-              className="inline-flex justify-center"
-            >
-              <FxBadge tone={count > 0 ? "primary" : "subtle"} variant="soft" size="xs">
-                {count}
-              </FxBadge>
-            </button>
-          );
-        },
+        cellProps: (row) => ({
+          href: `${ROUTES.jobWorkspace(row.id)}?view=shared`,
+          title: `Open shared items for ${row.title}`,
+        }),
       },
       {
         key: "lastActivity",
@@ -234,9 +203,12 @@ export default function JobsPage() {
         cellProps: (row) => ({
           align: "center",
           items: [
-            { label: "Edit Job", icon: Pencil, onClick: () => router.push(ROUTES.jobWorkspace(row.id)) },
-            { label: "Archive Job", icon: Archive, separatorBefore: true },
-            { label: "Delete Job", icon: Trash2, tone: "danger" },
+            { label: "View Candidates", href: `${ROUTES.jobWorkspace(row.id)}?stage=unscreened` },
+            { label: "Edit Job", onClick: () => router.push(ROUTES.jobWorkspace(row.id)) },
+            row.archived
+              ? { label: "Restore Job", separatorBefore: true, onClick: () => restoreJob(row.id) }
+              : { label: "Archive Job", tone: "warning", separatorBefore: true, onClick: () => archiveJob(row.id) },
+            { label: "Delete Job", tone: "danger", onClick: () => setPendingDeleteJob({ id: row.id, title: row.title }) },
           ],
         }),
       },
@@ -255,67 +227,92 @@ export default function JobsPage() {
   const showArchivedEmptyState = tab === "archived" && archivedCount === 0 && !query.trim();
   const showActiveEmptyState = tab === "active" && activeCount === 0 && !query.trim();
   const createJob = () => {};
+  const confirmDeleteJob = () => {
+    if (!pendingDeleteJob?.id) return;
+    deleteJob(pendingDeleteJob.id);
+    setPendingDeleteJob(null);
+  };
 
   return (
-    <div className="px-6 py-6 md:px-8">
-      <FxPageToolbar>
-        <FxPageToolbar.Row>
-          <FxPageToolbar.Start>
-            <FxTabs
-              variant="rounded"
-              value={tab}
-              onValueChange={setTab}
-              tabs={[
-                { value: "active", label: `Active (${activeCount})` },
-                { value: "archived", label: `Archived (${archivedCount})` },
-              ]}
-            />
-          </FxPageToolbar.Start>
-          <FxPageToolbar.End>
-            <FxToolbarSearch value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search jobs" />
-            <FxButton disabled onClick={createJob} title="Create Job coming soon">
-              Create Job
-            </FxButton>
-          </FxPageToolbar.End>
-        </FxPageToolbar.Row>
-      </FxPageToolbar>
-
-      <div className="mt-3 flex min-h-0 flex-col gap-3">
-        {showArchivedEmptyState ? (
-          <EmptyStateCard
-            icon={Archive}
-            title="No archived jobs yet"
-            body="Archive filled, closed, or inactive roles to keep your active workspace focused. Archived jobs can be restored later."
-          />
-        ) : showActiveEmptyState ? (
-          <EmptyStateCard
-            icon={Plus}
-            title="No jobs yet"
-            body="Create the first job to start tracking applicants, screening stages, and candidate activity."
-            action={
-              <FxButton disabled onClick={createJob} title="Create Job coming soon">
+    <>
+      <div className="px-6 py-6 md:px-8">
+        <FxPageToolbar>
+          <FxPageToolbar.Row>
+            <FxPageToolbar.Start>
+              <FxTabs
+                variant="rounded"
+                value={tab}
+                onValueChange={setTab}
+                tabs={[
+                  { value: "active", label: `Active (${activeCount})` },
+                  { value: "archived", label: `Archived (${archivedCount})` },
+                ]}
+              />
+            </FxPageToolbar.Start>
+            <FxPageToolbar.End>
+              <FxToolbarSearch value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search jobs" />
+              <FxButton size="sm" disabled onClick={createJob} title="Create Job coming soon">
                 Create Job
               </FxButton>
-            }
-          />
-        ) : (
-          <div className="h-[calc(100dvh-180px)]">
-            <FxTable
-              controller={table}
-              className="h-full"
-              sortable
-              resizable
-              stickyHeader
-              scrollX
-              loading={!ready}
-              columnManager={<FxColumnManager controller={table} variant="icon" align="right" />}
-              onRowClick={(row) => router.push(ROUTES.jobWorkspace(row.id))}
-              emptyMessage={query ? "No jobs match your search." : "No jobs yet."}
+            </FxPageToolbar.End>
+          </FxPageToolbar.Row>
+        </FxPageToolbar>
+
+        <div className="mt-3 flex min-h-0 flex-col gap-3">
+          {showArchivedEmptyState ? (
+            <EmptyStateCard
+              icon={Archive}
+              title="No archived jobs yet"
+              body="Archive filled, closed, or inactive roles to keep your active workspace focused. Archived jobs can be restored later."
             />
-          </div>
-        )}
+          ) : showActiveEmptyState ? (
+            <EmptyStateCard
+              icon={Plus}
+              title="No jobs yet"
+              body="Create the first job to start tracking applicants, screening stages, and candidate activity."
+              action={
+                <FxButton disabled onClick={createJob} title="Create Job coming soon">
+                  Create Job
+                </FxButton>
+              }
+            />
+          ) : (
+            <div className="h-[calc(100dvh-180px)]">
+              <FxTable
+                controller={table}
+                className="h-full"
+                sortable
+                resizable
+                stickyHeader
+                scrollX
+                loading={!ready}
+                columnManager={<FxColumnManager controller={table} variant="icon" align="right" />}
+                onRowClick={(row) => router.push(ROUTES.jobWorkspace(row.id))}
+                emptyMessage={query ? "No jobs match your search." : "No jobs yet."}
+              />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+      <FxDialog
+        open={Boolean(pendingDeleteJob)}
+        onOpenChange={(open) => !open && setPendingDeleteJob(null)}
+        title="Delete Job?"
+        description={`This will permanently delete "${pendingDeleteJob?.title ?? ""}".`}
+        showClose={false}
+        className="max-w-[520px]"
+        footer={
+          <>
+            <FxButton variant="outline" size="sm" onClick={() => setPendingDeleteJob(null)}>
+              Cancel
+            </FxButton>
+            <FxButton variant="destructive" size="sm" onClick={confirmDeleteJob}>
+              Delete Job
+            </FxButton>
+          </>
+        }
+      />
+    </>
   );
 }
 /* - - - - - - - - - - - - - - - - */

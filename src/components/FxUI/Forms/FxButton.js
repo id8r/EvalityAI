@@ -51,6 +51,7 @@ const iconOnlySizeClasses = {
   xl: "size-[48px] p-0",
 };
 
+// Usage: <FxButton variant="primary|secondary|outline|ghost|destructive" size="sm|md|lg">Label</FxButton>
 function FxButton({
   className,
   variant,

@@ -35,7 +35,7 @@ function DropdownMenuSubTrigger({ className, inset, children, ...props }) {
     <DropdownMenuPrimitive.SubTrigger
       data-slot="dropdown-menu-sub-trigger"
       className={cn(
-        "flex cursor-pointer select-none items-center gap-[12px] rounded-[6px] px-[8px] py-[8px] text-sm outline-none transition-colors duration-100 hover:bg-[var(--fx-surface-hover)] focus:bg-[var(--fx-surface-hover)]",
+        "flex cursor-pointer select-none items-center gap-[12px] rounded-[6px] px-[8px] py-[8px] text-[14px] leading-[22px] font-normal outline-none transition-colors duration-100 hover:bg-[var(--fx-surface-hover)] focus:bg-[var(--fx-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         inset && "pl-8",
         className,
       )}
@@ -83,7 +83,7 @@ function DropdownMenuItem({ className, inset, ...props }) {
     <DropdownMenuPrimitive.Item
       data-slot="dropdown-menu-item"
       className={cn(
-        "relative flex cursor-pointer select-none items-center gap-[12px] rounded-[6px] px-[8px] py-[8px] text-sm outline-none transition-colors duration-100 hover:bg-[var(--fx-surface-hover)] focus:bg-[var(--fx-surface-hover)]",
+        "relative flex cursor-pointer select-none items-center gap-[12px] rounded-[6px] px-[8px] py-[8px] text-[14px] leading-[22px] font-normal outline-none transition-colors duration-100 hover:bg-[var(--fx-surface-hover)] focus:bg-[var(--fx-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         inset && "pl-8",
         className,
       )}
@@ -98,7 +98,7 @@ function DropdownMenuCheckboxItem({ className, children, checked, ...props }) {
       data-slot="dropdown-menu-checkbox-item"
       checked={checked}
       className={cn(
-        "relative flex cursor-pointer select-none items-center gap-[12px] rounded-[6px] py-[8px] pr-[12px] pl-[32px] text-sm outline-none transition-colors duration-100 hover:bg-[var(--fx-surface-hover)] focus:bg-[var(--fx-surface-hover)]",
+        "relative flex cursor-pointer select-none items-center gap-[12px] rounded-[6px] py-[8px] pr-[12px] pl-[32px] text-[14px] leading-[22px] font-normal outline-none transition-colors duration-100 hover:bg-[var(--fx-surface-hover)] focus:bg-[var(--fx-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         className,
       )}
       {...props}
@@ -118,7 +118,7 @@ function DropdownMenuRadioItem({ className, children, ...props }) {
     <DropdownMenuPrimitive.RadioItem
       data-slot="dropdown-menu-radio-item"
       className={cn(
-        "relative flex cursor-pointer select-none items-center gap-[12px] rounded-[6px] py-[8px] pr-[12px] pl-[32px] text-sm outline-none transition-colors duration-100 hover:bg-[var(--fx-surface-hover)] focus:bg-[var(--fx-surface-hover)]",
+        "relative flex cursor-pointer select-none items-center gap-[12px] rounded-[6px] py-[8px] pr-[12px] pl-[32px] text-[14px] leading-[22px] font-normal outline-none transition-colors duration-100 hover:bg-[var(--fx-surface-hover)] focus:bg-[var(--fx-surface-hover)] data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         className,
       )}
       {...props}
@@ -137,7 +137,7 @@ function DropdownMenuLabel({ className, inset, ...props }) {
   return (
     <DropdownMenuPrimitive.Label
       data-slot="dropdown-menu-label"
-      className={cn("px-[8px] py-[6px] text-[12px] font-medium leading-[16px] text-muted-foreground", inset && "pl-[32px]", className)}
+      className={cn("px-[8px] py-[8px] text-[12px] font-medium leading-[18px] text-muted-foreground", inset && "pl-[32px]", className)}
       {...props}
     />
   );

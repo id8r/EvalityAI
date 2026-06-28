@@ -3,12 +3,6 @@
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
 import { cn } from "@/lib/utils";
-import {
-  DialogOverlay,
-  DialogPortal,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
 
 function AlertDialog({ ...props }) {
   return <AlertDialogPrimitive.Root data-slot="alert-dialog" {...props} />;
@@ -18,10 +12,27 @@ function AlertDialogTrigger({ ...props }) {
   return <AlertDialogPrimitive.Trigger data-slot="alert-dialog-trigger" {...props} />;
 }
 
+function AlertDialogPortal({ ...props }) {
+  return <AlertDialogPrimitive.Portal data-slot="alert-dialog-portal" {...props} />;
+}
+
+function AlertDialogOverlay({ className, ...props }) {
+  return (
+    <AlertDialogPrimitive.Overlay
+      data-slot="alert-dialog-overlay"
+      className={cn(
+        "fixed inset-0 z-50 bg-[color:color-mix(in_srgb,var(--fx-dark-panel)_28%,transparent)] backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
 function AlertDialogContent({ className, ...props }) {
   return (
-    <DialogPortal>
-      <DialogOverlay />
+    <AlertDialogPortal>
+      <AlertDialogOverlay />
       <AlertDialogPrimitive.Content
         data-slot="alert-dialog-content"
         className={cn(
@@ -30,7 +41,7 @@ function AlertDialogContent({ className, ...props }) {
         )}
         {...props}
       />
-    </DialogPortal>
+    </AlertDialogPortal>
   );
 }
 
@@ -42,12 +53,24 @@ function AlertDialogFooter({ className, ...props }) {
   return <div data-slot="alert-dialog-footer" className={cn("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)} {...props} />;
 }
 
-function AlertDialogTitle(props) {
-  return <DialogTitle data-slot="alert-dialog-title" {...props} />;
+function AlertDialogTitle({ className, ...props }) {
+  return (
+    <AlertDialogPrimitive.Title
+      data-slot="alert-dialog-title"
+      className={cn("text-[20px] font-semibold leading-[1.2] tracking-tight text-foreground", className)}
+      {...props}
+    />
+  );
 }
 
-function AlertDialogDescription(props) {
-  return <DialogDescription data-slot="alert-dialog-description" {...props} />;
+function AlertDialogDescription({ className, ...props }) {
+  return (
+    <AlertDialogPrimitive.Description
+      data-slot="alert-dialog-description"
+      className={cn("text-sm leading-6 text-muted-foreground", className)}
+      {...props}
+    />
+  );
 }
 
 function AlertDialogAction({ className, ...props }) {
@@ -61,6 +84,8 @@ function AlertDialogCancel({ className, ...props }) {
 export {
   AlertDialog,
   AlertDialogTrigger,
+  AlertDialogPortal,
+  AlertDialogOverlay,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogFooter,
