@@ -13,22 +13,26 @@ import { SetupBanner } from "./SetupBanner";
 import { ProfileSection } from "./ProfileSection";
 import { OrganizationSection } from "./OrganizationSection";
 import { RecruitingStatusSection } from "./RecruitingStatusSection";
+import { ScreeningModeSection } from "./ScreeningModeSection";
+import { EmailSection } from "./EmailSection";
+import { CalendarSection } from "./CalendarSection";
+import { BillingSection } from "./BillingSection";
 import { PlaceholderSection } from "./PlaceholderSection";
 /* - - - - - - - - - - - - - - - - */
 
-// Real sections; the rest fall through to a placeholder (built next).
+// Real sections; the rest fall through to a placeholder.
 const SECTION_COMPONENTS = {
   profile: ProfileSection,
   organization: OrganizationSection,
   "recruiting-status": RecruitingStatusSection,
+  screening: ScreeningModeSection,
+  email: EmailSection,
+  calendar: CalendarSection,
+  billing: BillingSection,
 };
 
 const PLACEHOLDER_ITEMS = {
   "career-page": ["Career page URL", "Branding", "Public application experience"],
-  screening: ["Default screening channels", "Pre-screen mode", "Question flow"],
-  email: ["Connected mailboxes", "Default sender", "Email signature", "Communication preferences"],
-  calendar: ["Calendar connections", "Timezone", "Weekly availability", "Scheduling preferences"],
-  billing: ["Plan", "Usage & credits", "Invoices"],
 };
 
 const NO_COMPLETION = new Set();
@@ -39,11 +43,13 @@ function computeCompleted() {
   const user = getUserByEmail(getSession().email) ?? getUsers()[0];
   const done = new Set();
   if (user?.name && user?.email) done.add("profile");
-  if (settings.company?.companyName) done.add("organization");
+  if (settings.company?.companyName && settings.company?.companyLinkedIn) done.add("organization");
   if (settings.workspace?.workspaceType) done.add("recruiting-status");
   if (settings.screeningDefaults?.prescreenMode) done.add("screening");
-  if (settings.email?.senderAccount) done.add("email");
-  if (settings.calendar?.timezone) done.add("calendar");
+  const email = settings.email?.providerConnections ?? {};
+  if (email.gmail || email.outlook) done.add("email");
+  const calendar = settings.calendar?.providerConnections ?? {};
+  if (calendar.googleCalendar || calendar.outlookCalendar) done.add("calendar");
   if (settings.company?.careerPageUrl) done.add("career-page");
   if (settings.credits?.plan) done.add("billing");
   return done;

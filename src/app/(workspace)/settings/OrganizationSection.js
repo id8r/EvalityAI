@@ -71,15 +71,15 @@ export function OrganizationSection() {
       saving={saving}
       saveDisabled={!dirty}
     >
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_150px]">
         <FxInput label="Company name" value={form.companyName} onChange={(event) => set("companyName", event.target.value)} />
-        <FxInput label="Company website" value={form.companyWebsite} onChange={(event) => set("companyWebsite", event.target.value)} placeholder="https://" />
+        <FxInput label="Company LinkedIn" value={form.companyLinkedIn} onChange={(event) => set("companyLinkedIn", event.target.value)} placeholder="https://linkedin.com/company/…" />
+        <FxSelect label="Company size" placeholder="Select size" options={COMPANY_SIZE_OPTIONS} value={form.companySize} onChange={(value) => set("companySize", value)} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_220px]">
-        <FxInput label="Company LinkedIn" value={form.companyLinkedIn} onChange={(event) => set("companyLinkedIn", event.target.value)} placeholder="https://linkedin.com/company/…" />
+      <div className="grid gap-4 md:grid-cols-2">
+        <FxInput label="Company website" value={form.companyWebsite} onChange={(event) => set("companyWebsite", event.target.value)} placeholder="https://" />
         <FxInput label="Career page URL" value={form.careerPageUrl} onChange={(event) => set("careerPageUrl", event.target.value)} placeholder="https://" />
-        <FxSelect label="Company size" placeholder="Select size" options={COMPANY_SIZE_OPTIONS} value={form.companySize} onChange={(value) => set("companySize", value)} />
       </div>
 
       <FxTextarea

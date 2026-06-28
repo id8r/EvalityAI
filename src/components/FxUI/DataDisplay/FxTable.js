@@ -54,17 +54,17 @@ function resolveColumnStyle(column, overrideWidth) {
     const size = column.width ?? (column.__selection ? SELECTION_WIDTH : ACTIONS_DEFAULT_WIDTH);
     return { width: cssPx(size), minWidth: cssPx(size), maxWidth: cssPx(size) };
   }
+  if (column.sticky) {
+    const size = column.width ?? column.minWidth ?? DEFAULT_MIN_WIDTH;
+    return {
+      width: cssPx(size),
+      minWidth: cssPx(column.minWidth ?? size),
+      maxWidth: column.maxWidth != null ? cssPx(column.maxWidth) : cssPx(size),
+    };
+  }
   if (overrideWidth != null) {
     const value = cssPx(clampWidth(column, overrideWidth));
     return { width: value, minWidth: value, maxWidth: value };
-  }
-  if (column.sticky && column.width == null) {
-    const size = column.minWidth ?? DEFAULT_MIN_WIDTH;
-    return {
-      width: cssPx(size),
-      minWidth: cssPx(size),
-      maxWidth: column.maxWidth != null ? cssPx(column.maxWidth) : cssPx(size),
-    };
   }
   const style = {};
   if (!column.grow && column.width != null) style.width = cssPx(column.width);
@@ -262,6 +262,7 @@ export function FxTable({
   const [hasOverflowLeft, setHasOverflowLeft] = useState(false);
   const [hasOverflowRight, setHasOverflowRight] = useState(false);
   const [resizingKey, setResizingKey] = useState(null);
+  const hasHorizontalOverflow = hasOverflowLeft || hasOverflowRight;
 
   // Apply sticky-leading/trailing rules onto product columns, then inject the selection column.
   const renderColumns = useMemo(() => {
@@ -401,11 +402,16 @@ export function FxTable({
   }
 
   function stickyEdgeClass(column) {
+    if (!hasHorizontalOverflow) return "";
     if (column.sticky === "left" && column.key === stickyMeta.leftBoundaryKey) {
-      return "shadow-[4px_0_10px_rgba(15,23,42,0.06)] dark:shadow-[4px_0_10px_rgba(0,0,0,0.28)] border-r border-[var(--fx-border-light)]";
+      return hasOverflowLeft
+        ? "shadow-[4px_0_10px_rgba(15,23,42,0.06)] dark:shadow-[4px_0_10px_rgba(0,0,0,0.28)] border-r border-[var(--fx-border-light)]"
+        : "";
     }
     if (column.sticky === "right" && column.key === stickyMeta.rightBoundaryKey) {
-      return "shadow-[-4px_0_10px_rgba(15,23,42,0.06)] dark:shadow-[-4px_0_10px_rgba(0,0,0,0.28)] border-l border-[var(--fx-border-light)]";
+      return hasOverflowLeft && hasOverflowRight
+        ? "shadow-[-4px_0_10px_rgba(15,23,42,0.06)] dark:shadow-[-4px_0_10px_rgba(0,0,0,0.28)] border-l border-[var(--fx-border-light)]"
+        : "";
     }
     return "";
   }

@@ -2,10 +2,10 @@
   "company": {
     "companyName": "Evality Recruiting Studio",
     "companyWebsite": "https://evality.ai",
-    "companyLinkedIn": "https://www.linkedin.com/company/evality-ai",
+    "companyLinkedIn": "",
     "aboutCompany": "Evality Recruiting Studio helps startups and growth-stage companies discover, screen, and move high-quality candidates faster.",
     "companySize": "1-10",
-    "careerPageUrl": "https://evality.ai/careers",
+    "careerPageUrl": "",
     "logoUrl": "/images/evality-logo.svg",
     "industries": ["technology_staffing", "saas"]
   },
@@ -15,15 +15,15 @@
     "ownerUserId": "usr_001"
   },
   "screeningDefaults": {
-    "channels": ["manual", "email"],
-    "prescreenMode": "email"
+    "channels": ["manual", "form"],
+    "prescreenMode": "cv_and_prescreen"
   },
   "email": {
     "providerConnections": {
       "gmail": false,
       "outlook": false
     },
-    "senderAccount": "ananya.sharma@evality.ai",
+    "senderAccount": "",
     "signature": "Regards,\nAnanya Sharma\nEvality Recruiting Studio",
     "communicationPreferences": {
       "routeReplies": true,
@@ -36,39 +36,16 @@
       "googleCalendar": false,
       "outlookCalendar": false
     },
-    "defaultAccount": "ananya.sharma@evality.ai",
-    "timezone": "asia_kolkata",
+    "defaultAccount": "",
+    "timezone": "(UTC+05:30) Asia/Kolkata",
     "weeklyAvailability": [
-      {
-        "day": "monday",
-        "enabled": true,
-        "start": "10:00",
-        "end": "18:00"
-      },
-      {
-        "day": "tuesday",
-        "enabled": true,
-        "start": "10:00",
-        "end": "18:00"
-      },
-      {
-        "day": "wednesday",
-        "enabled": true,
-        "start": "10:00",
-        "end": "18:00"
-      },
-      {
-        "day": "thursday",
-        "enabled": true,
-        "start": "10:00",
-        "end": "18:00"
-      },
-      {
-        "day": "friday",
-        "enabled": true,
-        "start": "10:00",
-        "end": "17:00"
-      }
+      { "day": "Mon", "enabled": true, "start": "09:00", "end": "18:00" },
+      { "day": "Tue", "enabled": true, "start": "09:00", "end": "18:00" },
+      { "day": "Wed", "enabled": true, "start": "09:00", "end": "18:00" },
+      { "day": "Thu", "enabled": true, "start": "09:00", "end": "18:00" },
+      { "day": "Fri", "enabled": true, "start": "09:00", "end": "18:00" },
+      { "day": "Sat", "enabled": false, "start": "09:00", "end": "18:00" },
+      { "day": "Sun", "enabled": false, "start": "09:00", "end": "18:00" }
     ],
     "preferences": {
       "useConnectedCalendar": false,

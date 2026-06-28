@@ -58,9 +58,9 @@ export function SetupBanner({ sections, completed, onNavigate }) {
                 {isDone ? (
                   <Check className="size-4 shrink-0 text-[var(--fx-success)]" />
                 ) : (
-                  <Circle className="size-4 shrink-0 text-[var(--fx-text-disabled)]" />
+                  <Circle className="size-4 shrink-0 text-[var(--fx-primary)]" />
                 )}
-                <span className={cn("text-[14px] leading-5", isDone ? "text-[var(--fx-text-muted)]" : "text-[var(--fx-text)]")}>
+                <span className={cn("text-[14px] leading-5", isDone ? "text-[var(--fx-text-muted)]" : "text-[var(--fx-primary)]")}>
                   {section.label}
                 </span>
               </button>
