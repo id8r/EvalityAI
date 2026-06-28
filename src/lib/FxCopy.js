@@ -171,6 +171,9 @@ export const AUTH_COPY = {
   email: "Email",
   continue: "Continue",
   or: "or",
+  // Continuation step shown to first-time (Get Started) users right inside the auth popup.
+  roleTitle: "One last step",
+  roleDescription: "Tell us your role or title so we can tailor your workspace.",
 };
 
 /* - - - - - - - - - - - - - - - - */
@@ -187,9 +190,10 @@ export const ONBOARDING_COPY = {
     { value: "hr-team", label: "HR Team" },
   ],
   purposeLabel: "Who do you hire for?",
+  // values match the EvSchema workspaceType enum (my_company | clients | both)
   purposeOptions: [
-    { value: "internal", label: "My Company", description: "Hiring for your own organization" },
-    { value: "agency", label: "Clients", description: "Recruiting for external clients or companies" },
+    { value: "my_company", label: "My Company", description: "Hiring for your own organization" },
+    { value: "clients", label: "Clients", description: "Recruiting for external clients or companies" },
     { value: "both", label: "Both", description: "Managing internal and client hiring" },
   ],
   helperText: "We'll personalize your workspace, onboarding, and recommendations based on your recruiting workflow.",

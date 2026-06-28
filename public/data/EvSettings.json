@@ -1,49 +1,90 @@
 {
   "company": {
-    "companyName": "",
-    "companyWebsite": "",
-    "companyLinkedIn": "",
-    "aboutCompany": "",
-    "companySize": "",
-    "careerPageUrl": "",
-    "logoUrl": "",
-    "industries": []
+    "companyName": "Evality Recruiting Studio",
+    "companyWebsite": "https://evality.ai",
+    "companyLinkedIn": "https://www.linkedin.com/company/evality-ai",
+    "aboutCompany": "Evality Recruiting Studio helps startups and growth-stage companies discover, screen, and move high-quality candidates faster.",
+    "companySize": "1-10",
+    "careerPageUrl": "https://evality.ai/careers",
+    "logoUrl": "/images/evality-logo.svg",
+    "industries": ["technology_staffing", "saas"]
   },
   "workspace": {
-    "workspaceType": "",
-    "persona": "",
-    "ownerUserId": null
+    "workspaceType": "clients",
+    "persona": "independent_recruiter",
+    "ownerUserId": "usr_001"
   },
   "screeningDefaults": {
-    "channels": [],
-    "prescreenMode": ""
+    "channels": ["manual", "email"],
+    "prescreenMode": "email"
   },
   "email": {
-    "providerConnections": { "gmail": null, "outlook": null },
-    "senderAccount": "",
-    "signature": "",
+    "providerConnections": {
+      "gmail": false,
+      "outlook": false
+    },
+    "senderAccount": "ananya.sharma@evality.ai",
+    "signature": "Regards,\nAnanya Sharma\nEvality Recruiting Studio",
     "communicationPreferences": {
-      "routeReplies": false,
+      "routeReplies": true,
       "copyRecruiters": false,
-      "sendReminders": false
+      "sendReminders": true
     }
   },
   "calendar": {
-    "providerConnections": { "googleCalendar": null, "outlookCalendar": null },
-    "defaultAccount": "",
-    "timezone": "",
-    "weeklyAvailability": [],
+    "providerConnections": {
+      "googleCalendar": false,
+      "outlookCalendar": false
+    },
+    "defaultAccount": "ananya.sharma@evality.ai",
+    "timezone": "asia_kolkata",
+    "weeklyAvailability": [
+      {
+        "day": "monday",
+        "enabled": true,
+        "start": "10:00",
+        "end": "18:00"
+      },
+      {
+        "day": "tuesday",
+        "enabled": true,
+        "start": "10:00",
+        "end": "18:00"
+      },
+      {
+        "day": "wednesday",
+        "enabled": true,
+        "start": "10:00",
+        "end": "18:00"
+      },
+      {
+        "day": "thursday",
+        "enabled": true,
+        "start": "10:00",
+        "end": "18:00"
+      },
+      {
+        "day": "friday",
+        "enabled": true,
+        "start": "10:00",
+        "end": "17:00"
+      }
+    ],
     "preferences": {
       "useConnectedCalendar": false,
-      "blockBusyTime": false,
-      "preventDoubleBooking": false,
-      "sendSchedulingReminders": false
+      "blockBusyTime": true,
+      "preventDoubleBooking": true,
+      "sendSchedulingReminders": true
     }
   },
   "credits": {
-    "plan": null,
-    "balance": null,
-    "usage": {}
+    "plan": "free",
+    "balance": 120,
+    "usage": {
+      "resumeParsing": 18,
+      "emailScreening": 9,
+      "candidateRecommendations": 6
+    }
   },
-  "updatedAt": null
+  "updatedAt": "2026-06-28T09:00:00Z"
 }

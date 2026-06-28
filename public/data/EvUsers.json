@@ -1,14 +1,14 @@
 [
   {
-    "id": "",
-    "name": "",
-    "email": "",
-    "phone": "",
-    "role": "",
-    "aboutMe": "",
-    "authProvider": null,
-    "status": "",
-    "createdAt": null,
-    "updatedAt": null
+    "id": "usr_001",
+    "name": "Ananya Sharma",
+    "email": "ananya.sharma@evality.ai",
+    "phone": "+91 9876543210",
+    "role": "recruiter",
+    "aboutMe": "Independent recruiter specializing in product engineering, SaaS, fintech, and startup hiring across India.",
+    "authProvider": "email",
+    "status": "active",
+    "createdAt": "2026-01-15T08:30:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z"
   }
 ]

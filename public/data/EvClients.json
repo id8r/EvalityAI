@@ -1,14 +1,38 @@
 [
   {
-    "id": "",
-    "name": "",
-    "industry": "",
-    "ownerUserId": null,
-    "website": "",
-    "email": "",
-    "notes": "",
+    "id": "cli_001",
+    "name": "FinEdge Technologies",
+    "industry": "fintech",
+    "ownerUserId": "usr_001",
+    "website": "https://www.finedge.tech",
+    "email": "careers@finedge.tech",
+    "notes": "Scaling engineering team after Series A funding. Fast hiring expected through Q4.",
     "archivedAt": null,
-    "createdAt": null,
-    "updatedAt": null
+    "createdAt": "2026-01-10T10:00:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z"
+  },
+  {
+    "id": "cli_002",
+    "name": "CloudNexus Solutions",
+    "industry": "saas",
+    "ownerUserId": "usr_001",
+    "website": "https://www.cloudnexus.io",
+    "email": "talent@cloudnexus.io",
+    "notes": "Enterprise SaaS company expanding Product and Engineering teams.",
+    "archivedAt": null,
+    "createdAt": "2026-02-18T09:30:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z"
+  },
+  {
+    "id": "cli_003",
+    "name": "Aster Analytics",
+    "industry": "analytics",
+    "ownerUserId": "usr_001",
+    "website": "https://www.asteranalytics.ai",
+    "email": "jobs@asteranalytics.ai",
+    "notes": "AI and data engineering consultancy hiring senior technical talent.",
+    "archivedAt": null,
+    "createdAt": "2026-03-22T11:15:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z"
   }
 ]

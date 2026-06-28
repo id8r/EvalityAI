@@ -17,7 +17,7 @@ function FxRadioGroupField({ label, description, options = [], className, ...pro
         {options.map((option) => (
           <label
             key={option.value}
-            className="flex cursor-pointer items-start gap-3 border border-border bg-[var(--fx-surface)] px-4 py-3"
+            className="flex cursor-pointer items-start gap-3 rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface)] px-4 py-3 transition-colors hover:bg-[var(--fx-surface-hover)] has-[[data-state=checked]]:border-[var(--fx-primary)] has-[[data-state=checked]]:bg-[var(--fx-surface-selected)]"
           >
             <RadioGroupItem value={option.value} className="mt-0.5" />
             <span className="space-y-1">

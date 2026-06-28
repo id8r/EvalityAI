@@ -1,19 +1,400 @@
 [
   {
-    "id": "",
-    "name": "",
-    "email": "",
-    "phone": "",
-    "currentCompany": "",
-    "currentTitle": "",
-    "totalExperienceYears": null,
-    "currentSalary": { "amount": null, "currency": "" },
-    "location": "",
-    "resume": { "fileName": "", "url": "", "text": "" },
-    "source": "",
+    "id": "cand_001",
+    "name": "Chetan Sharma",
+    "email": "chetan.sharma@example.com",
+    "phone": "+91 9876501001",
+    "currentCompany": "Razorpay",
+    "currentTitle": "Senior Frontend Engineer",
+    "totalExperienceYears": 6.5,
+    "currentSalary": {
+      "amount": 2600000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": {
+      "fileName": "chetan-sharma-resume.pdf",
+      "url": "/resumes/chetan-sharma-resume.pdf",
+      "text": "SUMMARY\nSenior Frontend Engineer with 6.5 years of experience building React, Next.js, TypeScript, JavaScript, and design-system driven web applications for fintech and SaaS products. Strong background in frontend architecture, component libraries, performance optimization, and accessibility.\n\nSKILLS\nReact, Next.js, JavaScript, TypeScript, HTML, CSS, Tailwind CSS, Redux, Zustand, REST APIs, Design Systems, Figma, Accessibility, Web Performance, Jest, Playwright\n\nEXPERIENCE\nSenior Frontend Engineer, Razorpay — Built payment dashboard modules used by internal and merchant teams. Led migration of legacy React screens to a shared component system. Improved page load performance and reduced repeated UI logic across product teams.\n\nFrontend Engineer, Freshworks — Worked on customer support product UI, reusable form components, and analytics dashboards. Collaborated closely with product managers and designers.\n\nPROJECTS\nDesigned a reusable React table system with sorting, column visibility, sticky headers, and row actions. Built a payment reconciliation dashboard with export workflows and role-based access.\n\nEDUCATION\nB.Tech in Computer Science, PES University.\n\nCERTIFICATIONS\nFrontend Performance Fundamentals, Accessibility for Web Applications.",
+      "extracted": {
+        "summary": "Senior Frontend Engineer with strong React, Next.js, design systems, accessibility, and fintech product experience.",
+        "skills": [
+          "React",
+          "Next.js",
+          "JavaScript",
+          "TypeScript",
+          "Tailwind CSS",
+          "Design Systems",
+          "Accessibility",
+          "Web Performance",
+          "Jest",
+          "Playwright"
+        ],
+        "experience": [
+          "Senior Frontend Engineer at Razorpay",
+          "Frontend Engineer at Freshworks"
+        ],
+        "education": [
+          "B.Tech in Computer Science, PES University"
+        ],
+        "certifications": [
+          "Frontend Performance Fundamentals",
+          "Accessibility for Web Applications"
+        ]
+      }
+    },
+    "source": "upload",
     "archivedAt": null,
-    "createdById": null,
-    "createdAt": null,
-    "updatedAt": null
+    "createdById": "usr_001",
+    "createdAt": "2026-06-01T10:00:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z"
+  },
+  {
+    "id": "cand_002",
+    "name": "Priya Nair",
+    "email": "priya.nair@example.com",
+    "phone": "+91 9876501002",
+    "currentCompany": "PhonePe",
+    "currentTitle": "Backend Engineer",
+    "totalExperienceYears": 5.8,
+    "currentSalary": {
+      "amount": 2400000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": {
+      "fileName": "priya-nair-resume.pdf",
+      "url": "/resumes/priya-nair-resume.pdf",
+      "text": "SUMMARY\nBackend Engineer with 5.8 years of experience building Java, Spring Boot, Kafka, and AWS-based distributed systems. Experienced in payments, reconciliation workflows, event-driven architecture, and high-throughput APIs.\n\nSKILLS\nJava, Spring Boot, Microservices, Kafka, AWS, Redis, PostgreSQL, Docker, Kubernetes, REST APIs, System Design, Observability, Unit Testing\n\nEXPERIENCE\nBackend Engineer, PhonePe — Built services for transaction processing, wallet reconciliation, and partner integrations. Worked on Kafka-based asynchronous workflows and improved service reliability through monitoring and alerting.\n\nSoftware Engineer, Infosys Finacle — Developed banking integration APIs and batch processing services for financial institutions.\n\nPROJECTS\nDesigned an event-driven reconciliation pipeline for payment transactions. Built retry and dead-letter handling for high-volume event processing.\n\nEDUCATION\nB.E. in Information Science, BMS College of Engineering.\n\nCERTIFICATIONS\nAWS Developer Associate, Kafka Fundamentals.",
+      "extracted": {
+        "summary": "Backend Engineer with Java, Spring Boot, Kafka, AWS, payments, and distributed systems experience.",
+        "skills": [
+          "Java",
+          "Spring Boot",
+          "Microservices",
+          "Kafka",
+          "AWS",
+          "Redis",
+          "PostgreSQL",
+          "Docker",
+          "Kubernetes",
+          "System Design"
+        ],
+        "experience": [
+          "Backend Engineer at PhonePe",
+          "Software Engineer at Infosys Finacle"
+        ],
+        "education": [
+          "B.E. in Information Science, BMS College of Engineering"
+        ],
+        "certifications": [
+          "AWS Developer Associate",
+          "Kafka Fundamentals"
+        ]
+      }
+    },
+    "source": "referral",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-06-02T11:30:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z"
+  },
+  {
+    "id": "cand_003",
+    "name": "Rahul Menon",
+    "email": "rahul.menon@example.com",
+    "phone": "+91 9876501003",
+    "currentCompany": "Zoho",
+    "currentTitle": "Product Manager",
+    "totalExperienceYears": 7.2,
+    "currentSalary": {
+      "amount": 3000000,
+      "currency": "INR"
+    },
+    "location": "Chennai",
+    "resume": {
+      "fileName": "rahul-menon-resume.pdf",
+      "url": "/resumes/rahul-menon-resume.pdf",
+      "text": "SUMMARY\nProduct Manager with 7.2 years of experience in B2B SaaS, analytics dashboards, customer workflows, and product-led growth. Skilled at writing PRDs, prioritizing roadmaps, working with engineering, and using data to guide product decisions.\n\nSKILLS\nProduct Management, Roadmapping, PRD Writing, Stakeholder Management, SQL, Product Analytics, Agile, User Research, SaaS, Go-To-Market, Customer Discovery, Metrics\n\nEXPERIENCE\nProduct Manager, Zoho — Owned roadmap for reporting and workflow automation features used by enterprise customers. Partnered with design and engineering to improve activation and reduce onboarding friction.\n\nAssociate Product Manager, Chargebee — Worked on subscription billing workflows, customer interviews, and dashboard improvements.\n\nPROJECTS\nLaunched a usage analytics dashboard for account admins. Improved feature adoption through onboarding nudges and guided setup.\n\nEDUCATION\nMBA, Great Lakes Institute of Management. B.Tech in Electronics, Anna University.\n\nCERTIFICATIONS\nProduct Analytics, Pragmatic Product Management.",
+      "extracted": {
+        "summary": "Product Manager with B2B SaaS, analytics, roadmap, PRD, stakeholder, and product-led growth experience.",
+        "skills": [
+          "Product Management",
+          "Roadmapping",
+          "PRD Writing",
+          "Stakeholder Management",
+          "SQL",
+          "Product Analytics",
+          "Agile",
+          "User Research",
+          "SaaS"
+        ],
+        "experience": [
+          "Product Manager at Zoho",
+          "Associate Product Manager at Chargebee"
+        ],
+        "education": [
+          "MBA, Great Lakes Institute of Management",
+          "B.Tech in Electronics, Anna University"
+        ],
+        "certifications": [
+          "Product Analytics",
+          "Pragmatic Product Management"
+        ]
+      }
+    },
+    "source": "sourced",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-06-03T09:45:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z"
+  },
+  {
+    "id": "cand_004",
+    "name": "Aditi Rao",
+    "email": "aditi.rao@example.com",
+    "phone": "+91 9876501004",
+    "currentCompany": "BrowserStack",
+    "currentTitle": "QA Automation Engineer",
+    "totalExperienceYears": 5.1,
+    "currentSalary": {
+      "amount": 1800000,
+      "currency": "INR"
+    },
+    "location": "Mumbai",
+    "resume": {
+      "fileName": "aditi-rao-resume.pdf",
+      "url": "/resumes/aditi-rao-resume.pdf",
+      "text": "SUMMARY\nQA Automation Engineer with 5.1 years of experience building test automation frameworks for web applications and APIs. Strong knowledge of Playwright, Selenium, JavaScript, API testing, CI pipelines, and release quality processes.\n\nSKILLS\nPlaywright, Selenium, JavaScript, TypeScript, API Testing, Postman, Cypress, GitHub Actions, Jenkins, Test Strategy, Regression Testing, Bug Tracking, Agile QA\n\nEXPERIENCE\nQA Automation Engineer, BrowserStack — Built automated regression suites for browser testing workflows. Worked with engineering teams to improve test coverage and reduce release defects.\n\nQA Engineer, Mphasis — Created Selenium-based automation for banking and insurance applications.\n\nPROJECTS\nBuilt a Playwright test suite for a SaaS admin portal. Integrated API smoke tests into CI pipeline.\n\nEDUCATION\nB.Tech in Information Technology, VJTI Mumbai.\n\nCERTIFICATIONS\nISTQB Foundation Level, Playwright Automation Essentials.",
+      "extracted": {
+        "summary": "QA Automation Engineer with Playwright, Selenium, API testing, CI, and SaaS quality engineering experience.",
+        "skills": [
+          "Playwright",
+          "Selenium",
+          "JavaScript",
+          "TypeScript",
+          "API Testing",
+          "Postman",
+          "Cypress",
+          "GitHub Actions",
+          "Jenkins"
+        ],
+        "experience": [
+          "QA Automation Engineer at BrowserStack",
+          "QA Engineer at Mphasis"
+        ],
+        "education": [
+          "B.Tech in Information Technology, VJTI Mumbai"
+        ],
+        "certifications": [
+          "ISTQB Foundation Level",
+          "Playwright Automation Essentials"
+        ]
+      }
+    },
+    "source": "manual",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-06-04T12:15:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z"
+  },
+  {
+    "id": "cand_005",
+    "name": "Nikhil Verma",
+    "email": "nikhil.verma@example.com",
+    "phone": "+91 9876501005",
+    "currentCompany": "Atlassian",
+    "currentTitle": "DevOps Engineer",
+    "totalExperienceYears": 6.9,
+    "currentSalary": {
+      "amount": 2900000,
+      "currency": "INR"
+    },
+    "location": "Hyderabad",
+    "resume": {
+      "fileName": "nikhil-verma-resume.pdf",
+      "url": "/resumes/nikhil-verma-resume.pdf",
+      "text": "SUMMARY\nDevOps Engineer with 6.9 years of experience managing AWS infrastructure, Kubernetes platforms, CI/CD pipelines, observability, and production reliability for SaaS systems. Strong in Terraform, Docker, GitHub Actions, and incident response.\n\nSKILLS\nAWS, Kubernetes, Docker, Terraform, GitHub Actions, Jenkins, Helm, Linux, Prometheus, Grafana, CI/CD, Infrastructure as Code, SRE, Incident Management\n\nEXPERIENCE\nDevOps Engineer, Atlassian — Managed Kubernetes workloads and deployment pipelines for internal SaaS services. Improved alerting, deployment reliability, and infrastructure cost visibility.\n\nCloud Engineer, TCS Digital — Supported cloud migration projects and automated infrastructure provisioning.\n\nPROJECTS\nBuilt Terraform modules for reusable cloud infrastructure. Implemented CI/CD pipelines with environment approvals and rollback support.\n\nEDUCATION\nB.E. in Computer Science, Osmania University.\n\nCERTIFICATIONS\nAWS Solutions Architect Associate, Kubernetes Administrator Fundamentals.",
+      "extracted": {
+        "summary": "DevOps Engineer with AWS, Kubernetes, Terraform, CI/CD, observability, and SaaS reliability experience.",
+        "skills": [
+          "AWS",
+          "Kubernetes",
+          "Docker",
+          "Terraform",
+          "GitHub Actions",
+          "Jenkins",
+          "Prometheus",
+          "Grafana",
+          "CI/CD",
+          "SRE"
+        ],
+        "experience": [
+          "DevOps Engineer at Atlassian",
+          "Cloud Engineer at TCS Digital"
+        ],
+        "education": [
+          "B.E. in Computer Science, Osmania University"
+        ],
+        "certifications": [
+          "AWS Solutions Architect Associate",
+          "Kubernetes Administrator Fundamentals"
+        ]
+      }
+    },
+    "source": "recommended",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-06-05T15:10:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z"
+  },
+  {
+    "id": "cand_006",
+    "name": "Meera Iyer",
+    "email": "meera.iyer@example.com",
+    "phone": "+91 9876501006",
+    "currentCompany": "Swiggy",
+    "currentTitle": "Full Stack Engineer",
+    "totalExperienceYears": 4.7,
+    "currentSalary": {
+      "amount": 2100000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": {
+      "fileName": "meera-iyer-resume.pdf",
+      "url": "/resumes/meera-iyer-resume.pdf",
+      "text": "SUMMARY\nFull Stack Engineer with 4.7 years of experience across React, Node.js, PostgreSQL, REST APIs, and cloud deployments. Comfortable working across product features, backend APIs, frontend workflows, and performance improvements.\n\nSKILLS\nReact, Node.js, Express.js, PostgreSQL, JavaScript, TypeScript, REST APIs, AWS, Docker, Redis, HTML, CSS, Testing, Git\n\nEXPERIENCE\nFull Stack Engineer, Swiggy — Built merchant dashboard features, backend APIs, and internal workflow tools. Improved frontend performance and helped migrate services to shared API patterns.\n\nSoftware Developer, Mindtree — Worked on enterprise web applications and API integrations.\n\nPROJECTS\nBuilt a merchant analytics dashboard with React and Node.js. Developed API endpoints for order insights and billing reports.\n\nEDUCATION\nB.Tech in Computer Science, SRM Institute of Science and Technology.\n\nCERTIFICATIONS\nFull Stack Web Development, AWS Cloud Practitioner.",
+      "extracted": {
+        "summary": "Full Stack Engineer with React, Node.js, PostgreSQL, REST APIs, and product feature delivery experience.",
+        "skills": [
+          "React",
+          "Node.js",
+          "Express.js",
+          "PostgreSQL",
+          "JavaScript",
+          "TypeScript",
+          "REST APIs",
+          "AWS",
+          "Docker",
+          "Redis"
+        ],
+        "experience": [
+          "Full Stack Engineer at Swiggy",
+          "Software Developer at Mindtree"
+        ],
+        "education": [
+          "B.Tech in Computer Science, SRM Institute of Science and Technology"
+        ],
+        "certifications": [
+          "Full Stack Web Development",
+          "AWS Cloud Practitioner"
+        ]
+      }
+    },
+    "source": "career_page",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-06-06T10:20:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z"
+  },
+  {
+    "id": "cand_007",
+    "name": "Arjun Kapoor",
+    "email": "arjun.kapoor@example.com",
+    "phone": "+91 9876501007",
+    "currentCompany": "MakeMyTrip",
+    "currentTitle": "Engineering Manager",
+    "totalExperienceYears": 9.8,
+    "currentSalary": {
+      "amount": 4200000,
+      "currency": "INR"
+    },
+    "location": "Gurugram",
+    "resume": {
+      "fileName": "arjun-kapoor-resume.pdf",
+      "url": "/resumes/arjun-kapoor-resume.pdf",
+      "text": "SUMMARY\nEngineering Manager with 9.8 years of experience leading backend and full-stack teams. Strong background in Java, distributed systems, engineering planning, delivery ownership, mentoring, and cross-functional collaboration.\n\nSKILLS\nEngineering Management, Java, Spring Boot, Microservices, System Design, AWS, Team Leadership, Delivery Planning, Mentoring, Agile, Architecture Reviews, Stakeholder Management\n\nEXPERIENCE\nEngineering Manager, MakeMyTrip — Led a team of backend and full-stack engineers working on booking and partner platform systems. Owned delivery planning, technical reviews, and performance improvements.\n\nSenior Software Engineer, Paytm — Built high-scale backend services for wallet and merchant products.\n\nPROJECTS\nLed migration of legacy services to microservice architecture. Improved system reliability through architecture review processes and operational dashboards.\n\nEDUCATION\nB.Tech in Computer Science, NIT Kurukshetra.\n\nCERTIFICATIONS\nEngineering Leadership Program, AWS Architecture Foundations.",
+      "extracted": {
+        "summary": "Engineering Manager with backend systems, Java, microservices, delivery ownership, and team leadership experience.",
+        "skills": [
+          "Engineering Management",
+          "Java",
+          "Spring Boot",
+          "Microservices",
+          "System Design",
+          "AWS",
+          "Team Leadership",
+          "Agile",
+          "Architecture Reviews"
+        ],
+        "experience": [
+          "Engineering Manager at MakeMyTrip",
+          "Senior Software Engineer at Paytm"
+        ],
+        "education": [
+          "B.Tech in Computer Science, NIT Kurukshetra"
+        ],
+        "certifications": [
+          "Engineering Leadership Program",
+          "AWS Architecture Foundations"
+        ]
+      }
+    },
+    "source": "sourced",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-06-07T11:40:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z"
+  },
+  {
+    "id": "cand_008",
+    "name": "Sneha Kulkarni",
+    "email": "sneha.kulkarni@example.com",
+    "phone": "+91 9876501008",
+    "currentCompany": "Freshworks",
+    "currentTitle": "UX-focused Frontend Developer",
+    "totalExperienceYears": 5.4,
+    "currentSalary": {
+      "amount": 2300000,
+      "currency": "INR"
+    },
+    "location": "Pune",
+    "resume": {
+      "fileName": "sneha-kulkarni-resume.pdf",
+      "url": "/resumes/sneha-kulkarni-resume.pdf",
+      "text": "SUMMARY\nUX-focused Frontend Developer with 5.4 years of experience building React applications, design systems, dashboard workflows, and accessible interfaces. Strong collaboration with designers and product managers.\n\nSKILLS\nReact, JavaScript, TypeScript, HTML, CSS, Tailwind CSS, Design Systems, Storybook, Accessibility, Figma, UI Engineering, Component Libraries, Responsive Design\n\nEXPERIENCE\nUX-focused Frontend Developer, Freshworks — Built reusable UI components, admin dashboards, and workflow screens. Partnered with design teams to improve usability and consistency across SaaS products.\n\nFrontend Developer, Zensar — Worked on enterprise web portals and internal dashboards.\n\nPROJECTS\nBuilt a form builder UI using React and a reusable component library. Improved accessibility coverage across a customer support product.\n\nEDUCATION\nB.E. in Computer Engineering, Savitribai Phule Pune University.\n\nCERTIFICATIONS\nDesign Systems in React, Web Accessibility Specialist.",
+      "extracted": {
+        "summary": "UX-focused Frontend Developer with React, design systems, accessibility, and SaaS dashboard experience.",
+        "skills": [
+          "React",
+          "JavaScript",
+          "TypeScript",
+          "HTML",
+          "CSS",
+          "Tailwind CSS",
+          "Design Systems",
+          "Storybook",
+          "Accessibility",
+          "Figma"
+        ],
+        "experience": [
+          "UX-focused Frontend Developer at Freshworks",
+          "Frontend Developer at Zensar"
+        ],
+        "education": [
+          "B.E. in Computer Engineering, Savitribai Phule Pune University"
+        ],
+        "certifications": [
+          "Design Systems in React",
+          "Web Accessibility Specialist"
+        ]
+      }
+    },
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-06-08T14:05:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z"
   }
 ]

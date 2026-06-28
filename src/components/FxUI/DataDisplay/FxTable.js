@@ -58,6 +58,14 @@ function resolveColumnStyle(column, overrideWidth) {
     const value = cssPx(clampWidth(column, overrideWidth));
     return { width: value, minWidth: value, maxWidth: value };
   }
+  if (column.sticky && column.width == null) {
+    const size = column.minWidth ?? DEFAULT_MIN_WIDTH;
+    return {
+      width: cssPx(size),
+      minWidth: cssPx(size),
+      maxWidth: column.maxWidth != null ? cssPx(column.maxWidth) : cssPx(size),
+    };
+  }
   const style = {};
   if (!column.grow && column.width != null) style.width = cssPx(column.width);
   style.minWidth = cssPx(column.minWidth ?? column.width ?? DEFAULT_MIN_WIDTH);
@@ -97,6 +105,43 @@ function buildStickyOffsets(columns, styles) {
     }
   }
   return { left, right };
+}
+
+function buildStickyMeta(columns) {
+  const left = new Map();
+  const right = new Map();
+  const leftKeys = [];
+  const rightKeys = [];
+
+  let leftIndex = 0;
+  columns.forEach((column) => {
+    if (column.sticky === "left") {
+      left.set(column.key, leftIndex);
+      leftKeys.push(column.key);
+      leftIndex += 1;
+    }
+  });
+
+  let rightIndex = 0;
+  for (let index = columns.length - 1; index >= 0; index -= 1) {
+    const column = columns[index];
+    if (column.sticky === "right") {
+      right.set(column.key, rightIndex);
+      rightIndex += 1;
+    }
+  }
+
+  for (let index = 0; index < columns.length; index += 1) {
+    const column = columns[index];
+    if (column.sticky === "right") rightKeys.push(column.key);
+  }
+
+  return {
+    left,
+    right,
+    leftBoundaryKey: leftKeys.at(-1) ?? null,
+    rightBoundaryKey: rightKeys[0] ?? null,
+  };
 }
 
 function renderCellContent(column, row, rowIndex) {
@@ -172,6 +217,8 @@ export function FxTable({
   stickyHeader = false,
   stickyFirstColumn = false,
   stickyLastColumn = false,
+  stickyLeadingCount = 0,
+  stickyTrailingCount = 0,
   scrollX = true,
   minTableWidth,
   onRowClick,
@@ -216,26 +263,28 @@ export function FxTable({
   const [hasOverflowRight, setHasOverflowRight] = useState(false);
   const [resizingKey, setResizingKey] = useState(null);
 
-  // Apply sticky-first/last convenience onto product columns, then inject the selection column.
+  // Apply sticky-leading/trailing rules onto product columns, then inject the selection column.
   const renderColumns = useMemo(() => {
+    const resolvedLeadingCount = stickyLeadingCount > 0 ? stickyLeadingCount : stickyFirstColumn ? 1 : 0;
+    const resolvedTrailingCount = stickyTrailingCount > 0 ? stickyTrailingCount : stickyLastColumn ? 1 : 0;
+
     const withSticky = productColumns.map((column, index, all) => {
       if (column.sticky) return column;
-      if (stickyFirstColumn && index === 0) return { ...column, sticky: "left" };
-      if (stickyLastColumn && index === all.length - 1) return { ...column, sticky: "right" };
+      if (resolvedLeadingCount > 0 && index < resolvedLeadingCount) return { ...column, sticky: "left" };
+      if (resolvedTrailingCount > 0 && index >= all.length - resolvedTrailingCount) return { ...column, sticky: "right" };
       return column;
     });
     if (!selection.enabled) return withSticky;
-    const pinSelection = withSticky[0]?.sticky === "left" || stickyFirstColumn;
     const selectionColumn = {
       key: SELECTION_KEY,
       header: null,
       width: SELECTION_WIDTH,
       align: "center",
-      sticky: pinSelection ? "left" : undefined,
+      sticky: "left",
       __selection: true,
     };
     return [selectionColumn, ...withSticky];
-  }, [productColumns, selection.enabled, stickyFirstColumn, stickyLastColumn]);
+  }, [productColumns, selection.enabled, stickyFirstColumn, stickyLastColumn, stickyLeadingCount, stickyTrailingCount]);
 
   const columnStyles = useMemo(
     () => new Map(renderColumns.map((column) => [column.key, resolveColumnStyle(column, widthOverrides[column.key])])),
@@ -243,14 +292,11 @@ export function FxTable({
   );
   const tableMinWidth = useMemo(() => getTableMinWidth(renderColumns, columnStyles, minTableWidth), [renderColumns, columnStyles, minTableWidth]);
   const stickyOffsets = useMemo(() => buildStickyOffsets(renderColumns, columnStyles), [renderColumns, columnStyles]);
+  const stickyMeta = useMemo(() => buildStickyMeta(renderColumns), [renderColumns]);
   const columnsKey = useMemo(() => renderColumns.map((column) => column.key).join(","), [renderColumns]);
 
   useEffect(() => {
-    if (!scrollX) {
-      setHasOverflowLeft(false);
-      setHasOverflowRight(false);
-      return undefined;
-    }
+    if (!scrollX) return undefined;
     const container = scrollRef.current;
     if (!container) return undefined;
     function update() {
@@ -348,10 +394,27 @@ export function FxTable({
     return {};
   }
 
-  function stickyCellClass(column, base) {
-    if (column.sticky === "left") return cn("sticky left-0 z-10", base);
-    if (column.sticky === "right") return cn("sticky right-0 z-10", base);
+  function stickyCellClass(column, base, edgeClass = "") {
+    // Position comes from the inline left/right offsets (stickyStyleFor); the class only sets sticky + paint layer.
+    if (column.sticky || column.__selection) return cn("sticky bg-clip-padding", base, edgeClass);
     return "";
+  }
+
+  function stickyEdgeClass(column) {
+    if (column.sticky === "left" && column.key === stickyMeta.leftBoundaryKey) {
+      return "shadow-[4px_0_10px_rgba(15,23,42,0.06)] dark:shadow-[4px_0_10px_rgba(0,0,0,0.28)] border-r border-[var(--fx-border-light)]";
+    }
+    if (column.sticky === "right" && column.key === stickyMeta.rightBoundaryKey) {
+      return "shadow-[-4px_0_10px_rgba(15,23,42,0.06)] dark:shadow-[-4px_0_10px_rgba(0,0,0,0.28)] border-l border-[var(--fx-border-light)]";
+    }
+    return "";
+  }
+
+  function stickyLayerStyle(column, isHeader = false) {
+    if (column.__selection) return { zIndex: isHeader ? 31 : 21 };
+    if (column.sticky === "left") return { zIndex: isHeader ? 32 + (stickyMeta.left.get(column.key) ?? 0) : 22 + (stickyMeta.left.get(column.key) ?? 0) };
+    if (column.sticky === "right") return { zIndex: isHeader ? 40 + (stickyMeta.right.get(column.key) ?? 0) : 30 + (stickyMeta.right.get(column.key) ?? 0) };
+    return {};
   }
 
   function renderHeader() {
@@ -360,7 +423,7 @@ export function FxTable({
         <tr>
           {renderColumns.map((column, index) => {
             const resolvedStyle = columnStyles.get(column.key);
-            const headerStickyClass = column.sticky ? cn(stickyCellClass(column, ""), "z-30") : "";
+            const headerStickyClass = column.sticky || column.__selection ? stickyCellClass(column, "bg-[var(--fx-table-header)]", stickyEdgeClass(column)) : "";
             const isLastColumn = index === renderColumns.length - 1;
 
             if (column.__selection) {
@@ -369,7 +432,7 @@ export function FxTable({
                   key={column.key}
                   scope="col"
                   className={cn(FX_TABLE.headerCell, "px-0 text-center", stickyHeader && "sticky top-0 z-20", headerStickyClass)}
-                  style={{ ...resolvedStyle, ...stickyStyleFor(column) }}
+                  style={{ ...resolvedStyle, ...stickyStyleFor(column), ...stickyLayerStyle(column, true) }}
                 >
                   <div className="flex h-full items-center justify-center">
                     <Checkbox
@@ -398,7 +461,7 @@ export function FxTable({
                   columnManager && isLastColumn && "px-0",
                   column.headerClassName,
                 )}
-                style={{ ...resolvedStyle, ...stickyStyleFor(column) }}
+                style={{ ...resolvedStyle, ...stickyStyleFor(column), ...stickyLayerStyle(column, true) }}
               >
                 {columnManager && isLastColumn ? (
                   <div className="flex items-center justify-center">{columnManager}</div>
@@ -437,19 +500,22 @@ export function FxTable({
   function renderSkeleton() {
     return (
       <tbody className={bodyClassName}>
-        {Array.from({ length: loadingRowCount }).map((_, rowIndex) => (
-          <tr key={`fx-skeleton-${rowIndex}`} className="bg-[var(--fx-surface)] even:bg-[var(--fx-table-row-alt)]">
-            {renderColumns.map((column) => (
-              <td
-                key={column.key}
-                className={cn(FX_TABLE.bodyCell, BODY_CELL_Y, stickyCellClass(column, "bg-inherit"))}
-                style={{ ...columnStyles.get(column.key), ...stickyStyleFor(column) }}
-              >
-                <div className="h-3 w-3/5 animate-pulse rounded bg-[var(--fx-surface-muted)]" />
-              </td>
-            ))}
-          </tr>
-        ))}
+        {Array.from({ length: loadingRowCount }).map((_, rowIndex) => {
+          const cellBg = rowIndex % 2 === 1 ? "bg-[var(--fx-table-row-alt)]" : "bg-[var(--fx-surface)]";
+          return (
+            <tr key={`fx-skeleton-${rowIndex}`} className={cellBg}>
+              {renderColumns.map((column) => (
+                <td
+                  key={column.key}
+                  className={cn(FX_TABLE.bodyCell, BODY_CELL_Y, stickyCellClass(column, cellBg, stickyEdgeClass(column)))}
+                  style={{ ...columnStyles.get(column.key), ...stickyStyleFor(column), ...stickyLayerStyle(column) }}
+                >
+                  <div className="h-3 w-3/5 animate-pulse rounded bg-[var(--fx-surface-muted)]" />
+                </td>
+              ))}
+            </tr>
+          );
+        })}
       </tbody>
     );
   }
@@ -472,12 +538,18 @@ export function FxTable({
         {displayRows.map((row, rowIndex) => {
           const rowId = resolveRowId(row) ?? rowIndex;
           const isSelected = selection.enabled && selection.isSelected(rowId);
+          // Sticky cells need an explicit solid background — bg-inherit renders transparent on a sticky cell's own
+          // compositor layer, letting scrolling columns bleed through. Mirror the row state; group-hover keeps sync.
+          const isAltRow = rowIndex % 2 === 1;
+          const cellBg = isSelected
+            ? "bg-[color:color-mix(in_srgb,var(--fx-primary)_7%,var(--fx-surface))] group-hover:bg-[color:color-mix(in_srgb,var(--fx-primary)_10%,var(--fx-surface))]"
+            : cn(isAltRow ? "bg-[var(--fx-table-row-alt)]" : "bg-[var(--fx-surface)]", "group-hover:bg-[var(--fx-surface-hover)]");
           return (
             <tr
               key={rowId}
               onClick={onRowClick ? (event) => onRowClick(row, event) : undefined}
               className={cn(
-                "transition-colors",
+                "group transition-colors",
                 isSelected
                   ? "bg-[color:color-mix(in_srgb,var(--fx-primary)_7%,var(--fx-surface))] hover:bg-[color:color-mix(in_srgb,var(--fx-primary)_10%,var(--fx-surface))]"
                   : "bg-[var(--fx-surface)] even:bg-[var(--fx-table-row-alt)] hover:bg-[var(--fx-surface-hover)]",
@@ -490,11 +562,11 @@ export function FxTable({
                   return (
                     <td
                       key={column.key}
-                      className={cn(FX_TABLE.bodyCell, BODY_CELL_Y, "px-0 text-center", stickyCellClass(column, "bg-inherit"))}
-                      style={{ ...columnStyles.get(column.key), ...stickyStyleFor(column) }}
+                      className={cn(FX_TABLE.bodyCell, BODY_CELL_Y, "p-0 text-center", stickyCellClass(column, cellBg, stickyEdgeClass(column)))}
+                      style={{ ...columnStyles.get(column.key), ...stickyStyleFor(column), ...stickyLayerStyle(column) }}
                       onClick={(event) => event.stopPropagation()}
                     >
-                      <div className="flex h-full items-center justify-center">
+                      <div className="flex h-full min-h-full w-full items-center justify-center bg-clip-padding px-0 py-[10px]">
                         <Checkbox checked={isSelected} onCheckedChange={() => selection.toggleRow(rowId)} aria-label="Select row" />
                       </div>
                     </td>
@@ -508,10 +580,10 @@ export function FxTable({
                       FX_TABLE.bodyCell,
                       BODY_CELL_Y,
                       alignClass(column.align),
-                      stickyCellClass(column, "bg-inherit"),
+                      stickyCellClass(column, cellBg, stickyEdgeClass(column)),
                       column.cellClassName,
                     )}
-                    style={{ ...columnStyles.get(column.key), ...stickyStyleFor(column) }}
+                    style={{ ...columnStyles.get(column.key), ...stickyStyleFor(column), ...stickyLayerStyle(column) }}
                   >
                     {renderCellContent(column, row, rowIndex)}
                   </td>

@@ -1,44 +1,333 @@
 [
   {
-    "id": "",
-    "title": "",
-    "clientId": null,
-    "status": "",
-    "priority": "",
-    "assigneeId": null,
-    "createdById": null,
-    "publishedAt": null,
-    "archivedAt": null,
-    "createdAt": null,
-    "updatedAt": null,
+    "core": {
+      "id": "job_001",
+      "title": "Senior Backend Engineer",
+      "clientId": "cli_001",
+      "status": "published",
+      "priority": "high",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-01T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-05-28T14:30:00Z",
+      "updatedAt": "2026-06-28T09:00:00Z"
+    },
     "roleSpec": {
-      "positions": null,
-      "experienceFrom": null,
-      "experienceTo": null,
-      "employmentType": "",
-      "workplaceType": "",
-      "city": "",
-      "locality": "",
-      "salaryRange": { "min": null, "max": null, "currency": "" },
+      "positions": 3,
+      "experienceFrom": 5,
+      "experienceTo": 8,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Bengaluru",
+      "locality": "Bellandur",
+      "salaryRange": {
+        "min": 2800000,
+        "max": 3600000,
+        "currency": "INR"
+      },
       "hideCompensationFromCandidates": false,
-      "department": "",
-      "domain": ""
+      "department": "Engineering",
+      "domain": "Backend Platform"
     },
     "content": {
-      "jobDescription": "",
-      "companyBrief": "",
-      "primarySkills": [],
-      "secondarySkills": [],
-      "responsibilities": [],
-      "benefits": []
+      "jobDescription": "Build scalable backend services powering payments and financial workflows.",
+      "companyBrief": "Series A fintech product company.",
+      "primarySkills": ["Java", "Spring Boot", "Microservices", "AWS"],
+      "secondarySkills": ["Kafka", "Redis", "Docker", "Kubernetes"],
+      "responsibilities": [
+        "Design scalable backend systems",
+        "Build REST APIs",
+        "Optimize performance",
+        "Mentor junior engineers"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Learning Budget"
+      ]
     },
     "screeningConfig": {
-      "questionFormat": "",
-      "preScreeningMode": "",
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "q_001",
+          "text": "Describe a distributed system you designed."
+        },
+        {
+          "id": "q_002",
+          "text": "What is your current notice period?"
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Senior backend engineering for fintech products.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_002",
+      "title": "Senior Frontend Engineer",
+      "clientId": "cli_002",
+      "status": "published",
+      "priority": "high",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-08T10:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-05T16:00:00Z",
+      "updatedAt": "2026-06-28T09:00:00Z"
+    },
+    "roleSpec": {
+      "positions": 2,
+      "experienceFrom": 4,
+      "experienceTo": 7,
+      "employmentType": "full_time",
+      "workplaceType": "remote",
+      "city": "Remote",
+      "locality": "",
+      "salaryRange": {
+        "min": 2200000,
+        "max": 3200000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Frontend",
+      "domain": "Web Platform"
+    },
+    "content": {
+      "jobDescription": "Build modern React and Next.js applications with exceptional UX.",
+      "companyBrief": "Enterprise SaaS platform serving global customers.",
+      "primarySkills": [
+        "React",
+        "Next.js",
+        "JavaScript",
+        "HTML",
+        "CSS"
+      ],
+      "secondarySkills": [
+        "Design Systems",
+        "Tailwind CSS",
+        "REST APIs",
+        "Figma"
+      ],
+      "responsibilities": [
+        "Develop product features",
+        "Collaborate with designers",
+        "Maintain design system"
+      ],
+      "benefits": [
+        "Remote Work",
+        "Medical Insurance",
+        "Home Office Allowance"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "q_003",
+          "text": "Share your strongest React project."
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "Senior frontend engineering with strong UX focus.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_003",
+      "title": "Product Manager",
+      "clientId": "cli_002",
+      "status": "published",
+      "priority": "medium",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-15T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-12T11:00:00Z",
+      "updatedAt": "2026-06-28T09:00:00Z"
+    },
+    "roleSpec": {
+      "positions": 1,
+      "experienceFrom": 6,
+      "experienceTo": 10,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Mumbai",
+      "locality": "Powai",
+      "salaryRange": {
+        "min": 3000000,
+        "max": 4200000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": true,
+      "department": "Product",
+      "domain": "B2B SaaS"
+    },
+    "content": {
+      "jobDescription": "Own product strategy, roadmap, and execution across multiple SaaS products.",
+      "companyBrief": "Growing B2B SaaS company expanding globally.",
+      "primarySkills": [
+        "Product Management",
+        "Roadmapping",
+        "Stakeholder Management"
+      ],
+      "secondarySkills": [
+        "SQL",
+        "Analytics",
+        "Agile"
+      ],
+      "responsibilities": [
+        "Define roadmap",
+        "Write PRDs",
+        "Collaborate with Engineering",
+        "Measure product success"
+      ],
+      "benefits": [
+        "Performance Bonus",
+        "Health Insurance",
+        "Flexible Working"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "manual",
       "questions": []
     },
     "evaluationConfig": {
-      "evaluationContext": "",
+      "evaluationContext": "Senior product leadership for SaaS.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_004",
+      "title": "QA Automation Engineer",
+      "clientId": "cli_003",
+      "status": "published",
+      "priority": "medium",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-18T09:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-15T13:00:00Z",
+      "updatedAt": "2026-06-28T09:00:00Z"
+    },
+    "roleSpec": {
+      "positions": 2,
+      "experienceFrom": 3,
+      "experienceTo": 6,
+      "employmentType": "full_time",
+      "workplaceType": "hybrid",
+      "city": "Bengaluru",
+      "locality": "Whitefield",
+      "salaryRange": {
+        "min": 1600000,
+        "max": 2400000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Quality Engineering",
+      "domain": "Test Automation"
+    },
+    "content": {
+      "jobDescription": "Design and maintain automated test suites to keep product quality high across releases.",
+      "companyBrief": "AI and data engineering consultancy.",
+      "primarySkills": ["Selenium", "Java", "TestNG", "Cypress"],
+      "secondarySkills": ["API Testing", "CI/CD", "Jenkins", "Postman"],
+      "responsibilities": [
+        "Build and maintain automation frameworks",
+        "Write end-to-end and regression tests",
+        "Integrate tests into CI pipelines",
+        "Track and report quality metrics"
+      ],
+      "benefits": [
+        "Health Insurance",
+        "Flexible Hybrid Work",
+        "Certification Budget"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "q_004",
+          "text": "Describe an automation framework you built from scratch."
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "QA automation for data-heavy products.",
+      "evaluationRounds": []
+    }
+  },
+  {
+    "core": {
+      "id": "job_005",
+      "title": "DevOps Engineer",
+      "clientId": "cli_002",
+      "status": "published",
+      "priority": "high",
+      "assigneeId": "usr_001",
+      "createdById": "usr_001",
+      "publishedAt": "2026-06-22T10:00:00Z",
+      "archivedAt": null,
+      "createdAt": "2026-06-20T15:00:00Z",
+      "updatedAt": "2026-06-28T09:00:00Z"
+    },
+    "roleSpec": {
+      "positions": 1,
+      "experienceFrom": 4,
+      "experienceTo": 8,
+      "employmentType": "full_time",
+      "workplaceType": "remote",
+      "city": "Remote",
+      "locality": "",
+      "salaryRange": {
+        "min": 2400000,
+        "max": 3400000,
+        "currency": "INR"
+      },
+      "hideCompensationFromCandidates": false,
+      "department": "Infrastructure",
+      "domain": "Cloud & DevOps"
+    },
+    "content": {
+      "jobDescription": "Own CI/CD, infrastructure-as-code, and reliability for a fast-scaling SaaS platform.",
+      "companyBrief": "Enterprise SaaS platform serving global customers.",
+      "primarySkills": ["AWS", "Kubernetes", "Docker", "Terraform"],
+      "secondarySkills": ["CI/CD", "Prometheus", "Linux", "Helm"],
+      "responsibilities": [
+        "Build and operate CI/CD pipelines",
+        "Manage Kubernetes clusters",
+        "Automate infrastructure with Terraform",
+        "Improve observability and uptime"
+      ],
+      "benefits": [
+        "Remote Work",
+        "Medical Insurance",
+        "Home Office Allowance"
+      ]
+    },
+    "screeningConfig": {
+      "questionFormat": "cv_and_prescreen",
+      "preScreeningMode": "email",
+      "questions": [
+        {
+          "id": "q_005",
+          "text": "Walk through a production incident you resolved end to end."
+        }
+      ]
+    },
+    "evaluationConfig": {
+      "evaluationContext": "DevOps and platform reliability for SaaS.",
       "evaluationRounds": []
     }
   }

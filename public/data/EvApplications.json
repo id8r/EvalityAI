@@ -1,45 +1,366 @@
 [
   {
-    "id": "",
-    "candidateId": null,
-    "jobId": null,
-    "stage": "",
-    "clientStatus": null,
-    "source": "",
-    "appliedAt": null,
-    "viewedAt": null,
-    "createdAt": null,
-    "updatedAt": null,
-    "stageHistory": [],
-    "matchScore": null,
-    "trustScore": "",
-    "expectedSalary": { "amount": null, "currency": "" },
-    "availability": { "mode": "", "days": null, "date": null, "commuteComfortable": false },
+    "id": "app_001",
+    "candidateId": "cand_001",
+    "jobId": "job_002",
+    "stage": "shortlisted",
+    "clientStatus": "under_review",
+    "source": "upload",
+    "appliedAt": "2026-06-10T09:30:00Z",
+    "viewedAt": "2026-06-10T11:00:00Z",
+    "createdAt": "2026-06-10T09:30:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z",
+    "stageHistory": [
+      { "stage": "unscreened", "at": "2026-06-10T09:30:00Z", "actorId": "usr_001" },
+      { "stage": "pre_screened", "at": "2026-06-12T10:00:00Z", "actorId": "usr_001" },
+      { "stage": "shortlisted", "at": "2026-06-15T15:30:00Z", "actorId": "usr_001" }
+    ],
+    "qualification": {
+      "matchScore": 91,
+      "trustScore": "high",
+      "expectedSalary": { "amount": 3100000, "currency": "INR" },
+      "availability": { "mode": "days", "days": 30, "commuteComfortable": true }
+    },
     "screening": {
-      "status": "",
-      "mode": "",
+      "status": "passed",
+      "mode": "email",
+      "answers": [
+        { "questionId": "q_003", "answer": "Built React dashboards and component libraries for fintech products.", "score": 9 }
+      ],
+      "completedAt": "2026-06-12T10:00:00Z",
+      "manual": { "completedAt": null, "notes": "" },
+      "email": { "startedAt": "2026-06-11T09:15:00Z", "attemptCount": 1, "message": "Strong frontend and design-system fit." }
+    },
+    "evaluation": {
+      "cvMatchBreakdown": {
+        "overallScore": 91,
+        "sections": [
+          { "key": "skills", "label": "Skills Match", "score": 38, "maxScore": 40, "summary": "Strong React, Next.js, design systems, accessibility and testing experience." },
+          { "key": "experience", "label": "Experience Match", "score": 28, "maxScore": 30, "summary": "Experience range fits the senior frontend role." },
+          { "key": "domain", "label": "Domain Fit", "score": 25, "maxScore": 30, "summary": "Fintech and SaaS dashboard background is highly relevant." }
+        ]
+      }
+    },
+    "clientShare": {
+      "sharedAt": "2026-06-16T10:30:00Z",
+      "recipients": ["talent@cloudnexus.demo"],
+      "message": "Sharing a strong frontend profile for review.",
+      "mode": "email",
+      "includes": ["resume", "evaluation_summary"]
+    },
+    "interview": { "status": "not_started", "rounds": [], "summary": "" },
+    "outcome": { "rejectionReason": null, "rejectionNote": "" },
+    "activity": [
+      { "id": "act_001", "type": "stage_change", "text": "Moved to Shortlisted.", "status": "done", "at": "2026-06-15T15:30:00Z", "actorId": "usr_001" }
+    ],
+    "notes": [
+      { "id": "note_001", "text": "Best candidate for frontend role so far.", "at": "2026-06-15T15:45:00Z", "actorId": "usr_001" }
+    ]
+  },
+  {
+    "id": "app_002",
+    "candidateId": "cand_002",
+    "jobId": "job_001",
+    "stage": "interviewing",
+    "clientStatus": "interview_requested",
+    "source": "referral",
+    "appliedAt": "2026-06-09T08:30:00Z",
+    "viewedAt": "2026-06-09T10:00:00Z",
+    "createdAt": "2026-06-09T08:30:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z",
+    "stageHistory": [
+      { "stage": "unscreened", "at": "2026-06-09T08:30:00Z", "actorId": "usr_001" },
+      { "stage": "pre_screened", "at": "2026-06-10T13:00:00Z", "actorId": "usr_001" },
+      { "stage": "shortlisted", "at": "2026-06-12T16:00:00Z", "actorId": "usr_001" },
+      { "stage": "interviewing", "at": "2026-06-18T11:00:00Z", "actorId": "usr_001" }
+    ],
+    "qualification": {
+      "matchScore": 94,
+      "trustScore": "high",
+      "expectedSalary": { "amount": 3200000, "currency": "INR" },
+      "availability": { "mode": "days", "days": 45, "commuteComfortable": true }
+    },
+    "screening": {
+      "status": "passed",
+      "mode": "manual",
+      "answers": [
+        { "questionId": "q_001", "answer": "Designed Kafka-based payment reconciliation and retry pipelines.", "score": 9 },
+        { "questionId": "q_002", "answer": "45 days notice period.", "score": 8 }
+      ],
+      "completedAt": "2026-06-10T13:00:00Z",
+      "manual": { "completedAt": "2026-06-10T13:00:00Z", "notes": "Strong backend systems candidate." },
+      "email": { "startedAt": null, "attemptCount": 0, "message": "" }
+    },
+    "evaluation": {
+      "cvMatchBreakdown": {
+        "overallScore": 94,
+        "sections": [
+          { "key": "skills", "label": "Skills Match", "score": 39, "maxScore": 40, "summary": "Excellent Java, Spring Boot, Kafka and AWS fit." },
+          { "key": "experience", "label": "Experience Match", "score": 29, "maxScore": 30, "summary": "Fits 5-8 year target range." },
+          { "key": "domain", "label": "Domain Fit", "score": 26, "maxScore": 30, "summary": "Payments and fintech systems experience is directly relevant." }
+        ]
+      }
+    },
+    "clientShare": {
+      "sharedAt": "2026-06-13T09:30:00Z",
+      "recipients": ["careers@finedge.demo"],
+      "message": "Backend candidate with strong fintech experience.",
+      "mode": "email",
+      "includes": ["resume", "screening_answers", "evaluation_summary"]
+    },
+    "interview": { "status": "scheduled", "rounds": [], "summary": "Technical interview requested by client." },
+    "outcome": { "rejectionReason": null, "rejectionNote": "" },
+    "activity": [
+      { "id": "act_002", "type": "client_update", "text": "Client requested technical interview.", "status": "done", "at": "2026-06-18T11:00:00Z", "actorId": "usr_001" }
+    ],
+    "notes": [
+      { "id": "note_002", "text": "Very strong for Senior Backend Engineer.", "at": "2026-06-12T16:20:00Z", "actorId": "usr_001" }
+    ]
+  },
+  {
+    "id": "app_003",
+    "candidateId": "cand_003",
+    "jobId": "job_003",
+    "stage": "offered",
+    "clientStatus": "offer_requested",
+    "source": "sourced",
+    "appliedAt": "2026-06-11T10:00:00Z",
+    "viewedAt": "2026-06-11T12:30:00Z",
+    "createdAt": "2026-06-11T10:00:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z",
+    "stageHistory": [
+      { "stage": "unscreened", "at": "2026-06-11T10:00:00Z", "actorId": "usr_001" },
+      { "stage": "pre_screened", "at": "2026-06-13T11:00:00Z", "actorId": "usr_001" },
+      { "stage": "shortlisted", "at": "2026-06-16T11:30:00Z", "actorId": "usr_001" },
+      { "stage": "interviewing", "at": "2026-06-19T14:00:00Z", "actorId": "usr_001" },
+      { "stage": "offered", "at": "2026-06-25T16:30:00Z", "actorId": "usr_001" }
+    ],
+    "qualification": {
+      "matchScore": 88,
+      "trustScore": "high",
+      "expectedSalary": { "amount": 4000000, "currency": "INR" },
+      "availability": { "mode": "days", "days": 60, "commuteComfortable": true }
+    },
+    "screening": {
+      "status": "passed",
+      "mode": "manual",
+      "answers": [],
+      "completedAt": "2026-06-13T11:00:00Z",
+      "manual": { "completedAt": "2026-06-13T11:00:00Z", "notes": "Good SaaS product depth." },
+      "email": { "startedAt": null, "attemptCount": 0, "message": "" }
+    },
+    "evaluation": {
+      "cvMatchBreakdown": {
+        "overallScore": 88,
+        "sections": [
+          { "key": "skills", "label": "Skills Match", "score": 35, "maxScore": 40, "summary": "Strong PM, analytics, PRD and SaaS skills." },
+          { "key": "experience", "label": "Experience Match", "score": 28, "maxScore": 30, "summary": "Fits senior PM experience target." },
+          { "key": "domain", "label": "Domain Fit", "score": 25, "maxScore": 30, "summary": "B2B SaaS background aligns well." }
+        ]
+      }
+    },
+    "clientShare": {
+      "sharedAt": "2026-06-16T13:00:00Z",
+      "recipients": ["talent@cloudnexus.demo"],
+      "message": "Strong PM candidate for SaaS roadmap role.",
+      "mode": "email",
+      "includes": ["resume", "evaluation_summary"]
+    },
+    "interview": { "status": "completed", "rounds": [], "summary": "Client approved offer discussion." },
+    "outcome": { "rejectionReason": null, "rejectionNote": "" },
+    "activity": [
+      { "id": "act_003", "type": "offer", "text": "Offer discussion initiated.", "status": "done", "at": "2026-06-25T16:30:00Z", "actorId": "usr_001" }
+    ],
+    "notes": []
+  },
+  {
+    "id": "app_004",
+    "candidateId": "cand_004",
+    "jobId": "job_004",
+    "stage": "pre_screened",
+    "clientStatus": null,
+    "source": "manual",
+    "appliedAt": "2026-06-18T09:00:00Z",
+    "viewedAt": "2026-06-18T10:00:00Z",
+    "createdAt": "2026-06-18T09:00:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z",
+    "stageHistory": [
+      { "stage": "unscreened", "at": "2026-06-18T09:00:00Z", "actorId": "usr_001" },
+      { "stage": "pre_screened", "at": "2026-06-20T12:00:00Z", "actorId": "usr_001" }
+    ],
+    "qualification": {
+      "matchScore": 86,
+      "trustScore": "high",
+      "expectedSalary": { "amount": 2300000, "currency": "INR" },
+      "availability": { "mode": "days", "days": 30, "commuteComfortable": true }
+    },
+    "screening": {
+      "status": "passed",
+      "mode": "manual",
+      "answers": [],
+      "completedAt": "2026-06-20T12:00:00Z",
+      "manual": { "completedAt": "2026-06-20T12:00:00Z", "notes": "Strong automation background." },
+      "email": { "startedAt": null, "attemptCount": 0, "message": "" }
+    },
+    "evaluation": { "cvMatchBreakdown": { "overallScore": 86, "sections": [] } },
+    "clientShare": { "sharedAt": null, "recipients": [], "message": "", "mode": "", "includes": [] },
+    "interview": { "status": "not_started", "rounds": [], "summary": "" },
+    "outcome": { "rejectionReason": null, "rejectionNote": "" },
+    "activity": [],
+    "notes": []
+  },
+  {
+    "id": "app_005",
+    "candidateId": "cand_005",
+    "jobId": "job_005",
+    "stage": "joined",
+    "clientStatus": "offer_accepted",
+    "source": "recommended",
+    "appliedAt": "2026-05-20T10:00:00Z",
+    "viewedAt": "2026-05-20T12:00:00Z",
+    "createdAt": "2026-05-20T10:00:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z",
+    "stageHistory": [
+      { "stage": "unscreened", "at": "2026-05-20T10:00:00Z", "actorId": "usr_001" },
+      { "stage": "pre_screened", "at": "2026-05-22T11:00:00Z", "actorId": "usr_001" },
+      { "stage": "shortlisted", "at": "2026-05-24T14:00:00Z", "actorId": "usr_001" },
+      { "stage": "interviewing", "at": "2026-05-28T15:00:00Z", "actorId": "usr_001" },
+      { "stage": "offered", "at": "2026-06-05T12:00:00Z", "actorId": "usr_001" },
+      { "stage": "joined", "at": "2026-06-24T09:00:00Z", "actorId": "usr_001" }
+    ],
+    "qualification": {
+      "matchScore": 89,
+      "trustScore": "high",
+      "expectedSalary": { "amount": 3300000, "currency": "INR" },
+      "availability": { "mode": "date", "date": "2026-06-24", "commuteComfortable": true }
+    },
+    "screening": {
+      "status": "passed",
+      "mode": "email",
+      "answers": [],
+      "completedAt": "2026-05-22T11:00:00Z",
+      "manual": { "completedAt": null, "notes": "" },
+      "email": { "startedAt": "2026-05-21T09:00:00Z", "attemptCount": 1, "message": "Strong DevOps profile." }
+    },
+    "evaluation": { "cvMatchBreakdown": { "overallScore": 89, "sections": [] } },
+    "clientShare": {
+      "sharedAt": "2026-05-24T15:00:00Z",
+      "recipients": ["talent@cloudnexus.demo"],
+      "message": "Strong DevOps engineer for remote role.",
+      "mode": "email",
+      "includes": ["resume", "evaluation_summary"]
+    },
+    "interview": { "status": "completed", "rounds": [], "summary": "Joined successfully." },
+    "outcome": { "rejectionReason": null, "rejectionNote": "" },
+    "activity": [],
+    "notes": []
+  },
+  {
+    "id": "app_006",
+    "candidateId": "cand_006",
+    "jobId": "job_001",
+    "stage": "unscreened",
+    "clientStatus": null,
+    "source": "career_page",
+    "appliedAt": "2026-06-27T08:45:00Z",
+    "viewedAt": null,
+    "createdAt": "2026-06-27T08:45:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z",
+    "stageHistory": [
+      { "stage": "unscreened", "at": "2026-06-27T08:45:00Z", "actorId": "usr_001" }
+    ],
+    "qualification": {
+      "matchScore": 72,
+      "trustScore": "medium",
+      "expectedSalary": { "amount": 2700000, "currency": "INR" },
+      "availability": { "mode": "days", "days": 45, "commuteComfortable": true }
+    },
+    "screening": {
+      "status": "pending",
+      "mode": "email",
       "answers": [],
       "completedAt": null,
       "manual": { "completedAt": null, "notes": "" },
       "email": { "startedAt": null, "attemptCount": 0, "message": "" }
     },
-    "evaluation": {
-      "cvMatchBreakdown": { "overallScore": null, "sections": [] }
+    "evaluation": { "cvMatchBreakdown": { "overallScore": 72, "sections": [] } },
+    "clientShare": { "sharedAt": null, "recipients": [], "message": "", "mode": "", "includes": [] },
+    "interview": { "status": "not_started", "rounds": [], "summary": "" },
+    "outcome": { "rejectionReason": null, "rejectionNote": "" },
+    "activity": [],
+    "notes": []
+  },
+  {
+    "id": "app_007",
+    "candidateId": "cand_007",
+    "jobId": "job_001",
+    "stage": "rejected",
+    "clientStatus": null,
+    "source": "sourced",
+    "appliedAt": "2026-06-14T10:00:00Z",
+    "viewedAt": "2026-06-14T11:00:00Z",
+    "createdAt": "2026-06-14T10:00:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z",
+    "stageHistory": [
+      { "stage": "unscreened", "at": "2026-06-14T10:00:00Z", "actorId": "usr_001" },
+      { "stage": "rejected", "at": "2026-06-16T17:30:00Z", "actorId": "usr_001" }
+    ],
+    "qualification": {
+      "matchScore": 58,
+      "trustScore": "medium",
+      "expectedSalary": { "amount": 4600000, "currency": "INR" },
+      "availability": { "mode": "days", "days": 60, "commuteComfortable": true }
     },
-    "clientShare": {
-      "sharedAt": null,
-      "recipients": [],
-      "message": "",
-      "mode": "",
-      "includes": []
+    "screening": {
+      "status": "failed",
+      "mode": "manual",
+      "answers": [],
+      "completedAt": "2026-06-16T17:00:00Z",
+      "manual": { "completedAt": "2026-06-16T17:00:00Z", "notes": "Too senior and compensation mismatch for IC role." },
+      "email": { "startedAt": null, "attemptCount": 0, "message": "" }
     },
-    "interview": {
-      "status": "",
-      "rounds": [],
-      "summary": ""
+    "evaluation": { "cvMatchBreakdown": { "overallScore": 58, "sections": [] } },
+    "clientShare": { "sharedAt": null, "recipients": [], "message": "", "mode": "", "includes": [] },
+    "interview": { "status": "not_started", "rounds": [], "summary": "" },
+    "outcome": { "rejectionReason": "salary_mismatch", "rejectionNote": "Strong leader profile, but not aligned to IC backend budget." },
+    "activity": [],
+    "notes": []
+  },
+  {
+    "id": "app_008",
+    "candidateId": "cand_008",
+    "jobId": "job_002",
+    "stage": "pre_screened",
+    "clientStatus": null,
+    "source": "upload",
+    "appliedAt": "2026-06-21T09:20:00Z",
+    "viewedAt": "2026-06-21T11:00:00Z",
+    "createdAt": "2026-06-21T09:20:00Z",
+    "updatedAt": "2026-06-28T09:00:00Z",
+    "stageHistory": [
+      { "stage": "unscreened", "at": "2026-06-21T09:20:00Z", "actorId": "usr_001" },
+      { "stage": "pre_screened", "at": "2026-06-23T12:30:00Z", "actorId": "usr_001" }
+    ],
+    "qualification": {
+      "matchScore": 84,
+      "trustScore": "high",
+      "expectedSalary": { "amount": 2850000, "currency": "INR" },
+      "availability": { "mode": "days", "days": 30, "commuteComfortable": true }
     },
-    "rejectionReason": null,
-    "rejectionNote": "",
+    "screening": {
+      "status": "passed",
+      "mode": "email",
+      "answers": [
+        { "questionId": "q_003", "answer": "Built reusable React component systems and accessibility improvements.", "score": 8 }
+      ],
+      "completedAt": "2026-06-23T12:30:00Z",
+      "manual": { "completedAt": null, "notes": "" },
+      "email": { "startedAt": "2026-06-22T10:00:00Z", "attemptCount": 1, "message": "Good UX-focused frontend fit." }
+    },
+    "evaluation": { "cvMatchBreakdown": { "overallScore": 84, "sections": [] } },
+    "clientShare": { "sharedAt": null, "recipients": [], "message": "", "mode": "", "includes": [] },
+    "interview": { "status": "not_started", "rounds": [], "summary": "" },
+    "outcome": { "rejectionReason": null, "rejectionNote": "" },
     "activity": [],
     "notes": []
   }

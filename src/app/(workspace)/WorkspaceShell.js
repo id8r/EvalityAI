@@ -16,7 +16,8 @@ import {
   FxSidebarNavItem,
 } from "@/components/FxUI/AppShell";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { APP_NAME, ROUTES, STORAGE_KEYS } from "@/lib/FxConstants";
+import { ROUTES, STORAGE_KEYS } from "@/lib/FxConstants";
+import { FX_TYPOGRAPHY } from "@/lib/FxTheme";
 import { getStored, setStored } from "@/lib/FxStorage";
 import { isAuthenticated, signOut } from "@/lib/EvSession";
 import { cn } from "@/lib/FxUtils";
@@ -49,6 +50,15 @@ const NAV_ITEMS = [
   { key: "candidates", label: "Candidates", icon: Users, href: ROUTES.candidates },
   { key: "clients", label: "Clients", icon: FolderOpen, href: ROUTES.clients },
 ];
+const SETTINGS_ITEM = { key: "settings", label: "Settings", icon: Settings, href: ROUTES.settings };
+
+// Header title for the current route (a job detail shows a generic label until job data lands).
+function pageTitleFor(pathname) {
+  if (pathname.startsWith(`${ROUTES.jobs}/`)) return "Job Workspace";
+  return (
+    [...NAV_ITEMS, SETTINGS_ITEM].find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))?.label ?? ""
+  );
+}
 /* - - - - - - - - - - - - - - - - */
 
 // Logo is a wordmark — shown when expanded (links to root); collapsed shows the expand control only.
@@ -68,10 +78,35 @@ export default function WorkspaceShell({ children }) {
   const router = useRouter();
   const [authed, setAuthed] = useState(false);
 
-  // Auth gate (demo): unauthenticated visitors are bounced to /login; nothing protected renders until authed.
+  // Auth gate (demo): CONTINUOUSLY verify the session. If it's missing or tampered with (e.g. someone edits
+  // the EvSession key in devtools), protected UI is hidden the same tick and we bounce to the landing (/) —
+  // never /login, no popup. The interval catches same-tab devtools edits (storage events don't fire in the
+  // tab that made the change); the storage listener catches other tabs instantly.
   useEffect(() => {
-    if (isAuthenticated()) setAuthed(true);
-    else router.replace(ROUTES.login);
+    let active = true;
+
+    function verify() {
+      if (!active) return;
+      if (isAuthenticated()) {
+        setAuthed(true);
+        return;
+      }
+      active = false;
+      setAuthed(false);
+      router.replace(ROUTES.home);
+    }
+
+    verify();
+    const interval = window.setInterval(verify, 1000);
+    window.addEventListener("storage", verify);
+    window.addEventListener("focus", verify);
+
+    return () => {
+      active = false;
+      window.clearInterval(interval);
+      window.removeEventListener("storage", verify);
+      window.removeEventListener("focus", verify);
+    };
   }, [router]);
 
   // Active when on the route or a sub-route (e.g. /jobs and /jobs/123).
@@ -86,12 +121,15 @@ export default function WorkspaceShell({ children }) {
   }
 
   function handleLogout() {
-    // Clear the demo session only — Fx UI prefs (FxID8r) and Ev seed data stay intact.
+    // Clear the demo auth fields (theme/sidebar in FxID8r + future Ev seed stay intact), then HARD-navigate
+    // to the landing — a soft router.replace can let the auth gate re-mount and race a bounce to /login.
     signOut();
-    router.replace(ROUTES.home);
+    window.location.assign(ROUTES.home);
   }
 
   if (!authed) return null;
+
+  const title = pageTitleFor(pathname);
 
   const sidebarHeader = collapsed ? (
     <button
@@ -134,10 +172,10 @@ export default function WorkspaceShell({ children }) {
   const sidebarFooter = (
     <div className="space-y-2">
       <FxSidebarNavItem
-        icon={Settings}
-        label="Settings"
-        href={ROUTES.settings}
-        active={isActive(ROUTES.settings)}
+        icon={SETTINGS_ITEM.icon}
+        label={SETTINGS_ITEM.label}
+        href={SETTINGS_ITEM.href}
+        active={isActive(SETTINGS_ITEM.href)}
         collapsed={collapsed}
       />
       <div className="h-px bg-border" />
@@ -154,9 +192,7 @@ export default function WorkspaceShell({ children }) {
         header={
           <FxAppHeader
             start={
-              <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                {APP_NAME} Workspace
-              </p>
+              title ? <h1 className={cn(FX_TYPOGRAPHY.sectionTitle, "truncate text-[var(--fx-text)]")}>{title}</h1> : null
             }
           />
         }

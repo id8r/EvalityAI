@@ -8,7 +8,9 @@ export { FxCreatableSelect } from "@/components/FxUI/Forms/FxCreatableSelect";
 export { FxEditableField } from "@/components/FxUI/Forms/FxEditableField";
 export { FxInput } from "@/components/FxUI/Forms/FxInput";
 export { FxRadioGroupField } from "@/components/FxUI/Forms/FxRadioGroupField";
+export { FxSelect } from "@/components/FxUI/Forms/FxSelect";
 export { FxSwitchField } from "@/components/FxUI/Forms/FxSwitchField";
+export { FxTagsInput } from "@/components/FxUI/Forms/FxTagsInput";
 export { FxTextarea } from "@/components/FxUI/Forms/FxTextarea";
 export { FxToolbarSearch } from "@/components/FxUI/Forms/FxToolbarSearch";
 /* - - - - - - - - - - - - - - - - */

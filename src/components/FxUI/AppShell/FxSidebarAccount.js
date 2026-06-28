@@ -2,6 +2,7 @@
 
 "use client";
 
+import Link from "next/link";
 import { ChevronsUpDown, CircleHelp, LogOut, Moon, Sun } from "lucide-react";
 
 import {
@@ -12,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toggleTheme, useFxIsDark } from "@/components/FxUI/AppShell/useFxTheme";
+import { ROUTES } from "@/lib/FxConstants";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -69,9 +71,12 @@ function FxSidebarAccount({ name = "User", email = "", collapsed = false, onLogo
           <span>Theme</span>
           <span className="ml-auto text-[12px] text-[var(--fx-text-muted)]">{isDark ? "Dark" : "Light"}</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          <CircleHelp className="size-4" />
-          <span>Help</span>
+        <DropdownMenuItem asChild>
+          {/* Temporary: Help routes to the design-system showcase until real help lands. */}
+          <Link href={ROUTES.designSystem}>
+            <CircleHelp className="size-4" />
+            <span>Help</span>
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={onLogout}>

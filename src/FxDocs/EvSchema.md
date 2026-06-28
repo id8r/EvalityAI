@@ -57,11 +57,35 @@
   `questions[]{ id, text }`
 - **evaluationConfig** *(reserved):* `evaluationContext` · `evaluationRounds[]` *(shape deferred)*
 
+  Seed shape — fields are **nested objects** (`core`/`roleSpec`/`content`/`screeningConfig`/`evaluationConfig`);
+  enum fields + `industry` use the frozen tokens (never friendly names); money is `{ min, max, currency }`:
+  ```json
+  {
+    "core": { "id": "job_001", "title": "Senior Backend Engineer", "clientId": "cli_001", "status": "published",
+      "priority": "high", "assigneeId": "usr_001", "createdById": "usr_001", "publishedAt": "…",
+      "archivedAt": null, "createdAt": "…", "updatedAt": "…" },
+    "roleSpec": { "positions": 3, "experienceFrom": 5, "experienceTo": 8, "employmentType": "full_time",
+      "workplaceType": "hybrid", "city": "Bengaluru", "locality": "Bellandur",
+      "salaryRange": { "min": 2800000, "max": 3600000, "currency": "INR" },
+      "hideCompensationFromCandidates": false, "department": "Engineering", "domain": "Backend Platform" },
+    "content": { "jobDescription": "…", "companyBrief": "…", "primarySkills": [], "secondarySkills": [],
+      "responsibilities": [], "benefits": [] },
+    "screeningConfig": { "questionFormat": "cv_and_prescreen", "preScreeningMode": "email",
+      "questions": [{ "id": "q_001", "text": "…" }] },
+    "evaluationConfig": { "evaluationContext": "…", "evaluationRounds": [] }
+  }
+  ```
+
 ### EvCandidates — **reusable person/profile only** (zero per-job state)
 `id` · `name` · `email` · `phone` · `currentCompany` · `currentTitle?` · `totalExperienceYears` ·
-`currentSalary{ amount, currency }` (Money) · `location?` · `resume{ fileName, url, text }` ·
+`currentSalary{ amount, currency }` (Money) · `location?` ·
+`resume{ fileName, url, text, extracted{ summary, skills[], experience[], education[], certifications[] } }` ·
 `source`(source) · `archivedAt`(null=active — drives Active/Archived tabs) · `createdById`→User ·
 `createdAt` · `updatedAt`
+
+Resume stays on Candidate (no separate Resume entity). `text` → preview/search · `extracted.summary` → candidate
+cards · `extracted.skills[]` → skill chips / JD match · `extracted.experience[]` → profile/detail ·
+`extracted.education[]` / `extracted.certifications[]` → future candidate-sheet sections.
 
 ### EvApplications — **the spine: one candidate in one job; owns ALL workflow state**
 - **core:** `id` · `candidateId`→Candidate · `jobId`→Job · `stage`(applicationStage) ·

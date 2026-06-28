@@ -10,11 +10,11 @@ import { FxButton } from "@/components/FxUI/Forms";
 import { ROUTES } from "@/lib/FxConstants";
 /* - - - - - - - - - - - - - - - - */
 
-// AuthDialog owns the success redirect (login → /jobs, signup → /welcome). Dismissing the dialog reveals
-// this fallback card so closing never strands the user on a blank route.
+// AuthDialog owns the success redirect (login → /jobs; signup → role step → /jobs). Dismissing the dialog
+// reveals this fallback card so closing never strands the user on a blank route.
+// Login lives on the landing auth popup (no /login route), so "Log in" points back to the landing.
 const AUTH_SCREEN_COPY = {
-  login: { title: "Log in", cta: "Log in", prompt: "New to Evality?", link: "Create an account", href: ROUTES.signup },
-  signup: { title: "Get started", cta: "Sign up", prompt: "Already have an account?", link: "Log in", href: ROUTES.login },
+  signup: { title: "Get started", cta: "Sign up", prompt: "Already have an account?", link: "Log in", href: ROUTES.home },
 };
 
 export function AuthScreen({ intent = "login" }) {

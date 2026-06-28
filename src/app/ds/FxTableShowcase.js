@@ -62,7 +62,7 @@ export function FxTableShowcase() {
 
   const columns = useMemo(
     () => [
-      { key: "name", header: "Candidate", type: "link", sticky: "left", locked: true, sortable: true, sortType: "string", width: 210, minWidth: 190, grow: 1, cellProps: (row) => ({ href: "#", indicator: nameIndicator(row), onClick: () => setMessage(`Open candidate · ${row.name}`) }) },
+      { key: "name", header: "Candidate", type: "link", locked: true, sortable: true, sortType: "string", width: 210, minWidth: 190, grow: 1, cellProps: (row) => ({ href: "#", indicator: nameIndicator(row), onClick: () => setMessage(`Open candidate · ${row.name}`) }) },
       { key: "role", header: "Role", type: "text", sortable: true, sortType: "string", width: 210, minWidth: 170, grow: 1 },
       { key: "status", header: "Status", type: "badge", width: 140, minWidth: 120, cellProps: (row) => ({ tone: STATUS_TONE[row.status] ?? "neutral", label: row.status, dot: true }) },
       { key: "matchScore", header: "Fit", type: "score", align: "center", sortable: true, sortType: "number", width: 92, minWidth: 80, cellProps: (row) => ({ tone: scoreTone(row.matchScore), onClick: () => setMessage(`CV match breakdown · ${row.name}`) }) },
@@ -165,6 +165,7 @@ export function FxTableShowcase() {
           sortable
           resizable
           stickyHeader
+          stickyLeadingCount={1}
           scrollX
           columnManager={<FxColumnManager controller={table} variant="icon" align="right" />}
           loading={view === "loading"}

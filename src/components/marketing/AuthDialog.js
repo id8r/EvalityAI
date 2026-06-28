@@ -1,4 +1,4 @@
-/* src/components/marketing/AuthDialog.js | Landing auth dialog (signup/login intents) | Sree | 2026-06-26 */
+/* src/components/marketing/AuthDialog.js | Auth popup (social/email) — signup → /welcome, login → /jobs | Sree | 2026-06-28 */
 
 "use client";
 
@@ -33,13 +33,16 @@ function LinkedInIcon() {
 }
 /* - - - - - - - - - - - - - - - - */
 
+// Auth-only popup. signIn records the entry path via `experience`: signup="get_started" (→ /welcome onboarding,
+// then an empty/FTUE jobs view) vs login="login" (returning → seeded /jobs).
 export function AuthDialog({ open, onOpenChange, intent = "signup" }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const darkCta =
+    "w-full justify-center border-transparent bg-[var(--fx-text)] text-white hover:bg-[color:color-mix(in_srgb,var(--fx-text)_86%,black)]";
 
-  // Demo flow: signup -> onboarding, login -> workspace. Sets the demo session, then redirects.
   function completeAuth(provider) {
-    signIn({ provider, email });
+    signIn({ provider, email, experience: intent === "signup" ? "get_started" : "login" });
     onOpenChange?.(false);
     setEmail("");
     router.push(intent === "signup" ? ROUTES.welcome : ROUTES.jobs);
@@ -47,9 +50,7 @@ export function AuthDialog({ open, onOpenChange, intent = "signup" }) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    if (email.trim()) {
-      completeAuth("email");
-    }
+    if (email.trim()) completeAuth("email");
   }
 
   return (
@@ -96,11 +97,7 @@ export function AuthDialog({ open, onOpenChange, intent = "signup" }) {
             data-lpignore="true"
             data-form-type="other"
           />
-          <FxButton
-            type="submit"
-            size="xl"
-            className="w-full justify-center border-transparent bg-[var(--fx-text)] text-white hover:bg-[color:color-mix(in_srgb,var(--fx-text)_86%,black)]"
-          >
+          <FxButton type="submit" size="xl" className={darkCta}>
             {AUTH_COPY.continue}
           </FxButton>
         </form>

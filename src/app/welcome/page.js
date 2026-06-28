@@ -1,7 +1,8 @@
-// src/app/welcome/page.js | Onboarding route | Sree | 2026-06-26
+/* src/app/welcome/page.js | Onboarding route (role + who you hire for) | Sree | 2026-06-28 */
 
-import { OnboardingPage } from "@/components/marketing/OnboardingPage";
+import { WelcomeScreen } from "@/components/marketing/WelcomeScreen";
 
-export default function Welcome() {
-  return <OnboardingPage />;
+export default function WelcomePage() {
+  return <WelcomeScreen />;
 }
+/* - - - - - - - - - - - - - - - - */

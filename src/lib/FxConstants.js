@@ -35,4 +35,6 @@ export const STORAGE_KEYS = {
   sidebarOpen: "Sidebar-Open", // "Y" | "N"
   role: "Role", // selected/created role from FxCreatableSelect (onboarding)
 };
+// FxID8r holds UI/design-system state ONLY. Auth/session lives in its own root (see EvSession.js);
+// Ev domain + view-state get their own roots (EvSeedData / EvUIData) when the data layer lands.
 /* - - - - - - - - - - - - - - - - */
