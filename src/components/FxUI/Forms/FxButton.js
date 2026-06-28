@@ -13,6 +13,8 @@ const fxButtonVariants = cva(FX_BUTTON.base, {
     variant: {
       primary:
         "border-transparent bg-[var(--fx-primary)] text-[var(--fx-primary-foreground)] hover:bg-[var(--fx-primary-hover)]",
+      accent:
+        "border-transparent bg-[var(--fx-accent)] text-white hover:bg-[color:color-mix(in_srgb,var(--fx-accent)_88%,black)]",
       hero:
         "border-transparent bg-[var(--fx-primary)] text-[var(--fx-primary-foreground)] hover:bg-[var(--fx-primary-hover)]",
       secondary:

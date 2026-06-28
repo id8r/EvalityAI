@@ -28,7 +28,7 @@ function FxDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent showCloseButton={showClose} className={className}>
         {title || description ? (
-          <DialogHeader className={cn("text-center", headerClassName)}>
+          <DialogHeader className={cn("text-left", headerClassName)}>
             {title ? <DialogTitle>{title}</DialogTitle> : null}
             {description ? <DialogDescription>{description}</DialogDescription> : null}
           </DialogHeader>

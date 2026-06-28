@@ -89,6 +89,26 @@ export function updateJobGroup(id, group, patch) {
   );
   return getJob(id);
 }
+export function updateJob(id, nextJob = {}) {
+  const current = getJob(id);
+  if (!current) return null;
+  const merged = {
+    ...current,
+    ...nextJob,
+    core: {
+      ...(current.core ?? {}),
+      ...(nextJob.core ?? {}),
+      id,
+      updatedAt: nowIso(),
+    },
+    roleSpec: { ...(current.roleSpec ?? {}), ...(nextJob.roleSpec ?? {}) },
+    content: { ...(current.content ?? {}), ...(nextJob.content ?? {}) },
+    screeningConfig: { ...(current.screeningConfig ?? {}), ...(nextJob.screeningConfig ?? {}) },
+    evaluationConfig: { ...(current.evaluationConfig ?? {}), ...(nextJob.evaluationConfig ?? {}) },
+  };
+  setCollection("jobs", getJobs().map((job) => (job.core?.id === id ? merged : job)));
+  return getJob(id);
+}
 export function archiveJob(id) {
   return updateJobGroup(id, "core", { archivedAt: nowIso() });
 }

@@ -6,18 +6,21 @@ import { useParams, usePathname, useRouter, useSearchParams } from "next/navigat
 import {
   ArrowLeft,
   ArrowRight,
+  PhoneCall,
   ChevronDown,
   CircleUserRound,
   Filter,
   MoreHorizontal,
+  PencilLine,
+  Share2,
   SquareCheckBig,
   Users,
 } from "lucide-react";
 
-import { FxButton, FxIconButton, FxToolbarSearch } from "@/components/FxUI/Forms";
+import { FxAiButton, FxButton, FxIconButton, FxToolbarSearch } from "@/components/FxUI/Forms";
 import { FxPageToolbar } from "@/components/FxUI/Layout";
 import { FxTabs } from "@/components/FxUI/Navigation";
-import { FxTable, FxCellDot, FxDateCell, FxStackedCell } from "@/components/FxUI/DataDisplay";
+import { FxTable, FxDateCell, FxSalaryRangeCell, FxStackedCell, FxCellDot } from "@/components/FxUI/DataDisplay";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,12 +28,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { getApplicationsByJob, getCandidate, getJob } from "@/lib/EvData";
-import { employmentTypeLabel, experienceLabel, jobClientName, jobLocationLabel, stageLabel, workplaceTypeLabel } from "@/lib/EvSelectors";
+import { FxJobCreateSheet } from "@/components/FxUI/Overlays/FxJobCreateSheet";
+import { getApplicationsByJob, getCandidate, getJob, updateJob } from "@/lib/EvData";
+import { employmentTypeLabel, experienceLabel, jobLocationLabel, stageLabel } from "@/lib/EvSelectors";
 import { FxPanel } from "@/components/FxUI/Layout/FxPanel";
 import { FX_TYPOGRAPHY } from "@/lib/FxTheme";
 import { ROUTES } from "@/lib/FxConstants";
-import { cn } from "@/lib/FxUtils";
+import { cn, FxStatusMeta } from "@/lib/FxUtils";
 import { useEvData } from "@/lib/useEvData";
 
 const WORKSPACE_TABS = [
@@ -146,32 +150,19 @@ function workspaceEmptyCopy(tab) {
   };
 }
 
-function StatusDot({ job }) {
-  const meta = getStatusTone(job);
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <FxCellDot tone={meta.tone} title={meta.label} />
-      </TooltipTrigger>
-      <TooltipContent side="top" sideOffset={6}>
-        <div className="space-y-[2px]">
-          <div className="text-[14px] font-medium leading-[22px] text-[var(--fx-text)]">{meta.label}</div>
-          {meta.missingEvaluationContext ? (
-            <div className="text-[13px] leading-[20px] text-[var(--fx-danger)]">Evaluation context missing</div>
-          ) : null}
-        </div>
-      </TooltipContent>
-    </Tooltip>
-  );
-}
-
 function MetaField({ label, value }) {
   return (
     <div className="min-w-0 space-y-1">
       <div className="text-[12px] font-medium leading-[16px] text-[var(--fx-text-muted)]">{label}</div>
-      <div className="truncate text-[14px] leading-[22px] text-[var(--fx-text)]">{value}</div>
+      <div className="truncate text-[14px] font-medium leading-[22px] text-[var(--fx-text)]">{value}</div>
     </div>
   );
+}
+
+function questionFormatLabel(value) {
+  if (value === "cv_and_prescreen") return "CV + AI pre-screening";
+  if (value === "prescreen_only") return "Standard Questions Only";
+  return "—";
 }
 
 function EmptyState({ tab, onAddCandidates }) {
@@ -249,6 +240,7 @@ export default function JobWorkspacePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [ageFilter, setAgeFilter] = useState("all");
   const [now] = useState(() => new Date().getTime());
+  const [isEditJobOpen, setIsEditJobOpen] = useState(false);
 
   const jobId = String(params?.jobId ?? "");
   const requestedTab = searchParams.get("tab");
@@ -267,62 +259,50 @@ export default function JobWorkspacePage() {
     router.replace(`${pathname}?${next.toString()}`);
   }, [activeTab, pathname, requestedTab, router, searchParams]);
 
-  const job = useMemo(() => (ready ? getJob(jobId) : null), [jobId, ready]);
-  const applications = useMemo(() => (ready ? getApplicationsByJob(jobId) : []), [jobId, ready]);
-  const statusMeta = getStatusTone(job);
-  const clientName = job ? jobClientName(job) : null;
+  const job = ready ? getJob(jobId) : null;
+  const applications = ready ? getApplicationsByJob(jobId) : [];
   const location = job ? jobLocationLabel(job.roleSpec) : "—";
   const employmentType = job ? employmentTypeLabel(job.roleSpec?.employmentType) : "—";
-  const workplaceType = job ? workplaceTypeLabel(job.roleSpec?.workplaceType) : "—";
   const experience = job ? experienceLabel(job.roleSpec) : "—";
-  const stageRows = useMemo(
-    () =>
-      applications
-      .map((app) => {
-        const candidate = getCandidate(app.candidateId);
-        const stage = stageForApplication(app);
-        return {
-          id: app.id,
-          app,
-          candidate,
-          stage,
-          candidateName: candidate?.name ?? "Unknown candidate",
-          candidateEmail: candidate?.email ?? "—",
-          currentTitle: candidate?.currentTitle ?? "",
-          currentCompany: candidate?.currentCompany ?? "",
-          location: candidate?.location ?? "—",
-          appliedAt: app.appliedAt,
-          updatedAt: app.updatedAt,
-        };
-      })
-      .filter((row) => row.stage === activeTab)
-      .filter((row) => matchesSearch(row.candidate, row.app, searchTerm)),
-    [activeTab, applications, searchTerm],
-  );
-
-  const candidateRows = useMemo(() => stageRows.filter((row) => matchesAgeFilter(row.appliedAt, ageFilter)), [ageFilter, stageRows]);
-
-  const tabCounts = useMemo(() => {
-    const counts = Object.fromEntries(WORKSPACE_TABS.map((tab) => [tab.value, 0]));
-    for (const app of applications) {
+  const questionFormat = job ? questionFormatLabel(job.screeningConfig?.questionFormat) : "—";
+  const stageRows = applications
+    .map((app) => {
+      const candidate = getCandidate(app.candidateId);
       const stage = stageForApplication(app);
-      if (counts[stage] != null) counts[stage] += 1;
-    }
-    return counts;
-  }, [applications]);
+      return {
+        id: app.id,
+        app,
+        candidate,
+        stage,
+        candidateName: candidate?.name ?? "Unknown candidate",
+        candidateEmail: candidate?.email ?? "—",
+        currentTitle: candidate?.currentTitle ?? "",
+        currentCompany: candidate?.currentCompany ?? "",
+        location: candidate?.location ?? "—",
+        appliedAt: app.appliedAt,
+        updatedAt: app.updatedAt,
+      };
+    })
+    .filter((row) => row.stage === activeTab)
+    .filter((row) => matchesSearch(row.candidate, row.app, searchTerm));
 
-  const ageCounts = useMemo(() => {
-    const counts = { all: stageRows.length, fresh: 0, "15_days": 0, "30_days": 0, "2_months": 0, "3_months": 0 };
-    for (const row of stageRows) {
-      const diffDays = Math.floor(Math.max(0, now - new Date(row.appliedAt).getTime()) / 86400000);
-      if (diffDays < 7) counts.fresh += 1;
-      if (diffDays < 15) counts["15_days"] += 1;
-      if (diffDays < 30) counts["30_days"] += 1;
-      if (diffDays < 60) counts["2_months"] += 1;
-      if (diffDays < 90) counts["3_months"] += 1;
-    }
-    return counts;
-  }, [now, stageRows]);
+  const candidateRows = stageRows.filter((row) => matchesAgeFilter(row.appliedAt, ageFilter));
+
+  const tabCounts = Object.fromEntries(WORKSPACE_TABS.map((tab) => [tab.value, 0]));
+  for (const app of applications) {
+    const stage = stageForApplication(app);
+    if (tabCounts[stage] != null) tabCounts[stage] += 1;
+  }
+
+  const ageCounts = { all: stageRows.length, fresh: 0, "15_days": 0, "30_days": 0, "2_months": 0, "3_months": 0 };
+  for (const row of stageRows) {
+    const diffDays = Math.floor(Math.max(0, now - new Date(row.appliedAt).getTime()) / 86400000);
+    if (diffDays < 7) ageCounts.fresh += 1;
+    if (diffDays < 15) ageCounts["15_days"] += 1;
+    if (diffDays < 30) ageCounts["30_days"] += 1;
+    if (diffDays < 60) ageCounts["2_months"] += 1;
+    if (diffDays < 90) ageCounts["3_months"] += 1;
+  }
 
   const columns = useMemo(
     () => [
@@ -405,60 +385,51 @@ export default function JobWorkspacePage() {
   return (
     <TooltipProvider delayDuration={0}>
       <div className="flex h-full min-h-0 flex-col gap-5 px-6 py-6 md:px-8">
-        <Link href={ROUTES.jobs} className="inline-flex w-fit items-center gap-2 text-[14px] font-medium text-[var(--fx-text-muted)] hover:text-[var(--fx-text)]">
-          <ArrowLeft className="size-4" />
-          All Jobs
-        </Link>
-
         <FxPanel className="rounded-[16px]">
-          <div className="flex flex-col gap-5 p-6 xl:flex-row xl:items-start xl:justify-between">
+          {/* Job header / summary action row [Sree] */}
+          <div className="flex flex-col gap-5 pb-[16px] xl:flex-row xl:items-center xl:justify-between">
             <div className="min-w-0 space-y-3">
               <div className="flex flex-wrap items-center gap-3">
-                <StatusDot job={job} />
-                <h1 className={cn(FX_TYPOGRAPHY.pageTitle, "min-w-0 truncate text-[var(--fx-text)]")}>{job.core.title}</h1>
-              </div>
-              <div className="flex flex-wrap items-center gap-2 text-[14px] leading-[22px] text-[var(--fx-text-muted)]">
-                <span className="rounded-full border border-[var(--fx-border-light)] bg-[var(--fx-bg-soft)] px-2.5 py-0.5 text-[12px] font-medium text-[var(--fx-text)]">
-                  {statusMeta.label}
-                </span>
-                {job.core.id ? <span>Job ID {job.core.id}</span> : null}
-                {clientName ? <span>Client {clientName}</span> : null}
-                {job.roleSpec?.hideCompensationFromCandidates ? <span>Compensation hidden from candidates</span> : null}
+                <FxCellDot tone={FxStatusMeta(job).tone} title={FxStatusMeta(job).label} />
+                <h1 className={cn(FX_TYPOGRAPHY.title, "min-w-0 truncate text-[var(--fx-text)]")}>{job.core.title}</h1>
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <FxButton variant="primary" size="sm">
+              <FxAiButton size="sm">
                 Recommend Candidates
-              </FxButton>
+              </FxAiButton>
               <FxButton variant="ghost" size="sm">
+                <PhoneCall className="size-4" />
                 Call Preview
               </FxButton>
               <FxButton variant="ghost" size="sm">
+                <Share2 className="size-4" />
                 Share Job
               </FxButton>
-              <FxButton variant="outline" size="sm">
+              <FxButton variant="ghost" size="sm" onClick={() => setIsEditJobOpen(true)}>
+                <PencilLine className="size-4" />
                 Edit Job
               </FxButton>
             </div>
           </div>
 
-          <div className="grid gap-4 border-t border-[var(--fx-border-light)] px-6 py-4 sm:grid-cols-2 xl:grid-cols-6">
-            <MetaField label="Location" value={location} />
-            <MetaField label="Workplace Type" value={workplaceType} />
-            <MetaField label="Employment Type" value={employmentType} />
-            <MetaField label="Experience" value={experience} />
-            <MetaField label="Openings" value={String(job.roleSpec?.positions ?? 0)} />
-            <MetaField label="Salary" value={job.roleSpec?.hideCompensationFromCandidates ? "Hidden" : "Visible"} />
-            <MetaField label="Published" value={job.core.publishedAt ? new Date(job.core.publishedAt).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" }) : "Draft"} />
+          <div className="flex flex-wrap gap-y-6 border-t border-[var(--fx-border-light)] px-6 py-4">
+            <div className="pr-10"><MetaField label="Experience" value={experience} /></div>
+            <div className="pr-10"><MetaField label="Employment Type" value={employmentType} /></div>
+            <div className="pr-10">
+              <MetaField label="Salary Range" value={<FxSalaryRangeCell range={job.roleSpec?.salaryRange} compact={false} />} />
+            </div>
+            <div className="pr-10"><MetaField label="Positions" value={String(job.roleSpec?.positions ?? 0)} /></div>
+            <div className="pr-10"><MetaField label="Location" value={location} /></div>
+            <div className="pr-10"><MetaField label="Publish Date" value={job.core.publishedAt ? new Date(job.core.publishedAt).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" }) : "Draft"} /></div>
+            <div className="pr-10"><MetaField label="Question Format" value={questionFormat} /></div>
           </div>
         </FxPanel>
 
-        <div className="min-h-0 flex-1 space-y-4">
+        <div className="min-h-0 flex-1 space-y-4 pt-[24px]">
           <FxTabs
-            variant="underlined"
-            fullWidth
-            underlineFullWidth
+            variant="rounded"
             value={activeTab}
             onValueChange={(value) => {
               const nextTab = resolveTab(value);
@@ -467,7 +438,7 @@ export default function JobWorkspacePage() {
               router.push(`${pathname}?${next.toString()}`);
             }}
             tabs={WORKSPACE_TABS.map((tab) => ({ ...tab, count: tabCounts[tab.value] ?? 0 }))}
-            className="w-full"
+            className="w-fit"
           />
 
           <FxPageToolbar sticky divider>
@@ -511,6 +482,16 @@ export default function JobWorkspacePage() {
           </div>
         </div>
       </div>
+      <FxJobCreateSheet
+        key={job.core.id}
+        open={isEditJobOpen}
+        initialJob={job}
+        onOpenChange={setIsEditJobOpen}
+        onCreate={(jobPayload, status) => {
+          updateJob(job.core.id, jobPayload);
+          if (status === "published") router.replace(`${pathname}?tab=${tabQueryValue(activeTab)}`);
+        }}
+      />
     </TooltipProvider>
   );
 }

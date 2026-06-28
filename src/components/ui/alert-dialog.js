@@ -36,7 +36,7 @@ function AlertDialogContent({ className, ...props }) {
       <AlertDialogPrimitive.Content
         data-slot="alert-dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-[calc(100%-2rem)] max-w-[520px] -translate-x-1/2 -translate-y-1/2 gap-5 border border-border bg-[var(--fx-surface-raised)] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.14)]",
+          "fixed top-1/2 left-1/2 z-50 grid w-[calc(100%-2rem)] max-w-[520px] -translate-x-1/2 -translate-y-1/2 gap-5 rounded-[16px] border border-[var(--fx-border)] bg-[var(--fx-surface-raised)] p-6 shadow-[0_10px_30px_rgba(15,23,42,0.08)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.4)]",
           className,
         )}
         {...props}

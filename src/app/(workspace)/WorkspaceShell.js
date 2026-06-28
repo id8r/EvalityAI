@@ -5,7 +5,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { FileText, FolderOpen, Inbox, PanelLeftClose, PanelLeftOpen, Settings, Users } from "lucide-react";
+import { ArrowLeft, FileText, FolderOpen, Inbox, PanelLeftClose, PanelLeftOpen, Settings, Users } from "lucide-react";
 
 import {
   FxAppContent,
@@ -52,9 +52,8 @@ const NAV_ITEMS = [
 ];
 const SETTINGS_ITEM = { key: "settings", label: "Settings", icon: Settings, href: ROUTES.settings };
 
-// Header title for the current route (a job detail shows a generic label until job data lands).
+// Header title for the current route (a job detail shows a back link to the jobs list).
 function pageTitleFor(pathname) {
-  if (pathname.startsWith(`${ROUTES.jobs}/`)) return "Job Workspace";
   return (
     [...NAV_ITEMS, SETTINGS_ITEM].find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))?.label ?? ""
   );
@@ -130,6 +129,7 @@ export default function WorkspaceShell({ children }) {
   if (!authed) return null;
 
   const title = pageTitleFor(pathname);
+  const isJobWorkspace = pathname.startsWith(`${ROUTES.jobs}/`);
 
   const sidebarHeader = collapsed ? (
     <button
@@ -179,7 +179,7 @@ export default function WorkspaceShell({ children }) {
         collapsed={collapsed}
       />
       <div className="h-px bg-border" />
-      <FxSidebarAccount name="Alex Morgan" email="alex@evality.ai" collapsed={collapsed} onLogout={handleLogout} />
+      <FxSidebarAccount name="John Doe" email="jdoe@evality.ai" collapsed={collapsed} onLogout={handleLogout} />
     </div>
   );
 
@@ -193,7 +193,17 @@ export default function WorkspaceShell({ children }) {
           <FxAppHeader
             contentClassName="w-full px-6 md:px-8"
             start={
-              title ? <h1 className={cn(FX_TYPOGRAPHY.sectionTitle, "truncate text-[var(--fx-text)]")}>{title}</h1> : null
+              isJobWorkspace ? (
+                <Link
+                  href={ROUTES.jobs}
+                  className={cn("inline-flex items-center gap-2 truncate text-[var(--fx-text-muted)] hover:text-[var(--fx-text)]", FX_TYPOGRAPHY.backLink)}
+                >
+                  <ArrowLeft className="size-[16px]" />
+                  All Jobs
+                </Link>
+              ) : title ? (
+                <h1 className={cn(FX_TYPOGRAPHY.sectionTitle, "truncate text-[var(--fx-text)]")}>{title}</h1>
+              ) : null
             }
           />
         }

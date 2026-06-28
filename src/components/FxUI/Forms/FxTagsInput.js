@@ -142,6 +142,7 @@ function FxTagsInput({
       case "Escape":
         if (open) {
           event.preventDefault();
+          event.stopPropagation(); // close the menu, not the surrounding sheet
           setOpen(false);
         }
         break;

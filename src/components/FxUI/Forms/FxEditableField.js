@@ -33,6 +33,8 @@ function FxEditableField({
   const inputRef = useRef(null);
 
   useEffect(() => {
+    // Sync the committed value when the controlled `value` prop changes from outside.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrent(value);
   }, [value]);
 
@@ -64,6 +66,7 @@ function FxEditableField({
       save();
     } else if (event.key === "Escape") {
       event.preventDefault();
+      event.stopPropagation(); // cancel the inline edit, not a surrounding sheet
       cancel();
     }
   }

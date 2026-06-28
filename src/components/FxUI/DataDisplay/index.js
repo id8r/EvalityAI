@@ -14,6 +14,7 @@ export {
   FxScoreCell,
   FxNumberCell,
   FxCurrencyCell,
+  FxSalaryRangeCell,
   FxDateCell,
   FxAvailabilityCell,
   FxStackedCell,

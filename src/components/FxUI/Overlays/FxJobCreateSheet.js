@@ -2,9 +2,8 @@
 
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
-  AlertCircle,
   ArrowLeft,
   ArrowRight,
   Baby,
@@ -13,7 +12,7 @@ import {
   Brain,
   BusFront,
   CalendarDays,
-  Check,
+  Circle,
   Clock3,
   Coffee,
   Dumbbell,
@@ -31,12 +30,14 @@ import {
   Save,
   Send,
   ShieldPlus,
+  Trash2,
   Upload,
   Users,
   UtensilsCrossed,
 } from "lucide-react";
 
 import { FxAiButton, FxButton, FxInput, FxRichTextEditor, FxSelect, FxTagsInput, FxTextarea } from "@/components/FxUI/Forms";
+import { FxConfirmDialog } from "@/components/FxUI/Overlays/FxConfirmDialog";
 import { FxDialog } from "@/components/FxUI/Overlays/FxDialog";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import { FxUploadJobDescriptionDialog } from "@/components/FxUI/Overlays/FxUploadJobDescriptionDialog";
@@ -227,6 +228,45 @@ const DEFAULT_FORM = {
   additionalInformation: "",
 };
 
+function formFromJob(job) {
+  const roleSpec = job?.roleSpec ?? {};
+  const content = job?.content ?? {};
+  const screeningConfig = job?.screeningConfig ?? {};
+  const evaluationConfig = job?.evaluationConfig ?? {};
+  return {
+    title: job?.core?.title ?? "",
+    employmentType: roleSpec.employmentType ?? "full_time",
+    workplaceType: roleSpec.workplaceType ?? "hybrid",
+    city: roleSpec.city ?? "",
+    locality: roleSpec.locality ?? "",
+    positions: String(roleSpec.positions ?? "1"),
+    experienceFrom: String(roleSpec.experienceFrom ?? ""),
+    experienceTo: String(roleSpec.experienceTo ?? ""),
+    interviewRounds: String(roleSpec.interviewRounds ?? "1"),
+    salaryMin: String(roleSpec.salaryRange?.min ?? ""),
+    salaryMax: String(roleSpec.salaryRange?.max ?? ""),
+    currency: roleSpec.salaryRange?.currency ?? "INR",
+    hideCompensationFromCandidates: Boolean(roleSpec.hideCompensationFromCandidates ?? true),
+    jobDescription: content.jobDescription ?? "",
+    primarySkills: Array.isArray(content.primarySkills) ? content.primarySkills : [],
+    secondarySkills: Array.isArray(content.secondarySkills) ? content.secondarySkills : [],
+    questions: Array.isArray(screeningConfig.questions)
+      ? screeningConfig.questions.map((item, index) => ({
+          id: item.id ?? `question-${index + 1}`,
+          label: item.label ?? "Custom",
+          question: item.question ?? item.text ?? "",
+          note: item.note ?? "",
+        }))
+      : DEFAULT_FORM.questions,
+    questionFormat: screeningConfig.questionFormat ?? "cv_and_prescreen",
+    preScreeningMode: screeningConfig.preScreeningMode ?? "manual",
+    companyBrief: content.companyBrief ?? "",
+    benefits: Array.isArray(content.benefits) ? content.benefits : [],
+    evaluationContext: evaluationConfig.evaluationContext ?? "",
+    additionalInformation: job?.additionalInformation ?? "",
+  };
+}
+
 function currencyLocale(currency = "INR") {
   return CURRENCY_LOCALES[currency] ?? "en-US";
 }
@@ -272,16 +312,19 @@ function normalizeQuestionKey(value) {
   return String(value ?? "").trim().toLowerCase();
 }
 
-function buildPayload(form, status) {
+function buildPayload(form, status, job) {
   const now = new Date().toISOString();
   return {
     core: {
+      id: job?.core?.id,
       title: form.title.trim(),
       status,
-      clientId: null,
-      priority: "medium",
-      assigneeId: null,
-      createdById: null,
+      clientId: job?.core?.clientId ?? null,
+      priority: job?.core?.priority ?? "medium",
+      assigneeId: job?.core?.assigneeId ?? null,
+      createdById: job?.core?.createdById ?? null,
+      archivedAt: job?.core?.archivedAt ?? null,
+      createdAt: job?.core?.createdAt ?? now,
       ...(status === "published" ? { publishedAt: now } : {}),
     },
     roleSpec: {
@@ -323,9 +366,9 @@ function buildPayload(form, status) {
   };
 }
 
-function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
+function FxJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
   const [step, setStep] = useState("basic");
-  const [form, setForm] = useState(DEFAULT_FORM);
+  const [form, setForm] = useState(() => formFromJob(initialJob));
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [isUploadJdOpen, setIsUploadJdOpen] = useState(false);
@@ -341,9 +384,13 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
   const [evaluationContextStep, setEvaluationContextStep] = useState(0);
   const [evaluationContextAnswers, setEvaluationContextAnswers] = useState({});
   const [evaluationContextPromptInclusions, setEvaluationContextPromptInclusions] = useState({});
+  const [confirmDiscardOpen, setConfirmDiscardOpen] = useState(false);
   const titleInputRef = useRef(null);
   const customQuestionInputRef = useRef(null);
 
+  const initialForm = useMemo(() => formFromJob(initialJob), [initialJob]);
+  // Any edit away from the initial form makes the sheet dirty → closing must confirm (parity with old).
+  const isDirty = JSON.stringify(form) !== JSON.stringify(initialForm);
   const title = form.title.trim();
   const isRemote = form.workplaceType === "remote";
   const headerDescription = title ? `"${title}"` : "Enter job details to get started";
@@ -381,8 +428,26 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
   }
 
   function handleOpenChange(nextOpen) {
-    if (nextOpen) setStep("basic");
-    onOpenChange?.(nextOpen);
+    if (nextOpen) {
+      setStep("basic");
+      onOpenChange?.(true);
+      return;
+    }
+    requestClose();
+  }
+
+  // Close request (Esc / scrim / X / Cancel / Back-on-first-step): confirm first if there are unsaved edits.
+  function requestClose() {
+    if (isDirty && !submitting) {
+      setConfirmDiscardOpen(true);
+      return;
+    }
+    onOpenChange?.(false);
+  }
+
+  function discardAndClose() {
+    setConfirmDiscardOpen(false);
+    onOpenChange?.(false);
   }
 
   function syncExperienceRange(name, value) {
@@ -706,7 +771,7 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
               onClick={() => removeQuestion(question.id)}
               aria-label="Remove question"
             >
-              <span className="text-[15px] leading-none">×</span>
+              <Trash2 className="size-[15px]" />
             </button>
           </div>
         </div>
@@ -784,7 +849,7 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
 
     setSubmitting(true);
     try {
-      await onCreate?.(buildPayload(form, status), status);
+      await onCreate?.(buildPayload(form, status, initialJob), status, initialJob);
       onOpenChange?.(false);
     } finally {
       setSubmitting(false);
@@ -797,10 +862,6 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
   }
 
   function goBack() {
-    if (currentIndex === 0) {
-      handleOpenChange(false); // first step: Back closes the sheet (parity with old)
-      return;
-    }
     setStep(STEPS[Math.max(currentIndex - 1, 0)].value);
   }
 
@@ -865,14 +926,16 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
     return (
       <div className="flex items-center justify-between gap-3 py-2">
         <div className="flex min-w-0 items-center gap-2">
-          {complete ? (
-            <Check className="size-4 shrink-0 text-[var(--fx-success)]" />
-          ) : (
-            <AlertCircle className="size-4 shrink-0 text-[var(--fx-warning)]" />
-          )}
-          <p className="flex min-w-0 items-center gap-1.5 text-[14px] font-medium text-[var(--fx-text-muted)]">
-            <span className="truncate">{rowTitle}</span>
-            {!complete && missing ? <span className="min-w-0 truncate font-normal text-[var(--fx-text)]">- {missing}</span> : null}
+          <span className="flex size-4 shrink-0 items-center justify-center">
+            {complete ? (
+              <BadgeCheck className="size-4 text-[var(--fx-success)]" />
+            ) : (
+              <Circle className="size-2 fill-current text-[var(--fx-warning)]" />
+            )}
+          </span>
+          <p className="flex min-w-0 items-center gap-1.5 text-[14px] text-[var(--fx-text-muted)]">
+            <span className="truncate font-normal">{rowTitle}</span>
+            {!complete && missing ? <span className="min-w-0 truncate font-medium text-[var(--fx-text)]">- {missing}</span> : null}
           </p>
         </div>
         <FxButton type="button" variant="ghost" size="sm" onClick={() => goToSheetStep(rowStep)}>
@@ -987,7 +1050,7 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
         });
       }}
       size="md"
-      title="Create Job"
+      title={initialJob ? "Edit Job" : "Create Job"}
       description={headerDescription}
       headerActions={
         <>
@@ -1001,9 +1064,14 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
           </FxButton>
         </>
       }
+      footerStart={
+        <FxButton variant="ghost" size="sm" onClick={requestClose}>
+          Cancel
+        </FxButton>
+      }
       footer={
         <>
-          <FxButton variant="outline" size="sm" onClick={goBack}>
+          <FxButton variant="outline" size="sm" onClick={goBack} disabled={step === "basic"}>
             <ArrowLeft className="size-4" />
             Back
           </FxButton>
@@ -1210,7 +1278,7 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
                     value={formatCurrencyValue(form.salaryMin, form.currency)}
                     onChange={(event) => setField("salaryMin", digitsOnly(event.target.value))}
                     inputMode="numeric"
-                    placeholder="1000000"
+                    placeholder={formatCurrencyValue("1000000", form.currency)}
                     inputClassName="text-right"
                     onKeyDown={(event) => {
                       if (event.key !== "Enter") return;
@@ -1228,7 +1296,7 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
                     value={formatCurrencyValue(form.salaryMax, form.currency)}
                     onChange={(event) => setField("salaryMax", digitsOnly(event.target.value))}
                     inputMode="numeric"
-                    placeholder="1500000"
+                    placeholder={formatCurrencyValue("1500000", form.currency)}
                     inputClassName="text-right"
                     onKeyDown={(event) => {
                       if (event.key !== "Enter") return;
@@ -1275,7 +1343,7 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
           </FxTabs.Content>
 
           <FxTabs.Content value="description" className="mt-5 space-y-5">
-            <div className="space-y-4 rounded-[16px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-5">
+            <div className="space-y-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
                   <h3 className="text-[16px] font-normal leading-[24px] text-[var(--fx-text)]">Job Description</h3>
@@ -1362,7 +1430,7 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
           </FxTabs.Content>
 
           <FxTabs.Content value="questionnaire" className="mt-5 space-y-5">
-            <div className="space-y-4 rounded-[16px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-5">
+            <div className="space-y-6">
               <div className="space-y-[4px]">
                 <p className="text-[16px] leading-[24px] font-normal text-[var(--fx-text)]">Setup Screening Mode</p>
                 <p className="text-[13px] leading-[20px] text-[var(--fx-text-muted)]">
@@ -1489,6 +1557,12 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
                       label="Question Text"
                       value={customQuestionDraft}
                       onChange={handleCustomQuestionChange}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") {
+                          event.preventDefault();
+                          commitCustomQuestion();
+                        }
+                      }}
                       placeholder="Enter a screening question"
                       size="sm"
                     />
@@ -1532,7 +1606,7 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
           </FxTabs.Content>
 
           <FxTabs.Content value="evaluation" className="mt-5 space-y-5">
-            <div className="space-y-4 rounded-[16px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-5">
+            <div className="space-y-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
                   <h3 className="text-[16px] font-semibold text-[var(--fx-text)]">Evaluation Context</h3>
@@ -1626,6 +1700,16 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate }) {
           </div>
         </div>
       </FxDialog>
+
+      <FxConfirmDialog
+        open={confirmDiscardOpen}
+        onOpenChange={setConfirmDiscardOpen}
+        title="Discard changes?"
+        description="You have unsaved changes in the sheet. Closing now will discard them."
+        tone="danger"
+        confirmLabel="Discard Changes"
+        onConfirm={discardAndClose}
+      />
     </FxSheet>
   );
 }

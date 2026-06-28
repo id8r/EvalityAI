@@ -96,10 +96,22 @@ const typeRoles = [
     meta: "20px / 600",
   },
   {
+    key: "title",
+    label: "Title",
+    sample: "Senior Backend Engineer",
+    meta: "18px / 500",
+  },
+  {
     key: "cardTitle",
     label: "Card Title",
     sample: "Pipeline status",
     meta: "16px / 600",
+  },
+  {
+    key: "backLink",
+    label: "Back Link",
+    sample: "All Jobs",
+    meta: "16px / 500",
   },
   {
     key: "body",

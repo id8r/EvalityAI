@@ -111,7 +111,16 @@ function FxSheet({
           className={cn(widthClass, className)}
           onOpenAutoFocus={onOpenAutoFocus}
           onInteractOutside={(event) => {
-            if (!dismissible) event.preventDefault();
+            if (!dismissible) {
+              event.preventDefault();
+              return;
+            }
+            // Clicks inside a portaled popper (dropdown / select / popover / tooltip) or a toast are layered
+            // ABOVE the sheet, not "outside" it — don't let them trigger a close.
+            const node = event.detail?.originalEvent?.target ?? event.target;
+            if (node instanceof Element && node.closest("[data-radix-popper-content-wrapper],[data-sonner-toast],[data-sonner-toaster]")) {
+              event.preventDefault();
+            }
           }}
           onEscapeKeyDown={(event) => {
             if (!dismissible) event.preventDefault();

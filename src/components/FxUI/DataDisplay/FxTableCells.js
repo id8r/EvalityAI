@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FX_TYPOGRAPHY } from "@/lib/FxTheme";
+import { formatSalaryRange } from "@/lib/EvFormat";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -257,6 +258,10 @@ export function FxCurrencyCell({ amount, currency = "USD", className }) {
   return <span className={cn("tabular-nums text-[var(--fx-text)]", className)}>{formatCurrency(amount, currency)}</span>;
 }
 
+export function FxSalaryRangeCell({ range, compact = false, className }) {
+  return <span className={cn("tabular-nums text-[var(--fx-text)]", className)}>{formatSalaryRange(range, { compact })}</span>;
+}
+
 export function FxDateCell({ value, mode = "relative", className }) {
   if (isBlank(value)) return <EmptyDash />;
   const date = new Date(value);
@@ -394,6 +399,7 @@ export const FX_TABLE_CELL_PRESETS = {
   score: (value, props) => <FxScoreCell value={value} {...props} />,
   number: (value, props) => <FxNumberCell value={value} {...props} />,
   currency: (value, props) => <FxCurrencyCell amount={value} {...props} />,
+  salaryRange: (value, props) => <FxSalaryRangeCell range={value} {...props} />,
   date: (value, props) => <FxDateCell value={value} {...props} />,
   availability: (value, props) => <FxAvailabilityCell days={value} {...props} />,
   stacked: (value, props) => <FxStackedCell primary={props.primary ?? value} {...props} />,

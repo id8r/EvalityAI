@@ -30,13 +30,13 @@ const sheetVariants = cva(
   },
 );
 
-// Esc cancels field editing instead of closing the sheet when focus is in an editable element
-// (native field, contenteditable, or anything tagged data-fx-escape-keep-open="true").
+// Esc keeps the sheet open ONLY for elements that opt in: a contenteditable surface (e.g. the rich-text editor)
+// or anything tagged data-fx-escape-keep-open="true". Plain inputs let Esc through so it can close/confirm the
+// sheet (inline editors that cancel on Esc must stopPropagation themselves — FxEditableField / FxTagsInput do).
 function isEditableEscapeTarget(target) {
   if (!(target instanceof Element)) return false;
   if (target.closest?.("[data-fx-escape-keep-open='true']")) return true;
-  if (target.isContentEditable) return true;
-  return Boolean(target.closest?.("input, textarea, select, [contenteditable='true']"));
+  return Boolean(target.isContentEditable || target.closest?.("[contenteditable='true']"));
 }
 
 function SheetOverlay({ className, ...props }) {

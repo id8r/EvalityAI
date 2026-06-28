@@ -14,10 +14,10 @@ import { FxTabs } from "@/components/FxUI/Navigation";
 import { FxDialog } from "@/components/FxUI/Overlays";
 import { FxJobCreateSheet } from "@/components/FxUI/Overlays/FxJobCreateSheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { archiveJob, createJob as createJobRecord, deleteJob, getApplicationsByJob, getJobs, restoreJob } from "@/lib/EvData";
+import { archiveJob, createJob as createJobRecord, deleteJob, getApplicationsByJob, getJobs, restoreJob, updateJob } from "@/lib/EvData";
 import { stageLabel, workplaceTypeLabel } from "@/lib/EvSelectors";
 import { ROUTES } from "@/lib/FxConstants";
-import { cn } from "@/lib/FxUtils";
+import { cn, FxStatusMeta } from "@/lib/FxUtils";
 import { useEvData } from "@/lib/useEvData";
 /* - - - - - - - - - - - - - - - - */
 
@@ -35,28 +35,6 @@ function getJobCounts(jobId) {
     if (app.clientShare?.sharedAt || app.clientStatus != null) counts.shared += 1;
   }
   return counts;
-}
-
-function statusDotClass(status) {
-  if (status === "published") return "bg-[var(--fx-success)]";
-  if (status === "draft") return "bg-[var(--fx-warning)]";
-  return "bg-[var(--fx-text-disabled)]";
-}
-
-function hasEvaluationContext(job) {
-  return Boolean(String(job?.evaluationConfig?.evaluationContext ?? "").trim());
-}
-
-function getStatusMeta(job) {
-  const isDraft = job?.core?.status === "draft";
-  const missingEvaluationContext = job?.core?.status === "published" && !hasEvaluationContext(job);
-  if (isDraft) {
-    return { label: "Draft", toneClassName: "bg-[var(--fx-warning)]", missingEvaluationContext: false };
-  }
-  if (missingEvaluationContext) {
-    return { label: "Published\nEvaluation context missing", toneClassName: "bg-[var(--fx-danger)]", missingEvaluationContext: true };
-  }
-  return { label: "Published", toneClassName: "bg-[var(--fx-success)]", missingEvaluationContext: false };
 }
 
 function formatRelativeTime(value) {
@@ -113,7 +91,7 @@ function EmptyStateCard({ icon: Icon, title, body, action }) {
 }
 
 function StatusDot({ job }) {
-  const meta = getStatusMeta(job);
+  const meta = FxStatusMeta(job);
 
   return (
     <Tooltip>
@@ -146,6 +124,7 @@ export default function JobsPage() {
   const [query, setQuery] = useState("");
   const [isCreateSheetOpen, setIsCreateSheetOpen] = useState(false);
   const [createSheetKey, setCreateSheetKey] = useState(0);
+  const [editingJob, setEditingJob] = useState(null);
   const [pendingDeleteJob, setPendingDeleteJob] = useState(null);
 
   const jobs = ready ? getJobs() : [];
@@ -191,6 +170,10 @@ export default function JobsPage() {
             type="button"
             onClick={(event) => {
               event.stopPropagation();
+              if (row.status === "draft") {
+                handleEditJob(row.job);
+                return;
+              }
               router.push(ROUTES.jobWorkspace(row.id, "unscreened"));
             }}
             className="flex min-w-0 items-center gap-2 text-left text-[var(--fx-text)] hover:text-[var(--fx-primary)]"
@@ -269,10 +252,24 @@ export default function JobsPage() {
           align: "center",
           items: [
             { label: "View Candidates", href: ROUTES.jobWorkspace(row.id, "unscreened") },
-            { label: "Edit Job", onClick: () => router.push(ROUTES.jobWorkspace(row.id, "unscreened")) },
+            { label: "Edit Job", onClick: () => handleEditJob(row.job) },
             row.archived
-              ? { label: "Restore Job", separatorBefore: true, onClick: () => restoreJob(row.id) }
-              : { label: "Archive Job", separatorBefore: true, onClick: () => archiveJob(row.id) },
+              ? {
+                  label: "Restore Job",
+                  separatorBefore: true,
+                  onClick: () => {
+                    restoreJob(row.id);
+                    toast.success("Job restored", { description: `"${row.title}" moved back to Active.` });
+                  },
+                }
+              : {
+                  label: "Archive Job",
+                  separatorBefore: true,
+                  onClick: () => {
+                    archiveJob(row.id);
+                    toast.success("Job archived", { description: `"${row.title}" moved to Archived.` });
+                  },
+                },
             { label: "Delete Job", tone: "danger", onClick: () => setPendingDeleteJob({ id: row.id, title: row.title }) },
           ],
         }),
@@ -292,17 +289,24 @@ export default function JobsPage() {
   const showArchivedEmptyState = tab === "archived" && archivedCount === 0 && !query.trim();
   const showActiveEmptyState = tab === "active" && activeCount === 0 && !query.trim();
   function handleCreateJob() {
+    setEditingJob(null);
     setCreateSheetKey((current) => current + 1);
     setIsCreateSheetOpen(true);
   }
 
-  function handleCreateJobSubmit(jobPayload, status) {
-    const createdJob = createJobRecord(jobPayload);
+  function handleEditJob(job) {
+    setEditingJob(job);
+    setCreateSheetKey((current) => current + 1);
+    setIsCreateSheetOpen(true);
+  }
+
+  function handleCreateJobSubmit(jobPayload, status, sourceJob) {
+    const nextJob = sourceJob?.core?.id ? updateJob(sourceJob.core.id, jobPayload) : createJobRecord(jobPayload);
     if (status === "published") {
-      toast.success("Job published", { description: `${createdJob.core.title} is now live.` });
-      router.push(ROUTES.jobWorkspace(createdJob.core.id, "unscreened"));
+      toast.success(sourceJob?.core?.id ? "Job updated" : "Job published", { description: `Changes to "${nextJob.core.title}" saved.` });
+      router.push(ROUTES.jobWorkspace(nextJob.core.id, "unscreened"));
     }
-    return createdJob;
+    return nextJob;
   }
 
   const confirmDeleteJob = () => {
@@ -329,7 +333,7 @@ export default function JobsPage() {
             </FxPageToolbar.Start>
             <FxPageToolbar.End>
               <FxToolbarSearch value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search jobs" />
-              <FxButton size="sm" onClick={handleCreateJob}>
+              <FxButton variant="accent" size="sm" onClick={handleCreateJob}>
                 Create Job
               </FxButton>
             </FxPageToolbar.End>
@@ -349,7 +353,7 @@ export default function JobsPage() {
               title="No jobs yet"
               body="Create the first job to start tracking applicants, screening stages, and candidate activity."
               action={
-                <FxButton onClick={handleCreateJob}>
+                <FxButton variant="accent" onClick={handleCreateJob}>
                   Create Job
                 </FxButton>
               }
@@ -365,14 +369,26 @@ export default function JobsPage() {
                 scrollX
                 loading={!ready}
                 columnManager={<FxColumnManager controller={table} variant="icon" align="right" />}
-                onRowClick={(row) => router.push(ROUTES.jobWorkspace(row.id, "unscreened"))}
+                onRowClick={(row) => {
+                  if (row.status === "draft") {
+                    handleEditJob(row.job);
+                    return;
+                  }
+                  router.push(ROUTES.jobWorkspace(row.id, "unscreened"));
+                }}
                 emptyMessage={query ? "No jobs match your search." : "No jobs yet."}
               />
             </div>
           )}
         </div>
       </div>
-      <FxJobCreateSheet key={createSheetKey} open={isCreateSheetOpen} onOpenChange={setIsCreateSheetOpen} onCreate={handleCreateJobSubmit} />
+      <FxJobCreateSheet
+        key={createSheetKey}
+        open={isCreateSheetOpen}
+        onOpenChange={setIsCreateSheetOpen}
+        onCreate={handleCreateJobSubmit}
+        initialJob={editingJob}
+      />
       <FxDialog
         open={Boolean(pendingDeleteJob)}
         onOpenChange={(open) => !open && setPendingDeleteJob(null)}
