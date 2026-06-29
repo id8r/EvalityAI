@@ -490,7 +490,19 @@ function buildStageColumns(config, h) {
     const iconsW = config.inline.length * ACTION_ICON_W + Math.max(0, config.inline.length - 1) * ACTION_ICON_GAP;
     const actionsW = Math.max(iconsW, ACTION_HEADER_W) + ACTION_CELL_PAD;
     columns.push({
-      key: "actions", header: "Actions", width: actionsW, minWidth: actionsW, maxWidth: actionsW, align: "left", sticky: "right", locked: true, hideable: false, sortable: false, resizable: false,
+      key: "actions",
+      header: "Actions",
+      width: actionsW,
+      minWidth: actionsW,
+      maxWidth: actionsW,
+      align: "left",
+      sticky: "right",
+      locked: true,
+      hideable: false,
+      sortable: false,
+      resizable: false,
+      headerClassName: "!px-2",
+      cellClassName: "!px-2 !pr-0",
       cell: (row) => (
         <FxActionsCell
           align="left"
@@ -505,9 +517,22 @@ function buildStageColumns(config, h) {
 
   if (config.kebab?.length) {
     columns.push({
-      key: "menuActions", header: "", width: 56, minWidth: 56, maxWidth: 56, align: "center", sticky: "right", locked: true, hideable: false, sortable: false, resizable: false,
+      key: "menuActions",
+      header: "",
+      width: 56,
+      minWidth: 56,
+      maxWidth: 56,
+      align: "center",
+      sticky: "right",
+      locked: true,
+      hideable: false,
+      sortable: false,
+      resizable: false,
+      headerClassName: "!px-2",
+      cellClassName: "!px-2",
       cell: (row) => (
         <FxActionsCell
+          align="center"
           items={config.kebab.map((id) => {
             const action = ACTION_DEFS[id];
             return { key: id, icon: action.icon, label: action.label, tone: action.tone === "danger" ? "danger" : undefined, separatorBefore: action.sep, onClick: () => action.run(h, [row]) };
