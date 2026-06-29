@@ -12,7 +12,7 @@ import { FxButton, FxToolbarSearch } from "@/components/FxUI/Forms";
 import { FxPageToolbar } from "@/components/FxUI/Layout";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { FxDialog } from "@/components/FxUI/Overlays";
-import { FxJobCreateSheet } from "@/components/FxUI/Overlays/FxJobCreateSheet";
+import { EvJobCreateSheet } from "@/components/Ev/Jobs/EvJobCreateSheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { archiveJob, createJob as createJobRecord, deleteJob, getApplicationsByJob, getJobs, restoreJob, updateJob } from "@/lib/EvData";
 import { stageLabel, workplaceTypeLabel } from "@/lib/EvSelectors";
@@ -382,7 +382,7 @@ export default function JobsPage() {
           )}
         </div>
       </div>
-      <FxJobCreateSheet
+      <EvJobCreateSheet
         key={createSheetKey}
         open={isCreateSheetOpen}
         onOpenChange={setIsCreateSheetOpen}

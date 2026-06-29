@@ -1,4 +1,4 @@
-/* src/components/FxUI/Overlays/FxJobCreateSheet.js | Branded create-job flow sheet | Sree | 2026-06-28 */
+/* src/components/Ev/Jobs/EvJobCreateSheet.js | Branded create-job flow sheet | Sree | 2026-06-28 */
 
 "use client";
 
@@ -40,7 +40,7 @@ import { FxAiButton, FxButton, FxInput, FxRichTextEditor, FxSelect, FxTagsInput,
 import { FxConfirmDialog } from "@/components/FxUI/Overlays/FxConfirmDialog";
 import { FxDialog } from "@/components/FxUI/Overlays/FxDialog";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
-import { FxUploadJobDescriptionDialog } from "@/components/FxUI/Overlays/FxUploadJobDescriptionDialog";
+import { EvUploadJobDescriptionDialog } from "@/components/Ev/Jobs/EvUploadJobDescriptionDialog";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -366,7 +366,7 @@ function buildPayload(form, status, job) {
   };
 }
 
-function FxJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
+function EvJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
   const [step, setStep] = useState("basic");
   const [form, setForm] = useState(() => formFromJob(initialJob));
   const [errors, setErrors] = useState({});
@@ -1657,7 +1657,7 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
         </FxTabs>
       </div>
 
-      <FxUploadJobDescriptionDialog open={isUploadJdOpen} onOpenChange={setIsUploadJdOpen} onUpload={handleUploadJdFile} />
+      <EvUploadJobDescriptionDialog open={isUploadJdOpen} onOpenChange={setIsUploadJdOpen} onUpload={handleUploadJdFile} />
 
       <FxDialog
         open={isEvaluationContextOpen}
@@ -1714,5 +1714,5 @@ function FxJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
   );
 }
 /* - - - - - - - - - - - - - - - - */
-export { FxJobCreateSheet };
+export { EvJobCreateSheet };
 /* - - - - - - - - - - - - - - - - */

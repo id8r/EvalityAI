@@ -1,4 +1,4 @@
-/* src/components/FxUI/Overlays/FxStartPreScreeningSheet.js | Minimal pre-screening sheet scaffold for JW actions | Sree | 2026-06-29 */
+/* src/components/Ev/Candidates/EvStartPreScreeningSheet.js | Minimal pre-screening sheet scaffold for JW actions | Sree | 2026-06-29 */
 
 "use client";
 
@@ -7,7 +7,7 @@ import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
-function FxStartPreScreeningSheet({ open, onOpenChange, candidates = [], onConfirm }) {
+function EvStartPreScreeningSheet({ open, onOpenChange, candidates = [], onConfirm }) {
   const count = candidates.length;
 
   return (
@@ -56,5 +56,5 @@ function FxStartPreScreeningSheet({ open, onOpenChange, candidates = [], onConfi
 }
 /* - - - - - - - - - - - - - - - - */
 
-export { FxStartPreScreeningSheet };
+export { EvStartPreScreeningSheet };
 /* - - - - - - - - - - - - - - - - */

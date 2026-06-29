@@ -4,6 +4,7 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, FileText, FolderOpen, Inbox, PanelLeftClose, PanelLeftOpen, Settings, Users } from "lucide-react";
 
@@ -64,8 +65,7 @@ function pageTitleFor(pathname) {
 function BrandLogo() {
   return (
     <Link href={ROUTES.home} aria-label="Evality home" className="inline-flex items-center">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/evality-logo.svg" alt="Evality" className="h-7 w-auto" />
+      <Image src="/evality-logo.svg" alt="Evality" width={112} height={28} className="h-7 w-auto" />
     </Link>
   );
 }
@@ -76,6 +76,7 @@ export default function WorkspaceShell({ children }) {
   const pathname = usePathname();
   const router = useRouter();
   const [authed, setAuthed] = useState(false);
+  const [sidebarLogoHover, setSidebarLogoHover] = useState(false);
 
   // Auth gate (demo): CONTINUOUSLY verify the session. If it's missing or tampered with (e.g. someone edits
   // the EvSession key in devtools), protected UI is hidden the same tick and we bounce to the landing (/) —
@@ -132,14 +133,29 @@ export default function WorkspaceShell({ children }) {
   const isJobWorkspace = pathname.startsWith(`${ROUTES.jobs}/`);
 
   const sidebarHeader = collapsed ? (
-    <button
-      type="button"
-      onClick={toggleCollapsed}
-      aria-label="Expand sidebar"
-      className="flex size-8 cursor-pointer items-center justify-center rounded-[8px] text-[var(--fx-text-muted)] transition-colors duration-100 hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)]"
+    <div
+      className="group relative flex w-full items-center justify-center"
+      onMouseEnter={() => setSidebarLogoHover(true)}
+      onMouseLeave={() => setSidebarLogoHover(false)}
+      onFocusCapture={() => setSidebarLogoHover(true)}
+      onBlurCapture={() => setSidebarLogoHover(false)}
     >
-      <PanelLeftOpen className="size-[18px]" />
-    </button>
+      <Link href={ROUTES.home} aria-label="Evality home" className="inline-flex items-center">
+        <Image src="/evality-logo.svg" alt="Evality" width={80} height={20} className="h-5 w-auto" />
+      </Link>
+      <button
+        type="button"
+        onClick={toggleCollapsed}
+        aria-label="Open sidebar"
+        className={cn(
+          "absolute inset-0 flex items-center justify-center rounded-[10px] text-[var(--fx-text-muted)] transition-all duration-150",
+          sidebarLogoHover ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
+          "group-hover:opacity-100 group-hover:bg-[color:color-mix(in_srgb,var(--fx-surface-hover)_60%,transparent)] hover:text-[var(--fx-text)]",
+        )}
+      >
+        <PanelLeftOpen className="size-[18px]" />
+      </button>
+    </div>
   ) : (
     <div className="flex w-full items-center justify-between gap-2">
       <BrandLogo />

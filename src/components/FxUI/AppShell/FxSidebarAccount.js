@@ -3,6 +3,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { ChevronsUpDown, CircleHelp, LogOut, Moon, Sun } from "lucide-react";
 
 import {
@@ -31,9 +32,14 @@ function getInitials(name) {
 
 function FxSidebarAccount({ name = "User", email = "", collapsed = false, onLogout }) {
   const isDark = useFxIsDark();
+  const [open, setOpen] = useState(false);
+
+  function closeMenu() {
+    setOpen(false);
+  }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
@@ -66,20 +72,32 @@ function FxSidebarAccount({ name = "User", email = "", collapsed = false, onLogo
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start" side="top" className="w-[220px]">
-        <DropdownMenuItem onSelect={(event) => event.preventDefault()} onClick={() => toggleTheme(isDark)}>
+        <DropdownMenuItem
+          onSelect={(event) => {
+            event.preventDefault();
+            closeMenu();
+          }}
+          onClick={() => toggleTheme(isDark)}
+        >
           {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           <span>Theme</span>
           <span className="ml-auto text-[12px] text-[var(--fx-text-muted)]">{isDark ? "Dark" : "Light"}</span>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           {/* Help opens the DS playground; the DS page itself carries a back link to the app shell. */}
-          <Link href={ROUTES.designSystem}>
+          <Link href={ROUTES.designSystem} onClick={closeMenu}>
             <CircleHelp className="size-4" />
             <span>Help</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={onLogout}>
+        <DropdownMenuItem
+          onSelect={(event) => {
+            event.preventDefault();
+            closeMenu();
+          }}
+          onClick={onLogout}
+        >
           <LogOut className="size-4" />
           <span>Log out</span>
         </DropdownMenuItem>

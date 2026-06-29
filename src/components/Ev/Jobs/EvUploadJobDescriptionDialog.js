@@ -1,4 +1,4 @@
-/* src/components/FxUI/Overlays/FxUploadJobDescriptionDialog.js | Reusable JD upload dialog | Sree | 2026-06-28 */
+/* src/components/Ev/Jobs/EvUploadJobDescriptionDialog.js | Reusable JD upload dialog | Sree | 2026-06-28 */
 
 "use client";
 
@@ -9,7 +9,7 @@ import { FxButton } from "@/components/FxUI/Forms";
 import { FxDialog } from "@/components/FxUI/Overlays/FxDialog";
 /* - - - - - - - - - - - - - - - - */
 
-function FxUploadJobDescriptionDialog({
+function EvUploadJobDescriptionDialog({
   open,
   onOpenChange,
   onUpload,
@@ -53,5 +53,5 @@ function FxUploadJobDescriptionDialog({
   );
 }
 /* - - - - - - - - - - - - - - - - */
-export { FxUploadJobDescriptionDialog };
+export { EvUploadJobDescriptionDialog };
 /* - - - - - - - - - - - - - - - - */

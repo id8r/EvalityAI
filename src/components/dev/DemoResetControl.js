@@ -102,7 +102,7 @@ export function DemoResetControl() {
 
       {/* Hard-reset confirm — deliberately all-mono so it reads as a dev action, not product UI. */}
       <AlertDialog open={confirmOpen} onOpenChange={(open) => !busy && setConfirmOpen(open)}>
-        <AlertDialogContent className="font-mono">
+        <AlertDialogContent className="max-w-[480px] gap-6 p-7 font-mono">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-mono text-[15px]">$ reset --fresh-demo</AlertDialogTitle>
             <AlertDialogDescription className="font-mono text-[12px] leading-5">
@@ -110,8 +110,11 @@ export function DemoResetControl() {
               Theme/sidebar (FxID8r) are kept. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={busy} className="font-mono text-[12px]">
+          <AlertDialogFooter className="gap-3 pt-1">
+            <AlertDialogCancel
+              disabled={busy}
+              className="min-h-[40px] rounded-[8px] border border-[var(--fx-border)] bg-transparent px-4 text-[12px] font-medium text-[var(--fx-text)] transition-colors hover:bg-[var(--fx-surface-hover)] font-mono"
+            >
               cancel
             </AlertDialogCancel>
             <AlertDialogAction
@@ -120,7 +123,7 @@ export function DemoResetControl() {
                 event.preventDefault();
                 hardReset();
               }}
-              className="bg-[var(--fx-danger)] font-mono text-[12px] text-white hover:bg-[var(--fx-danger)]/90"
+              className="min-h-[40px] rounded-[8px] bg-[var(--fx-danger)] px-4 text-[12px] font-medium text-white transition-colors hover:bg-[var(--fx-danger)]/90 font-mono"
             >
               {busy ? "resetting…" : "yes, reset"}
             </AlertDialogAction>

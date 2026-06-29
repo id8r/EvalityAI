@@ -1,4 +1,4 @@
-/* src/components/FxUI/Overlays/FxAddCandidatesSheet.js | Add / Recommend candidates to a job (one reusable sheet) | Sree | 2026-06-29 */
+/* src/components/Ev/Candidates/EvAddCandidatesSheet.js | Add / Recommend candidates to a job (one reusable sheet) | Sree | 2026-06-29 */
 
 "use client";
 
@@ -40,7 +40,7 @@ function ageInDays(value) {
   return Math.floor(Math.max(0, Date.now() - ts) / 86400000);
 }
 
-function FxAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidates = [], onPick, onUpload }) {
+function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidates = [], onPick, onUpload }) {
   const fileInputRef = useRef(null);
   const isRecommend = mode === "recommend";
   const title = isRecommend ? "Recommend Candidates" : "Add Candidates";
@@ -132,7 +132,7 @@ function FxAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
           onClick={() => setShowListPane((current) => !current)}
           className="flex size-8 items-center justify-center rounded-[6px] text-[var(--fx-text-muted)] transition-colors hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)]"
         >
-          {showListPane ? <PanelLeftClose className="size-4" /> : <PanelLeftOpen className="size-4" />}
+          {showListPane ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
         </button>
       </>
     ) : null;
@@ -388,5 +388,5 @@ function FxAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
   );
 }
 /* - - - - - - - - - - - - - - - - */
-export { FxAddCandidatesSheet };
+export { EvAddCandidatesSheet };
 /* - - - - - - - - - - - - - - - - */

@@ -20,6 +20,7 @@ import {
 import Link from "next/link";
 
 import { FxBadge, FxPdfViewer } from "@/components/FxUI/DataDisplay";
+import { EvCandidateProgress } from "@/components/Ev/Candidates";
 import { FxAiButton, FxButton, FxCheckboxField, FxCreatableSelect, FxEditableField, FxIconButton, FxInput, FxRadioGroupField, FxSwitchField, FxTextarea } from "@/components/FxUI/Forms";
 import { FxPanel } from "@/components/FxUI/Layout";
 import { FxTabs } from "@/components/FxUI/Navigation";
@@ -768,6 +769,43 @@ function SurfacesSection() {
       <FxPanel {...specPanelTone} eyebrow="PDF" title="Resume Preview">
         <div className="h-[520px]">
           <FxPdfViewer file="/sample-resume.pdf" showToolbar />
+        </div>
+      </FxPanel>
+
+      <FxPanel {...specPanelTone} eyebrow="EvCandidateProgress" title="Candidate Progress">
+        <div className="space-y-8">
+          {/* Horizontal (default) — sits in a Candidate Details column, minimal vertical footprint. */}
+          <div className="space-y-2">
+            <p className="text-[12px] font-medium text-[var(--fx-text-muted)]">Horizontal · currently Interviewing</p>
+            <div className="rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">
+              <EvCandidateProgress
+                current="interviewing"
+                dates={{ unscreened: "2026-06-10", pre_screened: "2026-06-12", shortlisted: "2026-06-16", interviewing: "2026-06-21" }}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-[12px] font-medium text-[var(--fx-text-muted)]">Horizontal · joined (all cleared)</p>
+            <div className="rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">
+              <EvCandidateProgress
+                current="joined"
+                dates={{ unscreened: "2026-05-28", pre_screened: "2026-05-30", shortlisted: "2026-06-03", interviewing: "2026-06-09", offered: "2026-06-14", joined: "2026-06-20" }}
+              />
+            </div>
+          </div>
+
+          {/* Vertical — for narrow columns; single-line rows keep it tight. */}
+          <div className="space-y-2">
+            <p className="text-[12px] font-medium text-[var(--fx-text-muted)]">Vertical · narrow column</p>
+            <div className="max-w-[280px] rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">
+              <EvCandidateProgress
+                orientation="vertical"
+                current="shortlisted"
+                dates={{ unscreened: "2026-06-10", pre_screened: "2026-06-12", shortlisted: "2026-06-16" }}
+              />
+            </div>
+          </div>
         </div>
       </FxPanel>
 

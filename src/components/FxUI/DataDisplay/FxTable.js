@@ -565,7 +565,7 @@ export function FxTable({
                   ? "bg-[color:color-mix(in_srgb,var(--fx-primary)_7%,var(--fx-surface))] hover:bg-[color:color-mix(in_srgb,var(--fx-primary)_10%,var(--fx-surface))]"
                   : "bg-[var(--fx-surface)] even:bg-[var(--fx-table-row-alt)] hover:bg-[var(--fx-surface-hover)]",
                 onRowClick && "cursor-pointer",
-                rowClassName,
+                typeof rowClassName === "function" ? rowClassName(row, rowIndex) : rowClassName,
               )}
             >
               {renderColumns.map((column) => {
