@@ -210,7 +210,20 @@ export function setApplicationStage(id, stage, actorId = null) {
 export function addApplicationNote(id, text, actorId = null) {
   const app = getApplication(id);
   if (!app) return null;
-  const note = { id: genId("note"), text, at: nowIso(), actorId };
+  const note = { id: genId("note"), text, at: nowIso(), editedAt: null, actorId };
   return updateApplication(id, { notes: [...(app.notes ?? []), note] });
+}
+// Edit a note's text (records editedAt; keeps the original `at`).
+export function updateApplicationNote(id, noteId, text) {
+  const app = getApplication(id);
+  if (!app) return null;
+  const notes = (app.notes ?? []).map((note) => (note.id === noteId ? { ...note, text, editedAt: nowIso() } : note));
+  return updateApplication(id, { notes });
+}
+// Remove a note.
+export function deleteApplicationNote(id, noteId) {
+  const app = getApplication(id);
+  if (!app) return null;
+  return updateApplication(id, { notes: (app.notes ?? []).filter((note) => note.id !== noteId) });
 }
 /* - - - - - - - - - - - - - - - - */

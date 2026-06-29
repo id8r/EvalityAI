@@ -477,7 +477,7 @@ export function FxTable({
                 style={{ ...resolvedStyle, ...stickyStyleFor(column), ...stickyLayerStyle(column, true) }}
               >
                 {columnManager && isLastColumn ? (
-                  <div className="flex items-center justify-center">{columnManager}</div>
+                  <div className="flex items-center justify-end pr-2">{columnManager}</div>
                 ) : isSortable ? (
                   <button
                     type="button"

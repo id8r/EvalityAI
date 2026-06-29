@@ -65,9 +65,11 @@ import {
   getCandidate,
   getCandidates,
   addApplicationNote,
+  deleteApplicationNote,
   getJob,
   setApplicationStage,
   updateApplication,
+  updateApplicationNote,
   updateCandidate,
   updateJob,
 } from "@/lib/EvData";
@@ -488,9 +490,10 @@ function buildStageColumns(config, h) {
     const iconsW = config.inline.length * ACTION_ICON_W + Math.max(0, config.inline.length - 1) * ACTION_ICON_GAP;
     const actionsW = Math.max(iconsW, ACTION_HEADER_W) + ACTION_CELL_PAD;
     columns.push({
-      key: "actions", header: "Actions", width: actionsW, minWidth: actionsW, maxWidth: actionsW, align: "right", sticky: "right", locked: true, hideable: false, sortable: false, resizable: false,
+      key: "actions", header: "Actions", width: actionsW, minWidth: actionsW, maxWidth: actionsW, align: "left", sticky: "right", locked: true, hideable: false, sortable: false, resizable: false,
       cell: (row) => (
         <FxActionsCell
+          align="left"
           inline={config.inline.map((id) => {
             const action = ACTION_DEFS[id];
             return { key: id, icon: action.icon, label: action.label, tone: action.tone === "danger" ? "danger" : undefined, onClick: () => action.run(h, [row]) };
@@ -839,6 +842,16 @@ export default function JobWorkspacePage() {
     addApplicationNote(app.id, text);
     toast.success("Note added");
   };
+  const handleEditCandidateNote = (noteId, text) => {
+    const app = candidateDetailRow?.app;
+    if (app) updateApplicationNote(app.id, noteId, text);
+  };
+  const handleDeleteCandidateNote = (noteId) => {
+    const app = candidateDetailRow?.app;
+    if (!app) return;
+    deleteApplicationNote(app.id, noteId);
+    toast.success("Note deleted");
+  };
 
   // Handler bag passed into the stage config actions.
   const handlers = {
@@ -1042,6 +1055,8 @@ export default function JobWorkspacePage() {
         row={candidateDetailRow}
         onEditField={handleEditCandidateField}
         onSaveNote={handleSaveCandidateNote}
+        onEditNote={handleEditCandidateNote}
+        onDeleteNote={handleDeleteCandidateNote}
       />
       <EvRejectCandidateDialog
         key={rejectKey}

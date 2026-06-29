@@ -3,11 +3,13 @@
 "use client";
 
 import { useState } from "react";
+import { PencilLine, Trash2 } from "lucide-react";
 
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
+import { FxConfirmDialog } from "@/components/FxUI/Overlays/FxConfirmDialog";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { FxBadge, FxPdfViewer } from "@/components/FxUI/DataDisplay";
-import { FxButton, FxTextarea } from "@/components/FxUI/Forms";
+import { FxButton, FxIconButton, FxTextarea } from "@/components/FxUI/Forms";
 import { EvCandidateProgress } from "@/components/Ev/Candidates/EvCandidateProgress";
 import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
 import { isPdfResume, resolveResumeUrl } from "@/lib/EvResume";
@@ -106,8 +108,51 @@ function ResumePane({ candidate }) {
   );
 }
 
-function NotesPane({ notes, onSaveNote }) {
+function NoteRow({ note, onEditNote, onDelete }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(note.text);
+  function save() {
+    const next = draft.trim();
+    if (next && next !== note.text) onEditNote?.(note.id, next);
+    setEditing(false);
+  }
+  if (editing) {
+    return (
+      <li className="space-y-2 rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-3">
+        <FxTextarea value={draft} onChange={(event) => setDraft(event.target.value)} rows={3} />
+        <div className="flex justify-end gap-2">
+          <FxButton size="xs" variant="ghost" onClick={() => { setDraft(note.text); setEditing(false); }}>Cancel</FxButton>
+          <FxButton size="xs" variant="secondary" disabled={!draft.trim()} onClick={save}>Save</FxButton>
+        </div>
+      </li>
+    );
+  }
+  return (
+    <li className="group rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-3">
+      <div className="flex items-start justify-between gap-2">
+        <p className="min-w-0 flex-1 whitespace-pre-wrap text-[14px] leading-[20px] text-[var(--fx-text)]">{note.text}</p>
+        <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+          <FxIconButton size="xs" variant="ghost" aria-label="Edit note" onClick={() => { setDraft(note.text); setEditing(true); }}>
+            <PencilLine className="size-3.5" />
+          </FxIconButton>
+          <FxIconButton size="xs" variant="ghost" aria-label="Delete note" className="hover:text-[var(--fx-danger)]" onClick={() => onDelete(note.id)}>
+            <Trash2 className="size-3.5" />
+          </FxIconButton>
+        </div>
+      </div>
+      {note.at ? (
+        <p className="mt-1 text-[11px] text-[var(--fx-text-muted)]">
+          {formatNoteTime(note.at)}
+          {note.editedAt ? ` · edited ${formatNoteTime(note.editedAt)}` : ""}
+        </p>
+      ) : null}
+    </li>
+  );
+}
+
+function NotesPane({ notes, onSaveNote, onEditNote, onDeleteNote }) {
   const [draft, setDraft] = useState("");
+  const [deleteId, setDeleteId] = useState(null);
   const trimmed = draft.trim();
   function save() {
     if (!trimmed) return;
@@ -125,20 +170,27 @@ function NotesPane({ notes, onSaveNote }) {
       {notes.length ? (
         <ul className="space-y-2">
           {[...notes].reverse().map((note, index) => (
-            <li key={note.id ?? index} className="rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-3">
-              <p className="whitespace-pre-wrap text-[14px] leading-[20px] text-[var(--fx-text)]">{note.text}</p>
-              {note.at ? <p className="mt-1 text-[11px] text-[var(--fx-text-muted)]">{formatNoteTime(note.at)}</p> : null}
-            </li>
+            <NoteRow key={note.id ?? index} note={note} onEditNote={onEditNote} onDelete={setDeleteId} />
           ))}
         </ul>
       ) : (
         <p className="text-[13px] text-[var(--fx-text-muted)]">No notes added yet.</p>
       )}
+
+      <FxConfirmDialog
+        open={Boolean(deleteId)}
+        onOpenChange={(value) => { if (!value) setDeleteId(null); }}
+        title="Delete note?"
+        description="This recruiter note will be permanently removed."
+        confirmLabel="Delete"
+        tone="danger"
+        onConfirm={() => { onDeleteNote?.(deleteId); setDeleteId(null); }}
+      />
     </div>
   );
 }
 
-function EvCandidateDetailsSheet({ open, onOpenChange, row, onEditField, onSaveNote }) {
+function EvCandidateDetailsSheet({ open, onOpenChange, row, onEditField, onSaveNote, onEditNote, onDeleteNote }) {
   // Résumé first/default — Background may run (costly) AI generation, so don't trigger it on open.
   const [tab, setTab] = useState("resume");
   const candidate = row?.candidate;
@@ -192,7 +244,7 @@ function EvCandidateDetailsSheet({ open, onOpenChange, row, onEditField, onSaveN
                 onEditField={onEditField}
                 editableName
               />
-              <NotesPane notes={app?.notes ?? []} onSaveNote={onSaveNote} />
+              <NotesPane notes={app?.notes ?? []} onSaveNote={onSaveNote} onEditNote={onEditNote} onDeleteNote={onDeleteNote} />
             </div>
           </FxSheet.Pane>
         </FxSheet.Panes>
