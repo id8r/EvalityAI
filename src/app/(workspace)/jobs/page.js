@@ -264,13 +264,13 @@ export default function JobsPage() {
                 }
               : {
                   label: "Archive Job",
-                  separatorBefore: true,
+                  separatorBefore: false,
                   onClick: () => {
                     archiveJob(row.id);
                     toast.success("Job archived", { description: `"${row.title}" moved to Archived.` });
                   },
                 },
-            { label: "Delete Job", tone: "danger", onClick: () => setPendingDeleteJob({ id: row.id, title: row.title }) },
+            { label: "Delete Job", separatorBefore: true, tone: "danger", onClick: () => setPendingDeleteJob({ id: row.id, title: row.title }) },
           ],
         }),
       },
@@ -333,7 +333,7 @@ export default function JobsPage() {
             </FxPageToolbar.Start>
             <FxPageToolbar.End>
               <FxToolbarSearch value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search jobs" />
-              <FxButton variant="accent" size="sm" onClick={handleCreateJob}>
+              <FxButton variant="primary" size="sm" onClick={handleCreateJob}>
                 Create Job
               </FxButton>
             </FxPageToolbar.End>
@@ -353,13 +353,20 @@ export default function JobsPage() {
               title="No jobs yet"
               body="Create the first job to start tracking applicants, screening stages, and candidate activity."
               action={
-                <FxButton variant="accent" onClick={handleCreateJob}>
+                <FxButton variant="primary" onClick={handleCreateJob}>
                   Create Job
                 </FxButton>
               }
             />
           ) : (
             <div className="h-[calc(100dvh-180px)]">
+              {/*
+                Whole-row click intentionally disabled — open the workspace only via the Job Title cell or the "View Candidates" kebab item. To re-enable row navigation, add back to <FxTable> below:
+                  onRowClick={(row) => {
+                    if (row.status === "draft") return handleEditJob(row.job);
+                    router.push(ROUTES.jobWorkspace(row.id, "unscreened"));
+                  }}
+              */}
               <FxTable
                 controller={table}
                 className="h-full"
@@ -369,13 +376,6 @@ export default function JobsPage() {
                 scrollX
                 loading={!ready}
                 columnManager={<FxColumnManager controller={table} variant="icon" align="right" />}
-                onRowClick={(row) => {
-                  if (row.status === "draft") {
-                    handleEditJob(row.job);
-                    return;
-                  }
-                  router.push(ROUTES.jobWorkspace(row.id, "unscreened"));
-                }}
                 emptyMessage={query ? "No jobs match your search." : "No jobs yet."}
               />
             </div>

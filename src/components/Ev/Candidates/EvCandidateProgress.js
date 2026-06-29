@@ -3,7 +3,6 @@
 "use client";
 
 import { Check, X } from "lucide-react";
-
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -27,6 +26,26 @@ const DEFAULT_STEPS = [
   { key: "offered", label: "Offered" },
   { key: "joined", label: "Joined" },
 ];
+
+const NODE_BASE = "relative z-10 flex size-5 shrink-0 items-center justify-center rounded-full";
+
+/*
+  Stage visuals live here so line and node colors are easy to tweak in one place.
+  - COMPLETE: historical/completed stage
+  - CURRENT: active stage
+  - UPCOMING: future stage
+  - REJECTED: explicit rejected stage
+*/
+const STAGE_LINE_COLOR_COMPLETE = "bg-[var(--fx-border-old)]";
+const STAGE_LINE_COLOR_PENDING = "bg-[var(--fx-border)]";
+const STAGE_NODE_COMPLETE = cn(NODE_BASE, "bg-[var(--fx-success-old)] text-white");
+const STAGE_NODE_REJECTED = cn(NODE_BASE, "bg-[var(--fx-danger)] text-white");
+const STAGE_NODE_CURRENT = cn(NODE_BASE, "border-2 border-[var(--fx-accent)] bg-[var(--fx-surface)]");
+const STAGE_NODE_UPCOMING = cn(NODE_BASE, "border border-[var(--fx-border-strong)] bg-[var(--fx-surface)]");
+const STAGE_LABEL_UPCOMING = "text-[var(--fx-text-muted)]";
+const STAGE_LABEL_ACTIVE = "text-[var(--fx-text)]";
+const STAGE_SUBLABEL_CURRENT = "font-medium text-[var(--fx-primary)]";
+const STAGE_SUBLABEL_OTHERS = "text-[var(--fx-text-muted)]";
 
 function formatDate(value) {
   if (!value) return null;
@@ -63,32 +82,30 @@ function deriveItems(steps, current, dates) {
   });
 }
 
-const NODE_BASE = "relative z-10 flex size-5 shrink-0 items-center justify-center rounded-full";
-
 function StepNode({ status, className }) {
   if (status === "complete") {
     return (
-      <span className={cn(NODE_BASE, "bg-[var(--fx-success-old)] text-white", className)}>
+      <span className={cn(STAGE_NODE_COMPLETE, className)}>
         <Check className="size-3" strokeWidth={3} />
       </span>
     );
   }
   if (status === "rejected") {
     return (
-      <span className={cn(NODE_BASE, "bg-[var(--fx-danger)] text-white", className)}>
+      <span className={cn(STAGE_NODE_REJECTED, className)}>
         <X className="size-3" strokeWidth={3} />
       </span>
     );
   }
   if (status === "current") {
     return (
-      <span className={cn(NODE_BASE, "border-2 border-[var(--fx-primary)] bg-[var(--fx-surface)]", className)}>
-        <span className="size-[8px] rounded-full bg-[var(--fx-primary)]" />
+      <span className={cn(STAGE_NODE_CURRENT, className)}>
+        <span className="size-[8px] rounded-full bg-[var(--fx-accent)]" />
       </span>
     );
   }
   return (
-    <span className={cn(NODE_BASE, "border border-[var(--fx-border-strong)] bg-[var(--fx-surface)]", className)}>
+    <span className={cn(STAGE_NODE_UPCOMING, className)}>
       <span className="size-[5px] rounded-full bg-[var(--fx-border-strong)]" />
     </span>
   );
@@ -109,18 +126,20 @@ function EvCandidateProgress({ steps = DEFAULT_STEPS, current, dates, orientatio
         {items.map((item) => (
           <li key={item.key} className="relative flex gap-3 pb-3 last:pb-0">
             {!item.isLast ? (
-              // Vertical connector line between stage nodes.
+              // Vertical connector: this is the line that draws from a stage node down to the next stage.
+              // Completed stages use `--fx-border-old`; incomplete stages use the neutral border token.
               <span
                 aria-hidden="true"
-                className={cn("absolute left-[9px] top-5 bottom-0 w-[2px]", item.status === "complete" ? "bg-[var(--fx-primary)]" : "bg-[var(--fx-border)]")}
+                className={cn("absolute left-[9px] top-5 bottom-0 w-[2px]", item.status === "complete" ? STAGE_LINE_COLOR_COMPLETE : STAGE_LINE_COLOR_PENDING)}
               />
             ) : null}
             <StepNode status={item.status} />
             <div className="flex min-w-0 flex-1 items-center justify-between gap-2 pt-[2px]">
-              <span className={cn("truncate text-[12px] font-medium leading-[16px]", item.status === "upcoming" ? "text-[var(--fx-text-muted)]" : "text-[var(--fx-text)]")} title={item.label}>
+              <span className={cn("truncate text-[12px] font-medium leading-[16px]", item.status === "upcoming" ? STAGE_LABEL_UPCOMING : STAGE_LABEL_ACTIVE)} title={item.label}>
                 {item.label}
               </span>
-              <span className="shrink-0 text-[11px] leading-[16px] text-[var(--fx-text-muted)]">{captionSub(item)}</span>
+              {/* Stage sublabel: date or status text shown to the right of the stage label. */}
+              <span className={cn("shrink-0 text-[11px] leading-[16px]", STAGE_SUBLABEL_OTHERS)}>{captionSub(item)}</span>
             </div>
           </li>
         ))}
@@ -133,18 +152,21 @@ function EvCandidateProgress({ steps = DEFAULT_STEPS, current, dates, orientatio
       {items.map((item) => (
         <li key={item.key} className="relative flex min-w-0 flex-1 flex-col items-center">
           {!item.isLast ? (
-            // Horizontal connector line between stage nodes.
+            // Horizontal connector: this is the line between stage circles in the top row.
+            // Completed stages use `--fx-border-old`; pending stages use the neutral border token.
             <span
               aria-hidden="true"
-              className={cn("absolute left-1/2 top-[9px] h-[2px] w-full", item.status === "complete" ? "bg-[var(--fx-primary)]" : "bg-[var(--fx-border)]")}
+              className={cn("absolute left-1/2 top-[9px] h-[2px] w-full", item.status === "complete" ? "bg-[var(--fx-border-old)]" : "bg-[var(--fx-border)]")}
             />
           ) : null}
           <StepNode status={item.status} />
           <div className="mt-2 w-full px-1 text-center">
-            <div className={cn("truncate text-[11px] font-medium leading-[14px]", item.status === "upcoming" ? "text-[var(--fx-text-muted)]" : "text-[var(--fx-text)]")} title={item.label}>
+            {/* Stage label: the stage name under each circle. */}
+            <div className={cn("truncate text-[11px] font-medium leading-[14px]", item.status === "upcoming" ? STAGE_LABEL_UPCOMING : STAGE_LABEL_ACTIVE)} title={item.label}>
               {item.label}
             </div>
-            <div className={cn("mt-0.5 truncate text-[10px] leading-[13px]", item.status === "current" ? "font-medium text-[var(--fx-primary)]" : "text-[var(--fx-text-muted)]")}>
+            {/* Stage sublabel: date/current state under the stage label. */}
+            <div className={cn("mt-0.5 truncate text-[10px] leading-[13px]", item.status === "current" ? STAGE_SUBLABEL_CURRENT : STAGE_SUBLABEL_OTHERS)}>
               {captionSub(item)}
             </div>
           </div>

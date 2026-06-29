@@ -420,5 +420,485 @@
     "createdById": "usr_001",
     "createdAt": "2026-06-08T14:05:00Z",
     "updatedAt": "2026-06-28T09:00:00Z"
+  },
+  {
+    "id": "cand_009",
+    "name": "Karthik Subramanian",
+    "email": "karthik.subramanian@example.com",
+    "phone": "+91 9876502009",
+    "currentCompany": "Flipkart",
+    "currentTitle": "Backend Engineer",
+    "totalExperienceYears": 7.4,
+    "currentSalary": {
+      "amount": 3200000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-05-09T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_010",
+    "name": "Ananya Ghosh",
+    "email": "ananya.ghosh@example.com",
+    "phone": "+91 9876502010",
+    "currentCompany": "Swiggy",
+    "currentTitle": "Product Manager",
+    "totalExperienceYears": 8.1,
+    "currentSalary": {
+      "amount": 3800000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-02-07T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_011",
+    "name": "Rohan Deshpande",
+    "email": "rohan.deshpande@example.com",
+    "phone": "+91 9876502011",
+    "currentCompany": "PhonePe",
+    "currentTitle": "QA Automation Engineer",
+    "totalExperienceYears": 5.6,
+    "currentSalary": {
+      "amount": 1900000,
+      "currency": "INR"
+    },
+    "location": "Pune",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-02-01T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_012",
+    "name": "Sneha Reddy",
+    "email": "sneha.reddy@example.com",
+    "phone": "+91 9876502012",
+    "currentCompany": "Zerodha",
+    "currentTitle": "DevOps Engineer",
+    "totalExperienceYears": 6.3,
+    "currentSalary": {
+      "amount": 2700000,
+      "currency": "INR"
+    },
+    "location": "Hyderabad",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-05-24T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_013",
+    "name": "Aman Gupta",
+    "email": "aman.gupta@example.com",
+    "phone": "+91 9876502013",
+    "currentCompany": "Myntra",
+    "currentTitle": "Data Engineer",
+    "totalExperienceYears": 7,
+    "currentSalary": {
+      "amount": 3000000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-04-27T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_014",
+    "name": "Divya Krishnan",
+    "email": "divya.krishnan@example.com",
+    "phone": "+91 9876502014",
+    "currentCompany": "CRED",
+    "currentTitle": "Machine Learning Engineer",
+    "totalExperienceYears": 5.9,
+    "currentSalary": {
+      "amount": 3100000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-05-10T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_015",
+    "name": "Vikram Singh",
+    "email": "vikram.singh@example.com",
+    "phone": "+91 9876502015",
+    "currentCompany": "Freshworks",
+    "currentTitle": "Engineering Manager",
+    "totalExperienceYears": 11.2,
+    "currentSalary": {
+      "amount": 5200000,
+      "currency": "INR"
+    },
+    "location": "Chennai",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-03-27T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_016",
+    "name": "Pooja Bhatia",
+    "email": "pooja.bhatia@example.com",
+    "phone": "+91 9876502016",
+    "currentCompany": "Dream11",
+    "currentTitle": "Android Developer",
+    "totalExperienceYears": 4.8,
+    "currentSalary": {
+      "amount": 2000000,
+      "currency": "INR"
+    },
+    "location": "Mumbai",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-04-20T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_017",
+    "name": "Siddharth Jain",
+    "email": "siddharth.jain@example.com",
+    "phone": "+91 9876502017",
+    "currentCompany": "Groww",
+    "currentTitle": "iOS Developer",
+    "totalExperienceYears": 5.2,
+    "currentSalary": {
+      "amount": 2200000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-02-12T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_018",
+    "name": "Neha Agarwal",
+    "email": "neha.agarwal@example.com",
+    "phone": "+91 9876502018",
+    "currentCompany": "Razorpay",
+    "currentTitle": "Full Stack Developer",
+    "totalExperienceYears": 6.1,
+    "currentSalary": {
+      "amount": 2500000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-05-03T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_019",
+    "name": "Manish Patel",
+    "email": "manish.patel@example.com",
+    "phone": "+91 9876502019",
+    "currentCompany": "Postman",
+    "currentTitle": "Site Reliability Engineer",
+    "totalExperienceYears": 8.6,
+    "currentSalary": {
+      "amount": 3600000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-04-05T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_020",
+    "name": "Ritika Sharma",
+    "email": "ritika.sharma@example.com",
+    "phone": "+91 9876502020",
+    "currentCompany": "Meesho",
+    "currentTitle": "Data Scientist",
+    "totalExperienceYears": 6.7,
+    "currentSalary": {
+      "amount": 2900000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-01-18T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_021",
+    "name": "Harish Kumar",
+    "email": "harish.kumar@example.com",
+    "phone": "+91 9876502021",
+    "currentCompany": "Zoho",
+    "currentTitle": "Business Analyst",
+    "totalExperienceYears": 4.3,
+    "currentSalary": {
+      "amount": 1500000,
+      "currency": "INR"
+    },
+    "location": "Chennai",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-02-13T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_022",
+    "name": "Tanvi Mehta",
+    "email": "tanvi.mehta@example.com",
+    "phone": "+91 9876502022",
+    "currentCompany": "Cult.fit",
+    "currentTitle": "Product Designer",
+    "totalExperienceYears": 7.8,
+    "currentSalary": {
+      "amount": 3300000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-04-25T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_023",
+    "name": "Aakash Nair",
+    "email": "aakash.nair@example.com",
+    "phone": "+91 9876502023",
+    "currentCompany": "Unacademy",
+    "currentTitle": "UI/UX Designer",
+    "totalExperienceYears": 4.1,
+    "currentSalary": {
+      "amount": 1600000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-04-25T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_024",
+    "name": "Shreya Pillai",
+    "email": "shreya.pillai@example.com",
+    "phone": "+91 9876502024",
+    "currentCompany": "Atlassian",
+    "currentTitle": "Technical Program Manager",
+    "totalExperienceYears": 9.5,
+    "currentSalary": {
+      "amount": 4600000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-02-24T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_025",
+    "name": "Gaurav Malhotra",
+    "email": "gaurav.malhotra@example.com",
+    "phone": "+91 9876502025",
+    "currentCompany": "Nutanix",
+    "currentTitle": "Cloud Architect",
+    "totalExperienceYears": 12.4,
+    "currentSalary": {
+      "amount": 5800000,
+      "currency": "INR"
+    },
+    "location": "Pune",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-01-10T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_026",
+    "name": "Ishita Banerjee",
+    "email": "ishita.banerjee@example.com",
+    "phone": "+91 9876502026",
+    "currentCompany": "Druva",
+    "currentTitle": "Cybersecurity Analyst",
+    "totalExperienceYears": 5.5,
+    "currentSalary": {
+      "amount": 2400000,
+      "currency": "INR"
+    },
+    "location": "Pune",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-01-31T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_027",
+    "name": "Deepak Chauhan",
+    "email": "deepak.chauhan@example.com",
+    "phone": "+91 9876502027",
+    "currentCompany": "Oracle",
+    "currentTitle": "Database Administrator",
+    "totalExperienceYears": 9.1,
+    "currentSalary": {
+      "amount": 3400000,
+      "currency": "INR"
+    },
+    "location": "Hyderabad",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-05-18T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_028",
+    "name": "Lakshmi Menon",
+    "email": "lakshmi.menon@example.com",
+    "phone": "+91 9876502028",
+    "currentCompany": "MongoDB",
+    "currentTitle": "Solutions Architect",
+    "totalExperienceYears": 10.7,
+    "currentSalary": {
+      "amount": 5400000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-01-11T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_029",
+    "name": "Farhan Sheikh",
+    "email": "farhan.sheikh@example.com",
+    "phone": "+91 9876502029",
+    "currentCompany": "Darwinbox",
+    "currentTitle": "Talent Acquisition Specialist",
+    "totalExperienceYears": 5,
+    "currentSalary": {
+      "amount": 1400000,
+      "currency": "INR"
+    },
+    "location": "Hyderabad",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-02-19T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_030",
+    "name": "Megha Joshi",
+    "email": "megha.joshi@example.com",
+    "phone": "+91 9876502030",
+    "currentCompany": "Chargebee",
+    "currentTitle": "Customer Success Manager",
+    "totalExperienceYears": 6.4,
+    "currentSalary": {
+      "amount": 2300000,
+      "currency": "INR"
+    },
+    "location": "Chennai",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-04-21T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_031",
+    "name": "Aditya Verma",
+    "email": "aditya.verma@example.com",
+    "phone": "+91 9876502031",
+    "currentCompany": "Razorpay",
+    "currentTitle": "Finance Analyst",
+    "totalExperienceYears": 4.6,
+    "currentSalary": {
+      "amount": 1700000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-05-28T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
+  },
+  {
+    "id": "cand_032",
+    "name": "Kavya Rao",
+    "email": "kavya.rao@example.com",
+    "phone": "+91 9876502032",
+    "currentCompany": "Notion",
+    "currentTitle": "Senior Frontend Engineer",
+    "totalExperienceYears": 6.8,
+    "currentSalary": {
+      "amount": 3000000,
+      "currency": "INR"
+    },
+    "location": "Bengaluru",
+    "resume": null,
+    "source": "upload",
+    "archivedAt": null,
+    "createdById": "usr_001",
+    "createdAt": "2026-02-21T09:00:00.000Z",
+    "updatedAt": "2026-06-29T09:00:00.000Z"
   }
 ]

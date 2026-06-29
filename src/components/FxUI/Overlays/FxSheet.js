@@ -3,7 +3,7 @@
 "use client";
 
 import { Children, createContext, isValidElement, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { Columns3, Maximize2, Minimize2, MoreHorizontal, X } from "lucide-react";
+import { Columns2, Maximize2, Minimize2, MoreHorizontal, X } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetTitle } from "@/components/ui/sheet";
-import { FX_SHEET } from "@/lib/FxTheme";
+import { FX_BORDER, FX_SHEET } from "@/lib/FxTheme";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -29,7 +29,20 @@ import { cn } from "@/lib/FxUtils";
 
 // Shared system-action button (Close / Expand / Layout / More triggers).
 const SYS_BTN =
-  "flex size-8 items-center justify-center rounded-[6px] text-muted-foreground transition-colors hover:bg-[var(--fx-surface-hover)] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fx-ring)]";
+  "flex size-8 items-center justify-center rounded-[6px] text-[var(--fx-text-muted)] transition-colors hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fx-ring)]";
+const SHEET_HEADER_CLASS = cn("flex flex-none items-center justify-between", FX_BORDER.divider, FX_SHEET.header.height, FX_SHEET.header.gap, FX_SHEET.header.padding);
+const SHEET_HEADER_LEFT_CLASS = "min-w-0 space-y-0.5";
+const SHEET_HEADER_ACTIONS_CLASS = "flex flex-none items-center gap-1";
+const SHEET_TOOLBAR_CLASS = cn("flex flex-none items-center gap-2", FX_BORDER.divider, FX_SHEET.toolbar.padding);
+const SHEET_PANES_CLASS = "flex min-h-0 flex-1 overflow-hidden";
+const SHEET_PANE_WRAPPER_CLASS = "flex min-h-0 flex-col [&:not(:first-child)]:border-l [&:not(:first-child)]:border-[var(--fx-border)]";
+const SHEET_PANE_SCROLL_CLASS = "min-h-0 flex-1 overflow-y-auto";
+const SHEET_FOOTER_CLASS = cn(
+  "flex flex-none items-center justify-between border-t border-[var(--fx-border)] bg-[var(--fx-surface-subtle)]",
+  FX_SHEET.footer.height,
+  FX_SHEET.footer.gap,
+  FX_SHEET.footer.padding,
+);
 
 const ROLE_LABEL = { primary: "Primary", secondary: "Secondary", tertiary: "Tertiary" };
 
@@ -156,15 +169,15 @@ function FxSheetHeader({ title, description, leading, actions, more, showClose =
   const hasSystem = showLayout || ctx?.expandable || more || showClose;
 
   return (
-    <header data-slot="fx-sheet-header" className={cn("flex flex-none items-center justify-between border-b border-border", FX_SHEET.header.height, FX_SHEET.header.gap, FX_SHEET.header.padding, className)}>
-      <div className="min-w-0 space-y-1">
+    <header data-slot="fx-sheet-header" className={cn(SHEET_HEADER_CLASS, className)}>
+      <div className={SHEET_HEADER_LEFT_CLASS}>
         {leading ? <div className="flex items-center gap-2">{leading}</div> : null}
         {title ? <SheetTitle>{title}</SheetTitle> : <SheetTitle className="sr-only">Panel</SheetTitle>}
         {description ? <SheetDescription>{description}</SheetDescription> : null}
       </div>
 
       {actions || hasSystem ? (
-        <div className="flex flex-none items-center gap-1">
+        <div className={SHEET_HEADER_ACTIONS_CLASS}>
           {actions}
           {actions && hasSystem ? <span aria-hidden="true" className="mx-1 h-5 w-px bg-border" /> : null}
 
@@ -172,7 +185,7 @@ function FxSheetHeader({ title, description, leading, actions, more, showClose =
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button type="button" className={SYS_BTN} aria-label="Layout" title="Layout">
-                  <Columns3 className="size-4" />
+                  <Columns2 className="size-4" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
@@ -225,7 +238,7 @@ function FxSheetHeader({ title, description, leading, actions, more, showClose =
 // Optional non-scrolling band under the header (search/filters). `sticky` is structural (it never scrolls).
 function FxSheetToolbar({ className, children }) {
   return (
-    <div data-slot="fx-sheet-toolbar" className={cn("flex flex-none items-center gap-2 border-b border-border", FX_SHEET.toolbar.padding, className)}>
+    <div data-slot="fx-sheet-toolbar" className={cn(SHEET_TOOLBAR_CLASS, className)}>
       {children}
     </div>
   );
@@ -234,7 +247,7 @@ function FxSheetToolbar({ className, children }) {
 // The only growing region. Lays out 1–N panes horizontally; each pane scrolls independently.
 function FxSheetPanes({ className, children }) {
   return (
-    <div data-slot="fx-sheet-panes" className={cn("flex min-h-0 flex-1 overflow-hidden", className)}>
+    <div data-slot="fx-sheet-panes" className={cn(SHEET_PANES_CLASS, className)}>
       {children}
     </div>
   );
@@ -264,9 +277,9 @@ function FxSheetPane({ role = "primary", width, collapsible = false, label, id, 
     <section
       data-fx-pane={role}
       style={style}
-      className={cn("flex min-h-0 flex-col [&:not(:first-child)]:border-l [&:not(:first-child)]:border-border", isPrimary ? "min-w-0 flex-1" : "flex-none")}
+      className={cn(SHEET_PANE_WRAPPER_CLASS, isPrimary ? "min-w-0 flex-1" : "flex-none")}
     >
-      <div className={cn("min-h-0 flex-1 overflow-y-auto", FX_SHEET.pane.padding[role] ?? FX_SHEET.pane.padding.primary, className)}>{children}</div>
+      <div className={cn(SHEET_PANE_SCROLL_CLASS, FX_SHEET.pane.padding[role] ?? FX_SHEET.pane.padding.primary, className)}>{children}</div>
     </section>
   );
 }

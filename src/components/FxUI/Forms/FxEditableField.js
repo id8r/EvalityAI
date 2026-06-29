@@ -24,6 +24,9 @@ function FxEditableField({
   placeholder = "—",
   size = "sm",
   pencil = "right",
+  align = "left", // read-mode text alignment of label + value (use "right" in a right-aligned column)
+  valueClassName, // override the read-mode value text style (e.g. a larger/bolder name)
+  href, // when set, the read-mode value is a link (e.g. mailto:/tel:); the pencil still triggers edit
   inputProps,
   className,
 }) {
@@ -76,15 +79,15 @@ function FxEditableField({
       type="button"
       aria-label={`Edit ${label ?? "value"}`}
       onClick={startEdit}
-      className="inline-flex size-6 shrink-0 items-center justify-center rounded-[6px] text-[var(--fx-text-muted)] opacity-70 transition-colors hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)] hover:opacity-100"
+      className="inline-flex h-5 w-0 shrink-0 items-center justify-center overflow-hidden rounded-[5px] text-[var(--fx-text-muted)] opacity-0 transition-all duration-150 hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)] focus-visible:w-6 focus-visible:opacity-100 group-hover:w-6 group-hover:opacity-100"
     >
       <PencilLine className="size-3.5" />
     </button>
   );
 
   return (
-    <div className={cn("flex w-full flex-col gap-1", className)}>
-      {label ? <span className={cn(FX_TYPOGRAPHY.label, "text-[var(--fx-text-muted)]")}>{label}</span> : null}
+    <div className={cn("group flex w-full flex-col gap-1", className)}>
+      {label ? <span className={cn(FX_TYPOGRAPHY.label, "text-[var(--fx-text-muted)]", align === "right" && "text-right")}>{label}</span> : null}
 
       {editing ? (
         <div className="flex items-center gap-2">
@@ -110,16 +113,26 @@ function FxEditableField({
           </div>
         </div>
       ) : (
-        // value takes natural width so the pencil hugs it (truncates + hugs when long)
-        <div className="flex items-center gap-1.5">
+        // Pencil takes no space until hover, then expands and nudges the value — no permanent gap.
+        <div className={cn("flex items-center", align === "right" && "justify-end")}>
           {pencil === "left" ? pencilButton : null}
-          <button
-            type="button"
-            onClick={startEdit}
-            className="min-w-0 max-w-full truncate text-left text-[14px] leading-[22px] text-[var(--fx-text)]"
-          >
-            {current !== "" && current != null ? current : <span className="text-[var(--fx-text-disabled)]">{placeholder}</span>}
-          </button>
+          {href && current !== "" && current != null ? (
+            <a
+              href={href}
+              title={typeof current === "string" ? current : undefined}
+              className={cn("min-w-0 truncate text-[14px] leading-[22px] text-[var(--fx-primary)] hover:underline", align === "right" ? "max-w-full text-right" : "flex-1 text-left", valueClassName)}
+            >
+              {current}
+            </a>
+          ) : (
+            <button
+              type="button"
+              onClick={startEdit}
+              className={cn("min-w-0 truncate text-[14px] leading-[22px] text-[var(--fx-text)]", align === "right" ? "max-w-full text-right" : "flex-1 text-left", valueClassName)}
+            >
+              {current !== "" && current != null ? current : <span className="text-[var(--fx-text-disabled)]">{placeholder}</span>}
+            </button>
+          )}
           {pencil === "right" ? pencilButton : null}
         </div>
       )}

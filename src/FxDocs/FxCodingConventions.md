@@ -110,6 +110,7 @@ Avoid commenting every `<div>`.
 * Reuse existing spacing, typography, radius and layout recipes.
 * Consume reusable class recipes from `src/lib/FxTheme.js` (`FX_TYPOGRAPHY`, `FX_SURFACE`, `FX_RADIUS`, etc.) instead of re-inlining arbitrary values.
 * Responsibility split — `globals.css` owns **visual token values** (colors, CSS variables, light/dark); `src/lib/FxTheme.js` owns **visual + layout recipes AND shell geometry values** (`FX_*` class recipes plus dimension constants like `APP_HEADER_HEIGHT`, `SIDEBAR_WIDTHS`, `APP_CONTENT_PADDING`, and the `THEMES` ids); `src/lib/FxConstants.js` owns **app/product constants only** (`APP_NAME`, `ROUTES`, `STORAGE_KEYS`, nav ids, product enums).
+* **Define styling constants at the TOP of the file.** Hoist className strings and style maps (e.g. `LABEL_CLASS`, `TONE_TEXT`, `TONE_BAR`) to named constants near the top — do not scatter the same class inline or bury style maps mid-file.
 
 ---
 
@@ -130,6 +131,13 @@ Do not place product-specific logic inside `FxUI`.
 * Extend the design system instead of creating one-off patterns.
 * Prefer reuse over duplication.
 * Import app-wide constants from `@/lib/FxConstants`.
+
+## DRY & Reuse
+
+* **No duplicated logic.** A small utility used (or likely to be used) in more than one place lives ONCE in a shared module — generic helpers in `src/lib/FxUtils.js`; domain/format helpers in the relevant lib (`EvFormat`, `EvSelectors`, …). Import them; never re-declare per file.
+* **Check before writing** a helper — search for an existing one and reuse or extend it.
+* **Parameterize small differences** instead of forking near-identical copies — e.g. one `scoreTone(value, fallback)` rather than a copy per consumer.
+* Best logic, cleanest shared abstraction over copy-paste; build the reusable piece first, then compose product behavior from it.
 
 ## Storage Keys
 

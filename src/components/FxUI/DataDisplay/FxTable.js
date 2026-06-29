@@ -45,7 +45,8 @@ function isFixedWidthColumn(column) {
 }
 
 function clampWidth(column, width) {
-  return Math.max(column.minWidth ?? MIN_RESIZE_WIDTH, Math.round(width));
+  const clamped = Math.max(column.minWidth ?? MIN_RESIZE_WIDTH, Math.round(width));
+  return column.maxWidth != null ? Math.min(column.maxWidth, clamped) : clamped;
 }
 
 // `overrideWidth` (px) from controller sizing pins the column to an exact width.
@@ -55,11 +56,14 @@ function resolveColumnStyle(column, overrideWidth) {
     return { width: cssPx(size), minWidth: cssPx(size), maxWidth: cssPx(size) };
   }
   if (column.sticky) {
-    const size = column.width ?? column.minWidth ?? DEFAULT_MIN_WIDTH;
+    // A pinned column is resizable when it declares min/max bounds: honor the controller's width override
+    // (clamped to those bounds), otherwise fall back to its default width.
+    const base = column.width ?? column.minWidth ?? DEFAULT_MIN_WIDTH;
+    const size = overrideWidth != null ? clampWidth(column, overrideWidth) : base;
     return {
       width: cssPx(size),
       minWidth: cssPx(column.minWidth ?? size),
-      maxWidth: column.maxWidth != null ? cssPx(column.maxWidth) : cssPx(size),
+      maxWidth: cssPx(column.maxWidth ?? size),
     };
   }
   if (overrideWidth != null) {
@@ -163,8 +167,7 @@ function SortIndicator({ state }) {
   return <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" />;
 }
 
-// Module-scoped so its identity is stable across renders — defining it inside FxTable remounts
-// every handle on each render (and resizingKey changes fire a render on every pointer-move).
+// Module-scoped so its identity is stable across renders — defining it inside FxTable remounts every handle on each render (and resizingKey changes fire a render on every pointer-move).
 function ResizeHandle({ column, active, onStartResize, onAutoFit }) {
   return (
     <span
@@ -352,8 +355,7 @@ export function FxTable({
     window.addEventListener("pointerup", onUp);
   }
 
-  // Double-click auto-fit: measure each body cell's natural (untruncated) content width via an
-  // off-screen clone, then snap the column to the widest + padding.
+  // Double-click auto-fit: measure each body cell's natural (untruncated) content width via an off-screen clone, then snap the column to the widest + padding.
   function autoFitColumn(column) {
     const root = scrollRef.current;
     if (!root || typeof document === "undefined") return;
@@ -549,8 +551,7 @@ export function FxTable({
         {displayRows.map((row, rowIndex) => {
           const rowId = resolveRowId(row) ?? rowIndex;
           const isSelected = selection.enabled && selection.isSelected(rowId);
-          // Sticky cells need an explicit solid background — bg-inherit renders transparent on a sticky cell's own
-          // compositor layer, letting scrolling columns bleed through. Mirror the row state; group-hover keeps sync.
+          // Sticky cells need an explicit solid background — bg-inherit renders transparent on a sticky cell's own compositor layer, letting scrolling columns bleed through. Mirror the row state; group-hover keeps sync.
           const isAltRow = rowIndex % 2 === 1;
           const cellBg = isSelected
             ? "bg-[color:color-mix(in_srgb,var(--fx-primary)_7%,var(--fx-surface))] group-hover:bg-[color:color-mix(in_srgb,var(--fx-primary)_10%,var(--fx-surface))]"

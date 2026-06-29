@@ -132,9 +132,10 @@ export const FX_LAYOUT = {
 /* FX_INPUT | Text-field sizing + variants, composed over the `ui/input` base by `FxInput`. */
 export const FX_INPUT = {
   size: {
-    sm: "h-[34px] px-3 text-[15px]",
-    md: "h-[40px] px-4 text-[15px]",
-    lg: "h-[44px] px-4 text-[15px]",
+    // 16px on mobile gates iOS focus-zoom (it zooms inputs < 16px); 14px from sm up is the design size.
+    sm: "h-[34px] px-3 text-[16px] sm:text-[14px]",
+    md: "h-[40px] px-4 text-[16px] sm:text-[14px]",
+    lg: "h-[44px] px-4 text-[16px] sm:text-[14px]",
   },
   variant: {
     outline: "", // the ui/input base already provides the boxed outline look

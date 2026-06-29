@@ -393,7 +393,7 @@ function EvJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
   const isDirty = JSON.stringify(form) !== JSON.stringify(initialForm);
   const title = form.title.trim();
   const isRemote = form.workplaceType === "remote";
-  const headerDescription = title ? `"${title}"` : "Enter job details to get started";
+  const headerDescription = title ? `${title}` : "Enter job details to get started"; //Replaces the header's description when user starts typing [Sree]
   const basicRequiredFields = ["title", "employmentType", "workplaceType", "city", "experienceFrom", "positions"];
   const basicFieldOrder = [
     "title",

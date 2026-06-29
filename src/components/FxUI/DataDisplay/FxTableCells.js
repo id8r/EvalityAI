@@ -331,8 +331,8 @@ export function FxActionsCell({ items = [], inline = [], align = "right", menuLa
   const justify = align === "left" ? "justify-start" : align === "center" ? "justify-center" : "justify-end";
   return (
     <div className={cn("flex items-center gap-1", justify, className)} onClick={stop}>
-      {inline.map((action, index) => (
-        <FxInlineAction key={action.key ?? index} {...action} />
+      {inline.map(({ key, label, ...action }, index) => (
+        <FxInlineAction key={`inline-${key ?? label ?? index}`} label={label} {...action} />
       ))}
       {items.length ? (
         <DropdownMenu>
@@ -347,7 +347,7 @@ export function FxActionsCell({ items = [], inline = [], align = "right", menuLa
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-[180px]">
             {items.map((item, index) => (
-              <FxActionItem key={item.key ?? index} item={item} />
+              <FxActionItem key={`menu-${item.key ?? item.label ?? index}`} item={item} />
             ))}
           </DropdownMenuContent>
         </DropdownMenu>

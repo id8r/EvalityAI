@@ -4,13 +4,32 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { cva } from "class-variance-authority";
 import { X } from "lucide-react";
 
-import { FX_SHEET } from "@/lib/FxTheme";
+import { FX_SHEET, FX_TYPOGRAPHY } from "@/lib/FxTheme";
 import { cn } from "@/lib/utils";
 
 const Sheet = DialogPrimitive.Root;
 const SheetTrigger = DialogPrimitive.Trigger;
 const SheetClose = DialogPrimitive.Close;
 const SheetPortal = DialogPrimitive.Portal;
+
+/*
+  Shared sheet styles are defined once here so the branded wrapper and every consumer inherit the same base
+  geometry. Typography comes from the DS scale in FxTheme.
+*/
+const SHEET_CONTENT_CLASS =
+  "fixed z-50 flex flex-col overflow-hidden bg-[var(--fx-surface-raised)] text-foreground data-[state=open]:animate-in data-[state=closed]:animate-out motion-reduce:!animate-none";
+const SHEET_OVERLAY_CLASS =
+  "fixed inset-0 z-40 bg-[color:color-mix(in_srgb,var(--fx-dark-panel)_22%,transparent)] backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 motion-reduce:!animate-none";
+const SHEET_HEADER_CLASS = "flex flex-none items-start justify-between gap-4 border-b border-[var(--fx-border)] px-6 py-5";
+const SHEET_HEADER_LEFT_CLASS = "min-w-0 space-y-1";
+const SHEET_HEADER_ACTIONS_CLASS = "flex flex-none items-center gap-1";
+const SHEET_CLOSE_BUTTON_CLASS =
+  "flex size-8 items-center justify-center rounded-[6px] text-[var(--fx-text-muted)] transition-colors hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fx-ring)]";
+const SHEET_BODY_CLASS = "min-h-0 flex-1 overflow-y-auto px-6 py-5";
+const SHEET_FOOTER_CLASS =
+  "flex flex-none items-center justify-between border-t border-[var(--fx-border)] bg-[var(--fx-surface-subtle)]";
+const SHEET_TITLE_CLASS = FX_TYPOGRAPHY.title;
+const SHEET_DESCRIPTION_CLASS = FX_TYPOGRAPHY.body;
 
 // Motion (duration/easing) comes from FX_SHEET.motion — applied on SheetContent. Transform-only slide per side.
 const sheetVariants = cva(
@@ -44,7 +63,7 @@ function SheetOverlay({ className, ...props }) {
     <DialogPrimitive.Overlay
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-40 bg-[color:color-mix(in_srgb,var(--fx-dark-panel)_22%,transparent)] backdrop-blur-[2px] data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 motion-reduce:!animate-none",
+        SHEET_OVERLAY_CLASS,
         FX_SHEET.motion.overlay,
         className,
       )}
@@ -80,19 +99,19 @@ function SheetHeader({ className, title, description, leading, actions, showClos
   return (
     <div
       data-slot="sheet-header"
-      className={cn("flex flex-none items-start justify-between gap-4 border-b border-border px-6 py-5", className)}
+      className={cn(SHEET_HEADER_CLASS, className)}
       {...props}
     >
-      <div className="min-w-0 space-y-1">
+      <div className={SHEET_HEADER_LEFT_CLASS}>
         {leading ? <div className="flex items-center gap-2">{leading}</div> : null}
         {title ? <SheetTitle>{title}</SheetTitle> : null}
         {description ? <SheetDescription>{description}</SheetDescription> : null}
       </div>
       {actions || showClose ? (
-        <div className="flex flex-none items-center gap-1">
+        <div className={SHEET_HEADER_ACTIONS_CLASS}>
           {actions}
           {showClose ? (
-            <SheetClose className="flex size-8 items-center justify-center rounded-[6px] text-muted-foreground transition-colors hover:bg-[var(--fx-surface-hover)] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fx-ring)]">
+            <SheetClose className={SHEET_CLOSE_BUTTON_CLASS}>
               <X className="size-4" />
               <span className="sr-only">Close</span>
             </SheetClose>
@@ -104,7 +123,7 @@ function SheetHeader({ className, title, description, leading, actions, showClos
 }
 
 function SheetBody({ className, ...props }) {
-  return <div data-slot="sheet-body" className={cn("min-h-0 flex-1 overflow-y-auto px-6 py-5", className)} {...props} />;
+  return <div data-slot="sheet-body" className={cn(SHEET_BODY_CLASS, className)} {...props} />;
 }
 
 // Fixed footer: `left` group (secondary actions) and `right` group (primary actions).
@@ -113,7 +132,7 @@ function SheetFooter({ className, left, right, ...props }) {
     <div
       data-slot="sheet-footer"
       className={cn(
-        "flex flex-none items-center justify-between border-t border-border bg-[var(--fx-surface-subtle)]",
+        SHEET_FOOTER_CLASS,
         FX_SHEET.footer.height,
         FX_SHEET.footer.gap,
         FX_SHEET.footer.padding,
@@ -131,7 +150,7 @@ function SheetTitle({ className, ...props }) {
   return (
     <DialogPrimitive.Title
       data-slot="sheet-title"
-      className={cn("text-[20px] font-semibold leading-[1.2] tracking-tight text-foreground", className)}
+      className={cn(SHEET_TITLE_CLASS, className)}
       {...props}
     />
   );
@@ -141,7 +160,7 @@ function SheetDescription({ className, ...props }) {
   return (
     <DialogPrimitive.Description
       data-slot="sheet-description"
-      className={cn("text-sm leading-6 text-muted-foreground", className)}
+      className={cn(SHEET_DESCRIPTION_CLASS, className)}
       {...props}
     />
   );

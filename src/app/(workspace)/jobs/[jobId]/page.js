@@ -13,6 +13,7 @@ import {
   ChevronDown,
   CircleUserRound,
   ClipboardCheck,
+  ClipboardList,
   Download,
   ExternalLink,
   Eye,
@@ -52,8 +53,10 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EvJobCreateSheet } from "@/components/Ev/Jobs/EvJobCreateSheet";
 import { EvAddCandidatesSheet } from "@/components/Ev/Candidates/EvAddCandidatesSheet";
-import { FxConfirmDialog } from "@/components/FxUI/Overlays/FxConfirmDialog";
+import { EvRejectCandidateDialog } from "@/components/Ev/Candidates/EvRejectCandidateDialog";
 import { EvStartPreScreeningSheet } from "@/components/Ev/Candidates/EvStartPreScreeningSheet";
+import { EvCvMatchBreakdown } from "@/components/Ev/Candidates/EvCvMatchBreakdown";
+import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import {
   createApplication,
@@ -71,7 +74,7 @@ import { isPdfResume, resolveResumeUrl } from "@/lib/EvResume";
 import { FxPanel } from "@/components/FxUI/Layout/FxPanel";
 import { FX_TYPOGRAPHY } from "@/lib/FxTheme";
 import { ROUTES } from "@/lib/FxConstants";
-import { cn, FxStatusMeta } from "@/lib/FxUtils";
+import { cn, FxStatusMeta, scoreTone } from "@/lib/FxUtils";
 import { useEvData } from "@/lib/useEvData";
 
 /* ============================================================================
@@ -84,7 +87,7 @@ const NEW_RESUME_DAYS = 2; // candidates newer than this get the blue "new" acce
 const NEW_ROW_CLASS =
   "[&>td:first-child]:relative [&>td:first-child]:before:pointer-events-none [&>td:first-child]:before:absolute " +
   "[&>td:first-child]:before:inset-y-0 [&>td:first-child]:before:left-0 [&>td:first-child]:before:w-[3px] " +
-  "[&>td:first-child]:before:bg-[var(--fx-primary)]";
+  "[&>td:first-child]:before:bg-[var(--fx-accent)]";
 
 // Column id sets reused across stages.
 const SHARED_COLUMNS = ["name", "phone", "score", "experience", "currentSalary", "expectedSalary", "email", "availability"];
@@ -100,6 +103,8 @@ const ACTION_DEFS = {
   resume: { icon: FileText, label: "View Resume", tone: "neutral", run: (h, r) => h.openDetail("resume", r[0]) },
   download: { icon: Download, label: "Download Resume", tone: "accent", run: (h, r) => h.download(r) },
   prescreen: { icon: Mail, label: "Start Pre-Screening", tone: "accent", run: (h, r) => h.startPreScreen(r) },
+  emailScreen: { icon: Mail, label: "Email Screening", tone: "accent", run: (h, r) => h.startPreScreen(r) },
+  manualScreen: { icon: ClipboardList, label: "Manual Screening", tone: "neutral", run: (h, r) => h.openDetail("manualScreen", r[0]) },
   preScreenResult: { icon: ClipboardCheck, label: "View Pre-Screen Result", tone: "neutral", run: (h, r) => h.openDetail("preScreenResult", r[0]) },
   share: { icon: Share2, label: "Share for Review", tone: "accent", run: (h, r) => h.openDetail("share", r[0]) },
   shortlist: { icon: Check, label: "Shortlist", tone: "accent", run: (h, r) => h.move(r, "shortlisted", "Shortlisted") },
@@ -122,14 +127,14 @@ const ACTION_DEFS = {
 const STAGE_CONFIG = {
   unscreened: {
     columns: SHARED_COLUMNS, scoreLabel: "Match Score", scoreKind: "cvMatch", selectable: true, defaultSort: null,
-    inline: ["view", "prescreen"], bulk: ["prescreen", "reject", "download"], kebab: ["view", "resume", "download", "rejectCandidate"],
+    inline: ["emailScreen", "manualScreen"], bulk: ["prescreen", "reject", "download"], kebab: ["view", "resume", "download", "rejectCandidate"],
   },
   prescreened: {
     columns: SHARED_COLUMNS, scoreLabel: "Fit Score", scoreKind: "preScreenResult", selectable: true, defaultSort: { key: "score", direction: "desc" },
-    inline: ["view", "share"], bulk: ["share", "shortlist", "drop", "reject"], kebab: ["view", "resume", "preScreenResult", "share", "download", "drop", "rejectCandidate"],
+    inline: ["share", "shortlist"], bulk: ["share", "shortlist", "drop", "reject"], kebab: ["view", "resume", "preScreenResult", "share", "download", "drop", "rejectCandidate"],
   },
   shortlisted: {
-    columns: SHARED_COLUMNS, scoreLabel: "Fit Score", scoreKind: "preScreenResult", selectable: true, defaultSort: { key: "score", direction: "desc" },
+    columns: SHARED_COLUMNS, scoreLabel: "Fit Score", scoreKind: "preScreenResult", selectable: true, defaultSort: { key: "score", direction: "desc" }, contactColsDefault: true,
     inline: ["schedule", "view"], bulk: ["onHold", "drop", "reject"], kebab: ["open", "resume", "preScreenResult", "schedule", "download", "drop", "moveBackPrescreened", "rejectCandidate"],
   },
   interviewing: {
@@ -157,8 +162,9 @@ const STAGE_CONFIG = {
 // Placeholder detail sheets — the open/route is wired now; the detailed content lands in the next pass.
 const DETAIL_META = {
   candidate: { title: (r) => r?.candidateName ?? "Candidate", desc: "Candidate workspace" },
-  cvMatch: { title: () => "CV Match Breakdown", desc: "How this candidate matches the role" },
+  cvMatch: { title: () => "Overall CV Match Score", desc: () => "" },
   preScreenResult: { title: () => "Pre-Screen Result", desc: "Screening summary & answers" },
+  manualScreen: { title: (r) => `Manual Screening — ${r?.candidateName ?? "Candidate"}`, desc: "Record manual pre-screen answers" },
   resume: { title: (r) => `${r?.candidateName ?? "Candidate"} — Resume`, desc: "Resume preview" },
   schedule: { title: () => "Schedule Interview", desc: "Set up an interview" },
   share: { title: () => "Share for Review", desc: "Send candidates to the client" },
@@ -196,8 +202,14 @@ const AGE_FILTERS = [
   { value: "3_months", label: "3 months" },
 ];
 
-const AGE_FILTER_LABEL_BY_VALUE = Object.fromEntries(AGE_FILTERS.map((item) => [item.value, item.label]));
-const AGE_FILTER_ORDER = ["all", "fresh", "15_days", "30_days", "2_months", "3_months"];
+// Pre-Screened secondary filter — by how the candidate was screened (+ a "no fit score" bucket).
+const SCREEN_FILTERS = [
+  { value: "all", label: "All candidates" },
+  { value: "ai_call", label: "AI Call Screened" },
+  { value: "manual", label: "Manual Screen" },
+  { value: "email", label: "Email Screened" },
+  { value: "no_fit", label: "No Fit Score" },
+];
 
 function resolveTab(value) {
   const key = String(value ?? "").trim();
@@ -244,11 +256,10 @@ function matchesAgeFilter(appliedAt, filter, now) {
   return true;
 }
 
-function scoreTone(value) {
-  if (value == null) return "primary";
-  if (value >= 80) return "success";
-  if (value >= 60) return "warning";
-  return "danger";
+function matchesScreenFilter(app, filter) {
+  if (filter === "all") return true;
+  if (filter === "no_fit") return app?.qualification?.matchScore == null;
+  return app?.screening?.mode === filter; // ai_call | manual | email
 }
 
 function statusToneForStage(stage) {
@@ -258,8 +269,15 @@ function statusToneForStage(stage) {
   return "subtle";
 }
 
-function workspaceEmptyCopy(tab) {
+function workspaceEmptyCopy(tab, query = "") {
   const label = TAB_LABEL_BY_VALUE[tab] ?? "Unscreened";
+  const trimmedQuery = String(query ?? "").trim();
+  if (trimmedQuery) {
+    return {
+      title: `No results for "${trimmedQuery}"`,
+      body: "Search only applies to the current stage. It matches name, email, title, company, location, job ID, and status.",
+    };
+  }
   return {
     title: `No ${label.toLowerCase()} candidates yet`,
     body:
@@ -284,8 +302,8 @@ function questionFormatLabel(value) {
   return "—";
 }
 
-function EmptyState({ tab, onAddCandidates }) {
-  const copy = workspaceEmptyCopy(tab);
+function EmptyState({ tab, query, onAddCandidates }) {
+  const copy = workspaceEmptyCopy(tab, query);
   return (
     <div className="flex min-h-full items-center justify-center px-6 py-8">
       <div className="max-w-[440px] space-y-4 text-center">
@@ -296,7 +314,7 @@ function EmptyState({ tab, onAddCandidates }) {
           <p className={FX_TYPOGRAPHY.sectionTitle}>{copy.title}</p>
           <p className={cn(FX_TYPOGRAPHY.body, "text-[var(--fx-text-muted)]")}>{copy.body}</p>
         </div>
-        {tab === "unscreened" ? (
+        {tab === "unscreened" && !String(query ?? "").trim() ? (
           <div className="flex justify-center">
             <FxButton onClick={onAddCandidates}>Add Candidates</FxButton>
           </div>
@@ -306,28 +324,30 @@ function EmptyState({ tab, onAddCandidates }) {
   );
 }
 
-function AgeFilterDropdown({ value, onChange, counts }) {
+// Generic secondary-filter dropdown — driven by an options list ([{ value, label }]) so each stage can pass its own.
+function FilterDropdown({ value, onChange, counts, options }) {
+  const labelByValue = Object.fromEntries(options.map((option) => [option.value, option.label]));
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <FxButton variant="outline" size="sm" className="whitespace-nowrap">
           <Filter className="size-4" />
-          <span>{AGE_FILTER_LABEL_BY_VALUE[value] ?? AGE_FILTER_LABEL_BY_VALUE.all}</span>
+          <span>{labelByValue[value] ?? labelByValue.all}</span>
           <ChevronDown className="size-4" />
         </FxButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-[240px]">
-        {AGE_FILTER_ORDER.map((option) => (
+        {options.map((option) => (
           <DropdownMenuItem
-            key={option}
+            key={option.value}
             onSelect={(event) => {
               event.preventDefault();
-              onChange(option);
+              onChange(option.value);
             }}
-            className={cn("flex items-center justify-between gap-3", value === option && "bg-[var(--fx-surface-selected)]")}
+            className={cn("flex items-center justify-between gap-3", value === option.value && "bg-[var(--fx-surface-selected)]")}
           >
-            <span className="truncate">{AGE_FILTER_LABEL_BY_VALUE[option]}</span>
-            <span className="text-[var(--fx-text-muted)]">{counts[option] ?? 0}</span>
+            <span className="truncate">{option.label}</span>
+            <span className="text-[var(--fx-text-muted)]">{counts[option.value] ?? 0}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
@@ -397,7 +417,7 @@ function buildStageColumns(config, h) {
 
   const library = {
     name: {
-      key: "name", header: "Name", sticky: "left", locked: true, grow: 1, minWidth: 220, width: 280, sortable: true,
+      key: "name", header: "Name", sticky: "left", locked: true, grow: 1, minWidth: 200, width: 240, maxWidth: 440, sortable: true,
       sortAccessor: (row) => row.candidateName ?? "",
       cell: (row) => (
         <FxLinkCell value={row.candidateName} tone="primary" indicator={config.dot ? statusToneForStage(row.stage) : undefined} onClick={() => h.openDetail("candidate", row)} />
@@ -406,8 +426,9 @@ function buildStageColumns(config, h) {
     phone: { key: "phone", header: "Phone", width: 160, minWidth: 140, sortable: false, cell: phoneCell },
     score: {
       key: "score", header: config.scoreLabel ?? "Score", width: 120, minWidth: 104, align: "center", sortable: true, sortType: "number",
+      sortInitialDirection: "desc", // first click sorts high → low
       sortAccessor: (row) => row.matchScore,
-      cell: (row) => <FxScoreCell value={row.matchScore} tone={scoreTone(row.matchScore)} onClick={() => h.openDetail(config.scoreKind ?? "preScreenResult", row)} />,
+      cell: (row) => <FxScoreCell value={row.matchScore} tone={scoreTone(row.matchScore, "primary")} onClick={() => h.openDetail(config.scoreKind ?? "preScreenResult", row)} />,
     },
     experience: {
       key: "experience", header: "Experience", width: 112, minWidth: 100, align: "center", sortable: true, sortType: "number",
@@ -432,11 +453,12 @@ function buildStageColumns(config, h) {
       ),
     },
     email: {
-      key: "email", header: "Email", width: 240, minWidth: 220, grow: 1, sortable: false, defaultVisible: false,
+      // Email + Availability are in the column model everywhere but only default-visible where the stage opts in (Shortlisted).
+      key: "email", header: "Email", width: 240, minWidth: 220, grow: 1, sortable: false, defaultVisible: Boolean(config.contactColsDefault),
       cell: (row) => <span className="truncate text-[var(--fx-text)]">{row.email || "—"}</span>,
     },
     availability: {
-      key: "availability", header: "Availability", width: 124, minWidth: 112, align: "center", sortable: true, sortType: "number",
+      key: "availability", header: "Availability", width: 124, minWidth: 112, align: "center", sortable: true, sortType: "number", defaultVisible: Boolean(config.contactColsDefault),
       sortAccessor: (row) => row.availabilityDays,
       cell: (row) => <span className="text-[var(--fx-text)]">{row.availabilityDays == null ? "—" : `${row.availabilityDays} days`}</span>,
     },
@@ -454,8 +476,16 @@ function buildStageColumns(config, h) {
   const columns = config.columns.map((id) => library[id]).filter(Boolean);
 
   if (config.inline?.length) {
+    // Auto-width: the Actions column hugs its icons (1 today, 2 max — more is unlikely). Width fits the wider
+    // of the icon row or the "Actions" header, plus cell padding. No fixed 104–140px, and not resizable.
+    const ACTION_ICON_W = 32; // FxInlineAction is size-8
+    const ACTION_ICON_GAP = 4; // gap-1 between icons
+    const ACTION_HEADER_W = 54; // ~ width of the "Actions" label, so single-icon stages don't clip it
+    const ACTION_CELL_PAD = 24; // right-aligned icons + breathing room
+    const iconsW = config.inline.length * ACTION_ICON_W + Math.max(0, config.inline.length - 1) * ACTION_ICON_GAP;
+    const actionsW = Math.max(iconsW, ACTION_HEADER_W) + ACTION_CELL_PAD;
     columns.push({
-      key: "actions", header: "Actions", width: 104, minWidth: 96, maxWidth: 140, align: "right", sticky: "right", locked: true, hideable: false, sortable: false,
+      key: "actions", header: "Actions", width: actionsW, minWidth: actionsW, maxWidth: actionsW, align: "right", sticky: "right", locked: true, hideable: false, sortable: false, resizable: false,
       cell: (row) => (
         <FxActionsCell
           inline={config.inline.map((id) => {
@@ -469,7 +499,7 @@ function buildStageColumns(config, h) {
 
   if (config.kebab?.length) {
     columns.push({
-      key: "menuActions", header: "", width: 56, minWidth: 56, maxWidth: 56, align: "center", sticky: "right", locked: true, hideable: false, sortable: false,
+      key: "menuActions", header: "", width: 56, minWidth: 56, maxWidth: 56, align: "center", sticky: "right", locked: true, hideable: false, sortable: false, resizable: false,
       cell: (row) => (
         <FxActionsCell
           items={config.kebab.map((id) => {
@@ -503,6 +533,7 @@ function StageTable({ config, rows, handlers, selectedRowKeys, onSelectedRowKeys
       className="h-full min-h-0"
       surfaceClassName="rounded-none border-0 bg-transparent"
       sortable
+      resizable
       stickyHeader
       scrollX
       rowClassName={(row) => (row.isNew ? NEW_ROW_CLASS : undefined)}
@@ -512,8 +543,30 @@ function StageTable({ config, rows, handlers, selectedRowKeys, onSelectedRowKeys
   );
 }
 
+// Demo-only: derive the 6 CV-match sub-scores around the candidate's overall Match Score (deterministic per app).
+function deriveCvMatchScores(row) {
+  const base = Number(row?.matchScore);
+  if (!Number.isFinite(base)) return {};
+  let seed = String(row?.id ?? "").split("").reduce((acc, ch) => (acc * 31 + ch.charCodeAt(0)) >>> 0, 7) || 7;
+  const rand = () => {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return seed / 0x7fffffff;
+  };
+  const around = (spread) => Math.min(100, Math.max(0, Math.round((base + (rand() * 2 - 1) * spread) * 100) / 100));
+  return { jdMatch: around(8), companyDomain: around(14), education: around(12), communication: around(14), culturalSoft: around(10), bonus: around(16) };
+}
+
 function DetailBody({ kind, row }) {
   if (!row) return null;
+  if (kind === "cvMatch") {
+    // Identity + overall score live on the compact card; the breakdown shows just the dimension cards below it.
+    return (
+      <div className="space-y-4">
+        <EvCandidateCard candidate={row.candidate} mode="minimal" bordered={false} score={{ label: "CV Match Score", value: row.matchScore == null ? "—" : `${row.matchScore}%` }} />
+        <EvCvMatchBreakdown scores={deriveCvMatchScores(row)} showOverall={false} />
+      </div>
+    );
+  }
   if (kind === "resume") {
     const url = isPdfResume(row.candidate?.resume) ? resolveResumeUrl(row.candidate?.resume, row.candidate?.id) : null;
     return url ? (
@@ -546,7 +599,8 @@ export default function JobWorkspacePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [searchTerm, setSearchTerm] = useState("");
-  const [ageFilter, setAgeFilter] = useState("all");
+  const [ageFilter, setAgeFilter] = useState("all"); // Unscreened secondary filter
+  const [screenFilter, setScreenFilter] = useState("all"); // Pre-Screened secondary filter
   const [now] = useState(() => Date.now());
   const [isEditJobOpen, setIsEditJobOpen] = useState(false);
   const [addCandidatesOpen, setAddCandidatesOpen] = useState(false);
@@ -558,6 +612,7 @@ export default function JobWorkspacePage() {
   const [startPreScreeningRows, setStartPreScreeningRows] = useState([]);
   const [rejectConfirmOpen, setRejectConfirmOpen] = useState(false);
   const [rejectRowsState, setRejectRowsState] = useState([]);
+  const [rejectKey, setRejectKey] = useState(0); // remount the reject dialog per open → fresh note
 
   const jobId = String(params?.jobId ?? "");
   const requestedTab = searchParams.get("tab");
@@ -589,8 +644,10 @@ export default function JobWorkspacePage() {
     .map((app) => {
       const candidate = getCandidate(app.candidateId);
       const stage = stageForApplication(app);
+      // Static facts live on the Candidate; job-specific workflow state lives on the Application.qualification.
       const currentSalary = candidate?.currentSalary ?? null;
-      const expectedSalary = candidate?.expectedSalary ?? null;
+      const expectedSalary = app?.qualification?.expectedSalary ?? candidate?.expectedSalary ?? null;
+      const availabilityDays = app?.qualification?.availability?.days ?? candidate?.availabilityDays ?? null;
       return {
         id: app.id,
         app,
@@ -598,10 +655,11 @@ export default function JobWorkspacePage() {
         stage,
         clientStatus: app.clientStatus ?? null,
         interview: app.interview ?? null,
+        trustScore: app?.qualification?.trustScore ?? null,
         isNew: ageInDays(app.appliedAt, now) <= NEW_RESUME_DAYS,
         candidateName: candidate?.name ?? "Unknown candidate",
         matchScore: app?.qualification?.matchScore ?? candidate?.matchScore ?? null,
-        experience: candidate?.experience ?? candidate?.jobContext?.experienceYears ?? candidate?.yearsOfExperience ?? null,
+        experience: candidate?.totalExperienceYears ?? candidate?.experience ?? candidate?.yearsOfExperience ?? null,
         phone: candidate?.phone ?? candidate?.contact?.phone ?? null,
         email: candidate?.email ?? "—",
         candidateEmail: candidate?.email ?? "—",
@@ -612,7 +670,7 @@ export default function JobWorkspacePage() {
         currentSalaryCurrency: currentSalary?.currency ?? candidate?.salaryCurrency ?? salaryCurrency,
         expectedSalary,
         expectedSalaryCurrency: expectedSalary?.currency ?? candidate?.salaryCurrency ?? salaryCurrency,
-        availabilityDays: candidate?.availabilityDays ?? candidate?.jobContext?.availabilityDays ?? null,
+        availabilityDays,
         appliedAt: app.appliedAt,
         updatedAt: app.updatedAt,
       };
@@ -620,7 +678,12 @@ export default function JobWorkspacePage() {
     .filter((row) => row.stage === activeTab)
     .filter((row) => matchesSearch(row.candidate, row.app, searchTerm));
 
-  const candidateRows = stageRows.filter((row) => matchesAgeFilter(row.appliedAt, ageFilter, now));
+  // Secondary filter is stage-specific: age on Unscreened, screening-type on Pre-Screened, none elsewhere.
+  const candidateRows = stageRows.filter((row) => {
+    if (activeTab === "unscreened") return matchesAgeFilter(row.appliedAt, ageFilter, now);
+    if (activeTab === "prescreened") return matchesScreenFilter(row.app, screenFilter);
+    return true;
+  });
   const selectedCandidateRows = candidateRows.filter((row) => selectedRowKeys.includes(row.id));
 
   const tabCounts = Object.fromEntries(WORKSPACE_TABS.map((tab) => [tab.value, 0]));
@@ -637,6 +700,13 @@ export default function JobWorkspacePage() {
     if (diffDays < 30) ageCounts["30_days"] += 1;
     if (diffDays < 60) ageCounts["2_months"] += 1;
     if (diffDays < 90) ageCounts["3_months"] += 1;
+  }
+
+  const screenCounts = { all: stageRows.length, ai_call: 0, manual: 0, email: 0, no_fit: 0 };
+  for (const row of stageRows) {
+    const mode = row.app?.screening?.mode;
+    if (mode && screenCounts[mode] != null) screenCounts[mode] += 1;
+    if (row.matchScore == null) screenCounts.no_fit += 1;
   }
 
   // Pool for the Add/Recommend sheet: candidates not already attached to this job.
@@ -732,10 +802,15 @@ export default function JobWorkspacePage() {
     const next = resolveActionRows(rows);
     if (!next.length) return;
     setRejectRowsState(next);
+    setRejectKey((current) => current + 1);
     setRejectConfirmOpen(true);
   };
 
-  const handleConfirmReject = () => {
+  const handleConfirmReject = (note) => {
+    // Persist the rejection note on the application (LS) so it's retrievable when reviewing the rejected candidate.
+    resolveActionRows(rejectRowsState).forEach((row) =>
+      updateApplication(row.id, { outcome: { ...(row.app?.outcome ?? {}), rejectionNote: note ?? "" } }),
+    );
     moveRows(rejectRowsState, "rejected", "Candidates rejected");
     setRejectConfirmOpen(false);
     setRejectRowsState([]);
@@ -838,7 +913,11 @@ export default function JobWorkspacePage() {
               <FxPageToolbar divider className="px-0">
                 <FxPageToolbar.Row className="px-4 py-3">
                   <FxPageToolbar.Start>
-                    <AgeFilterDropdown value={ageFilter} onChange={setAgeFilter} counts={ageCounts} />
+                    {activeTab === "unscreened" ? (
+                      <FilterDropdown value={ageFilter} onChange={setAgeFilter} counts={ageCounts} options={AGE_FILTERS} />
+                    ) : activeTab === "prescreened" ? (
+                      <FilterDropdown value={screenFilter} onChange={setScreenFilter} counts={screenCounts} options={SCREEN_FILTERS} />
+                    ) : null}
                   </FxPageToolbar.Start>
 
                   <FxPageToolbar.End>
@@ -862,6 +941,13 @@ export default function JobWorkspacePage() {
                     <FxToolbarSearch
                       value={searchTerm}
                       onChange={(event) => setSearchTerm(event.target.value)}
+                      shortcut="/"
+                      onKeyDown={(event) => {
+                        if (event.key === "Escape" && searchTerm) {
+                          event.preventDefault();
+                          setSearchTerm("");
+                        }
+                      }}
                       placeholder="Search candidates"
                       className="w-full sm:w-[240px]"
                     />
@@ -881,7 +967,7 @@ export default function JobWorkspacePage() {
                 onSelectedRowKeysChange={setSelectedRowKeys}
               />
             ) : (
-              <EmptyState tab={activeTab} onAddCandidates={() => openAddCandidates("add")} />
+              <EmptyState tab={activeTab} query={searchTerm} onAddCandidates={() => openAddCandidates("add")} />
             )}
           </FxWorkspaceTableFrame>
         </div>
@@ -916,29 +1002,23 @@ export default function JobWorkspacePage() {
         candidates={startPreScreeningRows}
         onConfirm={handleConfirmStartPreScreening}
       />
-      <FxConfirmDialog
+      <EvRejectCandidateDialog
+        key={rejectKey}
         open={rejectConfirmOpen}
         onOpenChange={(open) => {
           setRejectConfirmOpen(open);
           if (!open) setRejectRowsState([]);
         }}
-        title={`Reject ${rejectRowsState.length === 1 ? "candidate" : "candidates"}?`}
-        description={
-          rejectRowsState.length === 1
-            ? `This will move "${rejectRowsState[0]?.candidateName ?? "this candidate"}" to the Rejected bucket.`
-            : `This will move ${rejectRowsState.length} selected candidates to the Rejected bucket.`
-        }
-        confirmLabel="Reject"
-        tone="danger"
+        candidates={rejectRowsState}
         onConfirm={handleConfirmReject}
       />
       <FxSheet
         open={detail.open}
         onOpenChange={(open) => setDetail((current) => ({ ...current, open }))}
         side="right"
-        size={detail.kind === "resume" ? "lg" : "md"}
+        size={detail.kind === "resume" ? "lg" : detail.kind === "cvMatch" ? "sm" : "md"}
         title={detailMeta.title(detail.row)}
-        description={detailMeta.desc}
+        description={typeof detailMeta.desc === "function" ? detailMeta.desc(detail.row) : detailMeta.desc}
       >
         <DetailBody kind={detail.kind} row={detail.row} />
       </FxSheet>

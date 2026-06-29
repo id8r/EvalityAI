@@ -1,14 +1,10 @@
 /* src/app/ds/page.js | Living visual design system playground | Sree | 2026-06-25 */
 
 import {
-  Bell,
   ChevronDown,
   CircleHelp,
   ArrowLeft,
   FileText,
-  Filter,
-  Folder,
-  Inbox,
   LogOut,
   Plus,
   Search,
@@ -20,7 +16,8 @@ import {
 import Link from "next/link";
 
 import { FxBadge, FxPdfViewer } from "@/components/FxUI/DataDisplay";
-import { EvCandidateProgress } from "@/components/Ev/Candidates";
+import { EvCandidateProgress, EvCvMatchBreakdown } from "@/components/Ev/Candidates";
+import { ReviewCandidateCards } from "./ReviewCandidateCards";
 import { FxAiButton, FxButton, FxCheckboxField, FxCreatableSelect, FxEditableField, FxIconButton, FxInput, FxRadioGroupField, FxSwitchField, FxTextarea } from "@/components/FxUI/Forms";
 import { FxPanel } from "@/components/FxUI/Layout";
 import { FxTabs } from "@/components/FxUI/Navigation";
@@ -204,7 +201,6 @@ const buttonSizeSpecs = [
 ];
 
 const spacingScale = ["8", "16", "24", "32", "48", "64", "96"];
-const iconSet = [Search, Filter, Plus, Inbox, Folder, FileText, Bell, Settings, User, CircleHelp, Sparkles];
 const surfaceRoles = ["surface", "subtle", "raised", "muted", "hover", "selected"];
 const badgeTones = ["neutral", "subtle", "primary", "success", "warning", "danger", "info"];
 const roleOptions = [
@@ -219,6 +215,33 @@ const specPanelTone = {
   titleClassName: "font-mono text-[13px] font-medium uppercase tracking-[0.16em] text-muted-foreground",
   descriptionClassName: "font-mono text-[12px] leading-5 text-muted-foreground",
 };
+
+// Sample data for the Ev candidate showcases (candidate = static, application = job-specific, history = past apps).
+const sampleCandidate = {
+  name: "Aarav Mehta",
+  email: "aarav.mehta@example.com",
+  phone: "+91 98765 43210",
+  currentTitle: "Sr. UX Designer",
+  currentCompany: "Cult.fit",
+  totalExperienceYears: 7.2,
+  location: "Bengaluru",
+  currentSalary: { amount: 3300000, currency: "INR" },
+  createdAt: "2026-06-20T10:00:00Z",
+};
+const sampleApplication = {
+  appliedAt: "2026-06-27T09:00:00Z",
+  qualification: { expectedSalary: { amount: 4200000, currency: "INR" }, availability: { mode: "days", days: 30 } },
+};
+const sampleHistory = [
+  { applicationId: "h1", jobTitle: "Product Designer", company: "Swiggy", stage: "offered", appliedAt: "2026-04-12T00:00:00Z", updatedAt: "2026-05-02T00:00:00Z" },
+  { applicationId: "h2", jobTitle: "Senior Product Designer", company: "Unacademy", stage: "interviewing", appliedAt: "2026-03-20T00:00:00Z", updatedAt: "2026-04-08T00:00:00Z" },
+  { applicationId: "h3", jobTitle: "UX Designer", company: "CRED", stage: "shortlisted", appliedAt: "2026-02-15T00:00:00Z", updatedAt: "2026-03-01T00:00:00Z" },
+  { applicationId: "h4", jobTitle: "Design Lead", company: "Razorpay", stage: "rejected", appliedAt: "2026-01-28T00:00:00Z", updatedAt: "2026-02-10T00:00:00Z" },
+  { applicationId: "h5", jobTitle: "Interaction Designer", company: "Zomato", stage: "dropped", appliedAt: "2025-12-10T00:00:00Z", updatedAt: "2025-12-22T00:00:00Z" },
+  { applicationId: "h6", jobTitle: "Sr. Product Designer", company: "PhonePe", stage: "pre_screened", appliedAt: "2025-11-05T00:00:00Z", updatedAt: "2025-11-12T00:00:00Z" },
+];
+// Spread across tone thresholds so the green/orange/red coding is visible in the preview.
+const sampleCvScores = { jdMatch: 84, companyDomain: 62, education: 47, communication: 71, culturalSoft: 88, bonus: 55 };
 
 /* - - - - - - - - - - - - - - - - */
 
@@ -772,61 +795,61 @@ function SurfacesSection() {
         </div>
       </FxPanel>
 
-      <FxPanel {...specPanelTone} eyebrow="EvCandidateProgress" title="Candidate Progress">
-        <div className="space-y-8">
-          {/* Horizontal (default) — sits in a Candidate Details column, minimal vertical footprint. */}
-          <div className="space-y-2">
-            <p className="text-[12px] font-medium text-[var(--fx-text-muted)]">Horizontal · currently Interviewing</p>
-            <div className="rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">
-              <EvCandidateProgress
-                current="interviewing"
-                dates={{ unscreened: "2026-06-10", pre_screened: "2026-06-12", shortlisted: "2026-06-16", interviewing: "2026-06-21" }}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <p className="text-[12px] font-medium text-[var(--fx-text-muted)]">Horizontal · joined (all cleared)</p>
-            <div className="rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">
-              <EvCandidateProgress
-                current="joined"
-                dates={{ unscreened: "2026-05-28", pre_screened: "2026-05-30", shortlisted: "2026-06-03", interviewing: "2026-06-09", offered: "2026-06-14", joined: "2026-06-20" }}
-              />
-            </div>
-          </div>
-
-          {/* Vertical — for narrow columns; single-line rows keep it tight. */}
-          <div className="space-y-2">
-            <p className="text-[12px] font-medium text-[var(--fx-text-muted)]">Vertical · narrow column</p>
-            <div className="max-w-[280px] rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">
-              <EvCandidateProgress
-                orientation="vertical"
-                current="shortlisted"
-                dates={{ unscreened: "2026-06-10", pre_screened: "2026-06-12", shortlisted: "2026-06-16" }}
-              />
-            </div>
-          </div>
-        </div>
-      </FxPanel>
-
       <FxPanel {...specPanelTone} eyebrow="FxTable" title="Data Table">
         <FxTableShowcase />
-      </FxPanel>
-
-      <FxPanel {...specPanelTone} eyebrow="Icons" title="Icon Set Preview">
-        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {iconSet.map((Icon, index) => (
-            <div key={index} className="flex items-center justify-center rounded-[12px] border border-border bg-[var(--fx-surface)] px-4 py-6">
-              <Icon className="size-5 text-foreground" />
-            </div>
-          ))}
-        </div>
       </FxPanel>
     </div>
   );
 }
 
 /* - - - - - - - - - - - - - - - - */
+
+// Temporary review surface for product (Ev) components — kept out of the FxUI tabs; may be removed once design freezes.
+function ReviewSection() {
+  return (
+    <div className="space-y-8">
+      <SectionHeader
+        eyebrow="Review"
+        title="Product component previews (Ev)"
+        note="Live previews of product-specific components for review while the app design is being frozen. Not part of FxUI; may be removed later."
+      />
+
+      <FxPanel {...specPanelTone} eyebrow="EvCandidateProgress" title="Candidate Progress">
+        <div className="space-y-8">
+          <div className="space-y-2">
+            <p className="text-[12px] font-medium text-[var(--fx-text-muted)]">Horizontal · currently Interviewing</p>
+            <div className="rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">
+              <EvCandidateProgress current="interviewing" dates={{ unscreened: "2026-06-10", pre_screened: "2026-06-12", shortlisted: "2026-06-16", interviewing: "2026-06-21" }} />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-[12px] font-medium text-[var(--fx-text-muted)]">Horizontal · joined (all cleared)</p>
+            <div className="rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">
+              <EvCandidateProgress current="joined" dates={{ unscreened: "2026-05-28", pre_screened: "2026-05-30", shortlisted: "2026-06-03", interviewing: "2026-06-09", offered: "2026-06-14", joined: "2026-06-20" }} />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-[12px] font-medium text-[var(--fx-text-muted)]">Vertical · narrow column</p>
+            <div className="max-w-[280px] rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">
+              <EvCandidateProgress orientation="vertical" current="shortlisted" dates={{ unscreened: "2026-06-10", pre_screened: "2026-06-12", shortlisted: "2026-06-16" }} />
+            </div>
+          </div>
+        </div>
+      </FxPanel>
+
+      <FxPanel {...specPanelTone} eyebrow="EvCandidateCard" title="Candidate Card">
+        <ReviewCandidateCards candidate={sampleCandidate} application={sampleApplication} history={sampleHistory} />
+      </FxPanel>
+
+      <FxPanel {...specPanelTone} eyebrow="EvCvMatchBreakdown" title="Overall CV Match Score">
+        {/* Renders inside the Unscreened → Match Score sheet; previewed here in a sheet-width frame. */}
+        <div className="max-w-[440px] rounded-[12px] bg-[var(--fx-bg-soft)] p-4">
+          <EvCvMatchBreakdown overall="64%" scores={sampleCvScores} />
+        </div>
+      </FxPanel>
+    </div>
+  );
+}
 
 export default function DesignSystemPage() {
   return (
@@ -861,6 +884,7 @@ export default function DesignSystemPage() {
               { value: "foundation", label: "Foundation" },
               { value: "controls", label: "Controls" },
               { value: "surfaces", label: "Surfaces" },
+              { value: "review", label: "Review" },
             ]}
           >
             <FxTabs.Content value="foundation">
@@ -871,6 +895,9 @@ export default function DesignSystemPage() {
             </FxTabs.Content>
             <FxTabs.Content value="surfaces">
               <SurfacesSection />
+            </FxTabs.Content>
+            <FxTabs.Content value="review">
+              <ReviewSection />
             </FxTabs.Content>
           </FxTabs>
         </section>

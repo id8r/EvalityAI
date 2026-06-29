@@ -236,11 +236,15 @@ export function useFxTable({
 
   const toggleSort = useCallback(
     (key) => {
+      // A column may opt into desc-first (e.g. scores). Cycle: initial → opposite → none.
+      const column = columns.find((candidate) => candidate.key === key);
+      const initial = column?.sortInitialDirection === "desc" ? "desc" : "asc";
+      const opposite = initial === "desc" ? "asc" : "desc";
       const compute = (current) => {
         if (current?.key === key) {
-          return current.direction === "asc" ? { key, direction: "desc" } : null;
+          return current.direction === initial ? { key, direction: opposite } : null;
         }
-        return { key, direction: "asc" };
+        return { key, direction: initial };
       };
       if (isSortControlled) {
         onSortChange?.(compute(sortState));
@@ -252,7 +256,7 @@ export function useFxTable({
         return next;
       });
     },
-    [isSortControlled, onSortChange, sortState],
+    [isSortControlled, onSortChange, sortState, columns],
   );
 
   const sortedRows = useMemo(() => {

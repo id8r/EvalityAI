@@ -4,7 +4,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Columns3, GripVertical, Lock, RotateCcw } from "lucide-react";
+import { Columns2, GripVertical, Lock, RotateCcw } from "lucide-react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { FX_SHADOW } from "@/lib/FxTheme";
@@ -157,7 +157,7 @@ export function FxColumnManager({ controller, label, variant = "button", align =
         onClick={() => setOpen((value) => !value)}
         className={cn(triggerClass, className)}
       >
-        <Columns3 className="size-4" />
+        <Columns2 className="size-4" />
         {variant !== "icon" && label ? <span>{label}</span> : null}
       </button>
       {panel}
