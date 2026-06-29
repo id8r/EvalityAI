@@ -38,6 +38,25 @@ const useFxSheet = () => useContext(FxSheetContext);
 
 // A child is a compound part if its component carries the marker (set at the bottom of the file).
 const isSheetPart = (child) => isValidElement(child) && Boolean(child.type?.__fxSheetPart);
+
+// Portaled layers that sit ABOVE the sheet (dropdown/select/popover/tooltip menus, nested dialogs, toasts).
+// Interactions inside these must NOT be treated as "outside" the sheet.
+const LAYERED_ABOVE_SELECTOR =
+  "[data-radix-popper-content-wrapper],[role='menu'],[role='listbox'],[role='dialog'],[role='alertdialog'],[data-sonner-toast],[data-sonner-toaster]";
+
+// Root-cause fix for "clicking a dropdown closes the sheet": a dropdown opened inside the sheet lives in its own
+// portal/dismissable-layer, so its clicks (and the focus move when it opens) look "outside" the Radix dialog.
+// We inspect the original event's composedPath — captured at dispatch, so it still matches even when the popper
+// unmounts on click — and also cover the focus-outside case.
+function isInteractionInLayerAbove(event) {
+  const original = event?.detail?.originalEvent ?? event;
+  const path = typeof original?.composedPath === "function" ? original.composedPath() : [];
+  for (const node of path) {
+    if (node instanceof Element && node.matches?.(LAYERED_ABOVE_SELECTOR)) return true;
+  }
+  const target = original?.target ?? event?.target;
+  return target instanceof Element && Boolean(target.closest?.(LAYERED_ABOVE_SELECTOR));
+}
 /* - - - - - - - - - - - - - - - - */
 
 function FxSheet({
@@ -111,16 +130,11 @@ function FxSheet({
           className={cn(widthClass, className)}
           onOpenAutoFocus={onOpenAutoFocus}
           onInteractOutside={(event) => {
-            if (!dismissible) {
-              event.preventDefault();
-              return;
-            }
-            // Clicks inside a portaled popper (dropdown / select / popover / tooltip) or a toast are layered
-            // ABOVE the sheet, not "outside" it — don't let them trigger a close.
-            const node = event.detail?.originalEvent?.target ?? event.target;
-            if (node instanceof Element && node.closest("[data-radix-popper-content-wrapper],[data-sonner-toast],[data-sonner-toaster]")) {
-              event.preventDefault();
-            }
+            if (!dismissible || isInteractionInLayerAbove(event)) event.preventDefault();
+          }}
+          onFocusOutside={(event) => {
+            // Opening a dropdown moves focus into its portal — that focus-outside must not close the sheet.
+            if (isInteractionInLayerAbove(event)) event.preventDefault();
           }}
           onEscapeKeyDown={(event) => {
             if (!dismissible) event.preventDefault();
@@ -142,7 +156,7 @@ function FxSheetHeader({ title, description, leading, actions, more, showClose =
   const hasSystem = showLayout || ctx?.expandable || more || showClose;
 
   return (
-    <header data-slot="fx-sheet-header" className={cn("flex flex-none items-start justify-between gap-4 border-b border-border", FX_SHEET.header.padding, className)}>
+    <header data-slot="fx-sheet-header" className={cn("flex flex-none items-center justify-between border-b border-border", FX_SHEET.header.height, FX_SHEET.header.gap, FX_SHEET.header.padding, className)}>
       <div className="min-w-0 space-y-1">
         {leading ? <div className="flex items-center gap-2">{leading}</div> : null}
         {title ? <SheetTitle>{title}</SheetTitle> : <SheetTitle className="sr-only">Panel</SheetTitle>}

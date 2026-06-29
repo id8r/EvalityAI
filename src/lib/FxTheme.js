@@ -224,10 +224,10 @@ export const FX_SHEET = {
   paneWidth: { secondary: 240, tertiary: 360 },
   // Suggested default `size` per layout — reference for callers; FxSheet does not auto-apply it.
   layoutSize: { single: "md", two: "lg", three: "xl", custom: "full" },
-  // Region paddings.
-  header: { padding: "px-6 py-5" },
+  // Region geometry. Header + footer are a fixed 64px (h-16); content is vertically centered.
+  header: { height: "h-16", padding: "px-6", gap: "gap-4" },
   toolbar: { padding: "px-6 py-3" },
-  footer: { padding: "px-6 py-4" },
+  footer: { height: "h-16", padding: "px-6", gap: "gap-4" },
   pane: {
     padding: { primary: "px-6 py-5", secondary: "px-4 py-4", tertiary: "px-5 py-5" },
     divider: "border-border",

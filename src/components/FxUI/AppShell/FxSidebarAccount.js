@@ -72,7 +72,7 @@ function FxSidebarAccount({ name = "User", email = "", collapsed = false, onLogo
           <span className="ml-auto text-[12px] text-[var(--fx-text-muted)]">{isDark ? "Dark" : "Light"}</span>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          {/* Temporary: Help routes to the design-system showcase until real help lands. */}
+          {/* Help opens the DS playground; the DS page itself carries a back link to the app shell. */}
           <Link href={ROUTES.designSystem}>
             <CircleHelp className="size-4" />
             <span>Help</span>

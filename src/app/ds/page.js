@@ -4,6 +4,7 @@ import {
   Bell,
   ChevronDown,
   CircleHelp,
+  ArrowLeft,
   FileText,
   Filter,
   Folder,
@@ -16,15 +17,17 @@ import {
   User,
 } from "lucide-react";
 
-import { FxBadge } from "@/components/FxUI/DataDisplay";
+import Link from "next/link";
+
+import { FxBadge, FxPdfViewer } from "@/components/FxUI/DataDisplay";
 import { FxAiButton, FxButton, FxCheckboxField, FxCreatableSelect, FxEditableField, FxIconButton, FxInput, FxRadioGroupField, FxSwitchField, FxTextarea } from "@/components/FxUI/Forms";
 import { FxPanel } from "@/components/FxUI/Layout";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { FxColorTokenCard } from "./FxColorTokenCard";
 import { FxFormControlsShowcase } from "./FxFormControlsShowcase";
-import { FxPageToolbarShowcase } from "./FxPageToolbarShowcase";
 import { FxSheetShowcase } from "./FxSheetShowcase";
 import { FxTableShowcase } from "./FxTableShowcase";
+import { ROUTES } from "@/lib/FxConstants";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,6 +66,7 @@ const colorGroups = [
       "--fx-surface-muted",
       "--fx-surface-hover",
       "--fx-surface-selected",
+      "--fx-pdf-canvas",
     ],
   },
   {
@@ -745,7 +749,7 @@ function SurfacesSection() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <FxPanel {...specPanelTone} eyebrow="Dialog" title="Dialog Preview">
           <div className="flex min-h-[220px] items-center justify-center border border-border bg-[color:color-mix(in_srgb,var(--fx-dark-panel)_10%,white)] px-6 py-8">
-            <div className="w-full max-w-[520px] border border-border bg-[var(--fx-surface-raised)] px-6 py-5 shadow-[0_20px_60px_rgba(15,23,42,0.14)]">
+            <div className="w-full max-w-[520px] rounded-[20px] border border-border bg-[var(--fx-surface-raised)] px-6 py-5 shadow-[0_12px_36px_rgba(15,23,42,0.10)]">
               <p className="text-[20px] font-semibold text-foreground">Confirm data refresh</p>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">Replace the current snapshot with the latest source export.</p>
               <div className="mt-5 flex justify-end gap-3">
@@ -761,53 +765,11 @@ function SurfacesSection() {
         </FxPanel>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
-        <FxPanel {...specPanelTone} eyebrow="Table" title="Data Surface">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Dataset</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Updated</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[
-                ["Workspace Audit", "Ready", "12 Jun"],
-                ["Claims Intake", "Review", "18 Jun"],
-                ["Revenue Forecast", "Blocked", "21 Jun"],
-                ["Churn Watchlist", "Ready", "24 Jun"],
-              ].map(([name, status, updated]) => (
-                <TableRow key={name}>
-                  <TableCell>{name}</TableCell>
-                  <TableCell>{status}</TableCell>
-                  <TableCell>{updated}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </FxPanel>
-
-        <div className="space-y-6">
-          <FxPanel {...specPanelTone} eyebrow="Empty State" title="Empty State">
-            <div className="flex flex-col items-start gap-4 border border-dashed border-border bg-[var(--fx-surface-subtle)] px-5 py-6">
-              <Inbox className="size-6 text-muted-foreground" />
-              <div className="space-y-1">
-                <p className="text-base font-semibold text-foreground">No datasets yet</p>
-                <p className="text-sm leading-6 text-muted-foreground">Import a source file or connect a system to start.</p>
-              </div>
-              <FxButton size="sm">Add source</FxButton>
-            </div>
-          </FxPanel>
-
-          <FxPanel {...specPanelTone} eyebrow="Toast" title="Toast Preview">
-            <div className="border border-border bg-[var(--fx-surface-raised)] px-4 py-3 shadow-[0_16px_40px_rgba(15,23,42,0.12)]">
-              <p className="text-sm font-medium text-foreground">Export queued</p>
-              <p className="mt-1 text-sm text-muted-foreground">Your workbook export is being prepared.</p>
-            </div>
-          </FxPanel>
+      <FxPanel {...specPanelTone} eyebrow="PDF" title="Resume Preview">
+        <div className="h-[520px]">
+          <FxPdfViewer file="/sample-resume.pdf" showToolbar />
         </div>
-      </div>
+      </FxPanel>
 
       <FxPanel {...specPanelTone} eyebrow="FxTable" title="Data Table">
         <FxTableShowcase />
@@ -816,53 +778,12 @@ function SurfacesSection() {
       <FxPanel {...specPanelTone} eyebrow="Icons" title="Icon Set Preview">
         <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {iconSet.map((Icon, index) => (
-            <div key={index} className="flex items-center gap-3 border border-border bg-[var(--fx-surface)] px-4 py-3">
-              <Icon className="size-4 text-foreground" />
-              <span className="text-sm text-muted-foreground">Icon</span>
+            <div key={index} className="flex items-center justify-center rounded-[12px] border border-border bg-[var(--fx-surface)] px-4 py-6">
+              <Icon className="size-5 text-foreground" />
             </div>
           ))}
         </div>
       </FxPanel>
-    </div>
-  );
-}
-
-function FxUISection() {
-  return (
-    <div className="space-y-8">
-      <SectionHeader
-        eyebrow="FxUI"
-        title="Branded reusable component layer"
-        note="Evality-specific composition built on shared primitives."
-      />
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <FxPanel {...specPanelTone} eyebrow="Fx Components" title="Panels And Forms">
-          <div className="space-y-4">
-            <div className="space-y-3 border border-border bg-[var(--fx-surface)] px-5 py-4">
-              <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">FxPanel</p>
-              <p className="text-sm leading-6 text-muted-foreground">Baseline surface wrapper for internal views.</p>
-            </div>
-            <FxInput label="FxInput" defaultValue="Revenue Ops" />
-            <FxTextarea label="FxTextarea" defaultValue="Long-form internal notes go here." />
-          </div>
-        </FxPanel>
-
-        <FxPanel {...specPanelTone} eyebrow="App Shell" title="Shell Components">
-          <div className="space-y-3 text-sm leading-6 text-muted-foreground">
-            <p>`FxAppShell`, `FxAppHeader`, `FxAppSidebar`, `FxAppContent`, `FxAppFooter`, and `FxNotificationArea` are reviewed across the workspace routes (e.g. `/jobs`).</p>
-            <p>`/ds` stays focused on visual review.</p>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-3">
-            <FxBadge tone="subtle">FxAppShell</FxBadge>
-            <FxBadge tone="subtle">FxAppHeader</FxBadge>
-            <FxBadge tone="subtle">FxAppSidebar</FxBadge>
-            <FxBadge tone="subtle">FxAppContent</FxBadge>
-            <FxBadge tone="subtle">FxAppFooter</FxBadge>
-            <FxBadge tone="subtle">FxNotificationArea</FxBadge>
-          </div>
-        </FxPanel>
-      </div>
     </div>
   );
 }
@@ -874,7 +795,8 @@ export default function DesignSystemPage() {
     <main className={`min-h-screen ${FX_SURFACE.page}`}>
       <div className={`${FX_LAYOUT.siteContainer} py-10 md:py-14`}>
         <section className={`space-y-5 ${FX_BORDER.divider} pb-8`}>
-          <div className="space-y-3">
+          <div className="flex items-start justify-between gap-6">
+            <div className="space-y-3">
             <p className="text-[11px] font-medium uppercase tracking-[0.24em] text-muted-foreground">
               Evality AI / Living Design System
             </p>
@@ -884,6 +806,13 @@ export default function DesignSystemPage() {
             <p className="max-w-3xl text-sm leading-6 text-muted-foreground">
               Token values come from `globals.css`. Shared class recipes come from `FxTheme.js`.
             </p>
+            </div>
+            <Link
+              href={ROUTES.workbench}
+              className={`inline-flex shrink-0 items-center gap-2 self-start ${FX_TYPOGRAPHY.backLink} text-[var(--fx-text-muted)] transition-colors hover:text-[var(--fx-text)]`}
+            >
+              <ArrowLeft className="size-4" /> Back to Evality Mock App
+            </Link>
           </div>
         </section>
 
@@ -894,8 +823,6 @@ export default function DesignSystemPage() {
               { value: "foundation", label: "Foundation" },
               { value: "controls", label: "Controls" },
               { value: "surfaces", label: "Surfaces" },
-              { value: "toolbar", label: "Toolbar" },
-              { value: "fxui", label: "FxUI" },
             ]}
           >
             <FxTabs.Content value="foundation">
@@ -906,12 +833,6 @@ export default function DesignSystemPage() {
             </FxTabs.Content>
             <FxTabs.Content value="surfaces">
               <SurfacesSection />
-            </FxTabs.Content>
-            <FxTabs.Content value="toolbar">
-              <FxPageToolbarShowcase />
-            </FxTabs.Content>
-            <FxTabs.Content value="fxui">
-              <FxUISection />
             </FxTabs.Content>
           </FxTabs>
         </section>

@@ -208,7 +208,7 @@ export default function WorkspaceShell({ children }) {
           />
         }
       >
-        <FxAppContent padded={false} widthClassName="max-w-none">
+        <FxAppContent padded={false} scrollable={false} widthClassName="max-w-none">
           {children}
         </FxAppContent>
       </FxAppShell>

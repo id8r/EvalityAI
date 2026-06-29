@@ -59,7 +59,8 @@ function SheetContent({ className, children, side = "right", onEscapeKeyDown, ..
       <SheetOverlay />
       <DialogPrimitive.Content
         data-slot="sheet-content"
-        className={cn(sheetVariants({ side }), FX_SHEET.motion.panel, className)}
+        // [&_*]:!transition-none — no slow micro-transitions on anything inside the sheet (panel slide is an animation, unaffected).
+        className={cn(sheetVariants({ side }), FX_SHEET.motion.panel, "[&_*]:!transition-none", className)}
         onEscapeKeyDown={(event) => {
           if (isEditableEscapeTarget(event.target) || isEditableEscapeTarget(document.activeElement)) {
             event.preventDefault();
@@ -111,11 +112,17 @@ function SheetFooter({ className, left, right, ...props }) {
   return (
     <div
       data-slot="sheet-footer"
-      className={cn("flex flex-none items-center justify-between gap-3 border-t border-border bg-[var(--fx-surface-subtle)] px-6 py-4", className)}
+      className={cn(
+        "flex flex-none items-center justify-between border-t border-border bg-[var(--fx-surface-subtle)]",
+        FX_SHEET.footer.height,
+        FX_SHEET.footer.gap,
+        FX_SHEET.footer.padding,
+        className,
+      )}
       {...props}
     >
-      <div className="flex min-w-0 items-center gap-2">{left}</div>
-      <div className="flex items-center gap-2">{right}</div>
+      <div className={cn("flex min-w-0 items-center", FX_SHEET.footer.gap)}>{left}</div>
+      <div className={cn("flex items-center", FX_SHEET.footer.gap)}>{right}</div>
     </div>
   );
 }

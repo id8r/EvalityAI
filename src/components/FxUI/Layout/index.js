@@ -2,4 +2,5 @@
 
 export { FxPanel } from "@/components/FxUI/Layout/FxPanel";
 export { FxPageToolbar } from "@/components/FxUI/Layout/FxPageToolbar";
+export { FxWorkspaceTableFrame } from "@/components/FxUI/Layout/FxWorkspaceTableFrame";
 /* - - - - - - - - - - - - - - - - */
