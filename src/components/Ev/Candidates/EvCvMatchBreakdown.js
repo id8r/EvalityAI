@@ -24,14 +24,9 @@ const DIMENSIONS = [
 
 const FOOTER_NOTE = "Scores are intended to support recruiter decisions and should be considered alongside screening outcomes and candidate interactions.";
 
-// Score-tone → class maps (styling).
-const TONE_TEXT = {
-  success: "text-[var(--fx-success)]",
-  warning: "text-[var(--fx-warning)]",
-  danger: "text-[var(--fx-danger)]",
-  neutral: "text-[var(--fx-text-muted)]",
-};
-// Bars are large filled areas, so soften them to ~70% of the tone (mixed with surface) — less neon than the numbers.
+// Numbers stay a static color (the bar carries the tone) so the cards don't read gaudy.
+const SCORE_NUMBER_CLASS = "text-[var(--fx-text)]";
+// Bars are large filled areas, so soften them to ~70% of the tone (mixed with surface).
 const TONE_BAR = {
   success: "bg-[color:color-mix(in_srgb,var(--fx-success)_70%,var(--fx-surface))]",
   warning: "bg-[color:color-mix(in_srgb,var(--fx-warning)_70%,var(--fx-surface))]",
@@ -65,7 +60,7 @@ function EvCvMatchBreakdown({ overall, scores = {}, showOverall = true, classNam
             <div key={dim.key} className="space-y-2 rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-3.5">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-[14px] font-medium leading-[20px] text-[var(--fx-text-subtle)]">{dim.label}</span>
-                <span className={cn("text-[14px] font-medium leading-[20px] tabular-nums", TONE_TEXT[tone])}>{formatPct(scores[dim.key])}</span>
+                <span className={cn("text-[14px] font-medium leading-[20px] tabular-nums", SCORE_NUMBER_CLASS)}>{formatPct(scores[dim.key])}</span>
               </div>
               <ScoreBar value={scores[dim.key]} tone={tone} />
               <p className="text-[13px] leading-[20px] text-[var(--fx-text-muted)]">{dim.description}</p>

@@ -9,13 +9,13 @@ import { FxButton, FxInput } from "@/components/FxUI/Forms";
 import { FxPdfViewer } from "@/components/FxUI/DataDisplay";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import { FxTabs } from "@/components/FxUI/Navigation";
+import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatMoney } from "@/lib/EvFormat";
 import { buildResumeFromUpload, formatFileSize, isPdfResume, resolveResumeUrl } from "@/lib/EvResume";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
@@ -59,8 +59,6 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
 
   // Revoke the previous/last session blob URL when it changes or the sheet unmounts.
   useEffect(() => () => uploadedUrl && URL.revokeObjectURL(uploadedUrl), [uploadedUrl]);
-
-  const currency = job?.roleSpec?.salaryRange?.currency || "INR";
 
   const ageFiltered = useMemo(() => {
     if (!isRecommend) return candidates;
@@ -302,24 +300,7 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
 
             {/* Preview — candidate summary card + Background/Resume */}
             <div className="flex min-h-0 flex-col gap-3">
-              {selected ? (
-                <div className="rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="truncate text-[15px] font-semibold text-[var(--fx-text)]">{selected.name}</p>
-                      <p className="truncate text-[13px] text-[var(--fx-text-muted)]">
-                        {[selected.currentTitle, selected.currentCompany].filter(Boolean).join(" · ") || selected.email}
-                      </p>
-                    </div>
-                    {selected.currentSalary?.amount != null ? (
-                      <div className="shrink-0 text-right">
-                        <p className="text-[12px] uppercase tracking-[0.04em] text-[var(--fx-text-muted)]">Current</p>
-                        <p className="text-[14px] font-medium text-[var(--fx-text)]">{formatMoney(selected.currentSalary.amount, selected.currentSalary.currency || currency)}</p>
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
-              ) : null}
+              {selected ? <EvCandidateCard candidate={selected} mode="compact" /> : null}
 
               <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)]">
                 <div className="flex-none border-b border-[var(--fx-border)] px-3 py-2">

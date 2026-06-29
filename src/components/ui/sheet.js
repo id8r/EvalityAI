@@ -28,7 +28,7 @@ const SHEET_CLOSE_BUTTON_CLASS =
 const SHEET_BODY_CLASS = "min-h-0 flex-1 overflow-y-auto px-6 py-5";
 const SHEET_FOOTER_CLASS =
   "flex flex-none items-center justify-between border-t border-[var(--fx-border)] bg-[var(--fx-surface-subtle)]";
-const SHEET_TITLE_CLASS = FX_TYPOGRAPHY.title;
+const SHEET_TITLE_CLASS = FX_TYPOGRAPHY.cardTitle; // one level smaller than `title` — sheet headers read tighter
 const SHEET_DESCRIPTION_CLASS = FX_TYPOGRAPHY.body;
 
 // Motion (duration/easing) comes from FX_SHEET.motion — applied on SheetContent. Transform-only slide per side.

@@ -57,15 +57,18 @@ import { EvRejectCandidateDialog } from "@/components/Ev/Candidates/EvRejectCand
 import { EvStartPreScreeningSheet } from "@/components/Ev/Candidates/EvStartPreScreeningSheet";
 import { EvCvMatchBreakdown } from "@/components/Ev/Candidates/EvCvMatchBreakdown";
 import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
+import { EvCandidateDetailsSheet } from "@/components/Ev/Candidates/EvCandidateDetailsSheet";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import {
   createApplication,
   getApplicationsByJob,
   getCandidate,
   getCandidates,
+  addApplicationNote,
   getJob,
   setApplicationStage,
   updateApplication,
+  updateCandidate,
   updateJob,
 } from "@/lib/EvData";
 import { employmentTypeLabel, experienceLabel, jobLocationLabel, stageLabel } from "@/lib/EvSelectors";
@@ -608,6 +611,8 @@ export default function JobWorkspacePage() {
   const [addCandidatesKey, setAddCandidatesKey] = useState(0);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [detail, setDetail] = useState({ open: false, kind: "candidate", row: null });
+  const [candidateDetailOpen, setCandidateDetailOpen] = useState(false);
+  const [candidateDetailId, setCandidateDetailId] = useState(null);
   const [startPreScreeningOpen, setStartPreScreeningOpen] = useState(false);
   const [startPreScreeningRows, setStartPreScreeningRows] = useState([]);
   const [rejectConfirmOpen, setRejectConfirmOpen] = useState(false);
@@ -640,43 +645,50 @@ export default function JobWorkspacePage() {
   const questionFormat = job ? questionFormatLabel(job.screeningConfig?.questionFormat) : "—";
   const salaryCurrency = job?.roleSpec?.salaryRange?.currency ?? "INR";
 
+  // Build a table/detail row from an application — reused for the grid and the live Candidate Details row.
+  const buildRow = (app) => {
+    const candidate = getCandidate(app.candidateId);
+    const stage = stageForApplication(app);
+    // Static facts live on the Candidate; job-specific workflow state lives on the Application.qualification.
+    const currentSalary = candidate?.currentSalary ?? null;
+    const expectedSalary = app?.qualification?.expectedSalary ?? candidate?.expectedSalary ?? null;
+    const availabilityDays = app?.qualification?.availability?.days ?? candidate?.availabilityDays ?? null;
+    return {
+      id: app.id,
+      app,
+      candidate,
+      stage,
+      clientStatus: app.clientStatus ?? null,
+      interview: app.interview ?? null,
+      trustScore: app?.qualification?.trustScore ?? null,
+      isNew: ageInDays(app.appliedAt, now) <= NEW_RESUME_DAYS,
+      candidateName: candidate?.name ?? "Unknown candidate",
+      matchScore: app?.qualification?.matchScore ?? candidate?.matchScore ?? null,
+      experience: candidate?.totalExperienceYears ?? candidate?.experience ?? candidate?.yearsOfExperience ?? null,
+      phone: candidate?.phone ?? candidate?.contact?.phone ?? null,
+      email: candidate?.email ?? "—",
+      candidateEmail: candidate?.email ?? "—",
+      currentTitle: candidate?.currentTitle ?? "",
+      currentCompany: candidate?.currentCompany ?? "",
+      location: candidate?.location ?? "—",
+      currentSalary,
+      currentSalaryCurrency: currentSalary?.currency ?? candidate?.salaryCurrency ?? salaryCurrency,
+      expectedSalary,
+      expectedSalaryCurrency: expectedSalary?.currency ?? candidate?.salaryCurrency ?? salaryCurrency,
+      availabilityDays,
+      appliedAt: app.appliedAt,
+      updatedAt: app.updatedAt,
+    };
+  };
+
   const stageRows = applications
-    .map((app) => {
-      const candidate = getCandidate(app.candidateId);
-      const stage = stageForApplication(app);
-      // Static facts live on the Candidate; job-specific workflow state lives on the Application.qualification.
-      const currentSalary = candidate?.currentSalary ?? null;
-      const expectedSalary = app?.qualification?.expectedSalary ?? candidate?.expectedSalary ?? null;
-      const availabilityDays = app?.qualification?.availability?.days ?? candidate?.availabilityDays ?? null;
-      return {
-        id: app.id,
-        app,
-        candidate,
-        stage,
-        clientStatus: app.clientStatus ?? null,
-        interview: app.interview ?? null,
-        trustScore: app?.qualification?.trustScore ?? null,
-        isNew: ageInDays(app.appliedAt, now) <= NEW_RESUME_DAYS,
-        candidateName: candidate?.name ?? "Unknown candidate",
-        matchScore: app?.qualification?.matchScore ?? candidate?.matchScore ?? null,
-        experience: candidate?.totalExperienceYears ?? candidate?.experience ?? candidate?.yearsOfExperience ?? null,
-        phone: candidate?.phone ?? candidate?.contact?.phone ?? null,
-        email: candidate?.email ?? "—",
-        candidateEmail: candidate?.email ?? "—",
-        currentTitle: candidate?.currentTitle ?? "",
-        currentCompany: candidate?.currentCompany ?? "",
-        location: candidate?.location ?? "—",
-        currentSalary,
-        currentSalaryCurrency: currentSalary?.currency ?? candidate?.salaryCurrency ?? salaryCurrency,
-        expectedSalary,
-        expectedSalaryCurrency: expectedSalary?.currency ?? candidate?.salaryCurrency ?? salaryCurrency,
-        availabilityDays,
-        appliedAt: app.appliedAt,
-        updatedAt: app.updatedAt,
-      };
-    })
+    .map(buildRow)
     .filter((row) => row.stage === activeTab)
     .filter((row) => matchesSearch(row.candidate, row.app, searchTerm));
+
+  // Live row for the Candidate Details sheet — derived from all applications (survives tab/filter changes + LS edits).
+  const candidateDetailApp = candidateDetailId ? applications.find((app) => app.id === candidateDetailId) : null;
+  const candidateDetailRow = candidateDetailApp ? buildRow(candidateDetailApp) : null;
 
   // Secondary filter is stage-specific: age on Unscreened, screening-type on Pre-Screened, none elsewhere.
   const candidateRows = stageRows.filter((row) => {
@@ -816,9 +828,28 @@ export default function JobWorkspacePage() {
     setRejectRowsState([]);
   };
 
+  // Candidate Details: edit candidate fields (name/email/phone) + append a recruiter note to the application.
+  const handleEditCandidateField = (field, value) => {
+    const candidateId = candidateDetailRow?.candidate?.id;
+    if (candidateId) updateCandidate(candidateId, { [field]: value });
+  };
+  const handleSaveCandidateNote = (text) => {
+    const app = candidateDetailRow?.app;
+    if (!app) return;
+    addApplicationNote(app.id, text);
+    toast.success("Note added");
+  };
+
   // Handler bag passed into the stage config actions.
   const handlers = {
-    openDetail: (kind, row) => setDetail({ open: true, kind, row }),
+    openDetail: (kind, row) => {
+      if (kind === "candidate") {
+        setCandidateDetailId(row?.id ?? null);
+        setCandidateDetailOpen(true);
+        return;
+      }
+      setDetail({ open: true, kind, row });
+    },
     download: handleDownloadRows,
     startPreScreen: handleOpenStartPreScreening,
     reject: handleOpenRejectConfirm,
@@ -1001,6 +1032,16 @@ export default function JobWorkspacePage() {
         }}
         candidates={startPreScreeningRows}
         onConfirm={handleConfirmStartPreScreening}
+      />
+      <EvCandidateDetailsSheet
+        open={candidateDetailOpen}
+        onOpenChange={(open) => {
+          setCandidateDetailOpen(open);
+          if (!open) setCandidateDetailId(null);
+        }}
+        row={candidateDetailRow}
+        onEditField={handleEditCandidateField}
+        onSaveNote={handleSaveCandidateNote}
       />
       <EvRejectCandidateDialog
         key={rejectKey}

@@ -206,4 +206,11 @@ export function setApplicationStage(id, stage, actorId = null) {
   const stageHistory = [...(app.stageHistory ?? []), { stage, at: nowIso(), actorId }];
   return updateApplication(id, { stage, stageHistory });
 }
+// Append a recruiter note (job-specific) to the application.
+export function addApplicationNote(id, text, actorId = null) {
+  const app = getApplication(id);
+  if (!app) return null;
+  const note = { id: genId("note"), text, at: nowIso(), actorId };
+  return updateApplication(id, { notes: [...(app.notes ?? []), note] });
+}
 /* - - - - - - - - - - - - - - - - */
