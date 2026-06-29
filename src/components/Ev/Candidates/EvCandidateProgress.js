@@ -68,7 +68,7 @@ const NODE_BASE = "relative z-10 flex size-5 shrink-0 items-center justify-cente
 function StepNode({ status, className }) {
   if (status === "complete") {
     return (
-      <span className={cn(NODE_BASE, "bg-[var(--fx-primary)] text-white", className)}>
+      <span className={cn(NODE_BASE, "bg-[var(--fx-success-old)] text-white", className)}>
         <Check className="size-3" strokeWidth={3} />
       </span>
     );
@@ -83,7 +83,7 @@ function StepNode({ status, className }) {
   if (status === "current") {
     return (
       <span className={cn(NODE_BASE, "border-2 border-[var(--fx-primary)] bg-[var(--fx-surface)]", className)}>
-        <span className="size-[7px] rounded-full bg-[var(--fx-primary)]" />
+        <span className="size-[8px] rounded-full bg-[var(--fx-primary)]" />
       </span>
     );
   }
@@ -109,6 +109,7 @@ function EvCandidateProgress({ steps = DEFAULT_STEPS, current, dates, orientatio
         {items.map((item) => (
           <li key={item.key} className="relative flex gap-3 pb-3 last:pb-0">
             {!item.isLast ? (
+              // Vertical connector line between stage nodes.
               <span
                 aria-hidden="true"
                 className={cn("absolute left-[9px] top-5 bottom-0 w-[2px]", item.status === "complete" ? "bg-[var(--fx-primary)]" : "bg-[var(--fx-border)]")}
@@ -132,6 +133,7 @@ function EvCandidateProgress({ steps = DEFAULT_STEPS, current, dates, orientatio
       {items.map((item) => (
         <li key={item.key} className="relative flex min-w-0 flex-1 flex-col items-center">
           {!item.isLast ? (
+            // Horizontal connector line between stage nodes.
             <span
               aria-hidden="true"
               className={cn("absolute left-1/2 top-[9px] h-[2px] w-full", item.status === "complete" ? "bg-[var(--fx-primary)]" : "bg-[var(--fx-border)]")}
