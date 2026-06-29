@@ -6,7 +6,7 @@ import { useState } from "react";
 
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import { FxTabs } from "@/components/FxUI/Navigation";
-import { FxBadge, FxPdfViewer, formatRelativeTime } from "@/components/FxUI/DataDisplay";
+import { FxBadge, FxPdfViewer } from "@/components/FxUI/DataDisplay";
 import { FxButton, FxTextarea } from "@/components/FxUI/Forms";
 import { EvCandidateProgress } from "@/components/Ev/Candidates/EvCandidateProgress";
 import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
@@ -23,6 +23,14 @@ const BODY = "text-[14px] leading-[22px] text-[var(--fx-text)]";
 
 function yearsLabel(years) {
   return years == null ? "experience" : `${years} year${years === 1 ? "" : "s"} of experience`;
+}
+
+// Absolute date + time for a saved note, e.g. "13 Jun 2026, 3:45 pm".
+function formatNoteTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true });
 }
 
 // Use the résumé's extracted data when present; otherwise synthesize a short profile from candidate fields.
@@ -58,7 +66,7 @@ function BackgroundPane({ candidate }) {
         <Section title="Experience">
           <ul className="space-y-1">
             {bg.experience.map((item, index) => (
-              <li key={index} className={BODY}>{item}</li>
+              <li key={`exp-${index}`} className={BODY}>{item}</li>
             ))}
           </ul>
         </Section>
@@ -76,7 +84,7 @@ function BackgroundPane({ candidate }) {
         <Section title="Education">
           <ul className="space-y-1">
             {bg.education.map((item, index) => (
-              <li key={index} className={BODY}>{item}</li>
+              <li key={`edu-${index}`} className={BODY}>{item}</li>
             ))}
           </ul>
         </Section>
@@ -89,11 +97,11 @@ function BackgroundPane({ candidate }) {
 function ResumePane({ candidate }) {
   const url = isPdfResume(candidate?.resume) ? resolveResumeUrl(candidate.resume, candidate.id) : null;
   if (!url) {
-    return <div className="rounded-[10px] border border-dashed border-[var(--fx-border)] p-6 text-center text-[13px] text-[var(--fx-text-muted)]">No résumé on file for this candidate.</div>;
+    return <div className="m-4 rounded-[10px] border border-dashed border-[var(--fx-border)] p-6 text-center text-[13px] text-[var(--fx-text-muted)]">No résumé on file for this candidate.</div>;
   }
   return (
-    <div className="h-[560px]">
-      <FxPdfViewer file={url} showToolbar className="h-full" />
+    <div className="h-full">
+      <FxPdfViewer file={url} showToolbar className="h-full rounded-none border-0" />
     </div>
   );
 }
@@ -119,7 +127,7 @@ function NotesPane({ notes, onSaveNote }) {
           {[...notes].reverse().map((note, index) => (
             <li key={note.id ?? index} className="rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-3">
               <p className="whitespace-pre-wrap text-[14px] leading-[20px] text-[var(--fx-text)]">{note.text}</p>
-              {note.at ? <p className="mt-1 text-[12px] text-[var(--fx-text-muted)]">{formatRelativeTime(note.at)}</p> : null}
+              {note.at ? <p className="mt-1 text-[11px] text-[var(--fx-text-muted)]">{formatNoteTime(note.at)}</p> : null}
             </li>
           ))}
         </ul>
@@ -131,7 +139,8 @@ function NotesPane({ notes, onSaveNote }) {
 }
 
 function EvCandidateDetailsSheet({ open, onOpenChange, row, onEditField, onSaveNote }) {
-  const [tab, setTab] = useState("background");
+  // Résumé first/default — Background may run (costly) AI generation, so don't trigger it on open.
+  const [tab, setTab] = useState("resume");
   const candidate = row?.candidate;
   const app = row?.app;
   const scoreLabel = row?.stage === "unscreened" ? "CV Match Score" : "Fit Score";
@@ -145,32 +154,35 @@ function EvCandidateDetailsSheet({ open, onOpenChange, row, onEditField, onSaveN
       <FxSheet.Header title="Candidate Details" />
       {row ? (
         <FxSheet.Panes>
-          {/* Read pane — progress + background/résumé */}
+          {/* Read pane — progress + résumé/background. Equal width to the action pane (just two columns). */}
           <FxSheet.Pane role="primary">
-            <div className="space-y-6">
-              <div>
+            <div className="flex h-full min-h-0 flex-col gap-6">
+              <div className="flex-none">
                 <div className={EYEBROW}>Candidate Progress</div>
                 <div className="mt-3">
                   <EvCandidateProgress current={app?.stage} dates={dates} />
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <FxTabs
-                  variant="segmented"
-                  value={tab}
-                  onValueChange={setTab}
-                  tabs={[{ value: "background", label: "Background" }, { value: "resume", label: "Résumé" }]}
-                />
-                <div className="rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">
-                  {tab === "background" ? <BackgroundPane candidate={candidate} /> : <ResumePane candidate={candidate} />}
+              {/* One bordered group: tabs as the white header, content fills the rest and scrolls within. */}
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)]">
+                <div className="flex-none border-b border-[var(--fx-border)] px-2.5 py-2">
+                  <FxTabs
+                    variant="segmented"
+                    value={tab}
+                    onValueChange={setTab}
+                    tabs={[{ value: "resume", label: "Résumé" }, { value: "background", label: "Background" }]}
+                  />
+                </div>
+                <div className="min-h-0 flex-1 overflow-hidden">
+                  {tab === "resume" ? <ResumePane candidate={candidate} /> : <div className="h-full overflow-y-auto p-4"><BackgroundPane candidate={candidate} /></div>}
                 </div>
               </div>
             </div>
           </FxSheet.Pane>
 
-          {/* Action pane — summary card (editable) + recruiter notes */}
-          <FxSheet.Pane role="secondary" width={440}>
+          {/* Action pane — summary card (editable) + recruiter notes. width="50%" → equal split with the read pane. */}
+          <FxSheet.Pane role="secondary" width="50%">
             <div className="space-y-4">
               <EvCandidateCard
                 candidate={candidate}

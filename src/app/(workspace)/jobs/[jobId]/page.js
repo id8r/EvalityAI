@@ -420,7 +420,7 @@ function buildStageColumns(config, h) {
 
   const library = {
     name: {
-      key: "name", header: "Name", sticky: "left", locked: true, grow: 1, minWidth: 200, width: 240, maxWidth: 440, sortable: true,
+      key: "name", header: "Name", sticky: "left", locked: true, grow: 1, minWidth: 180, width: 220, maxWidth: 400, sortable: true,
       sortAccessor: (row) => row.candidateName ?? "",
       cell: (row) => (
         <FxLinkCell value={row.candidateName} tone="primary" indicator={config.dot ? statusToneForStage(row.stage) : undefined} onClick={() => h.openDetail("candidate", row)} />
@@ -480,11 +480,11 @@ function buildStageColumns(config, h) {
 
   if (config.inline?.length) {
     // Auto-width: the Actions column hugs its icons (1 today, 2 max — more is unlikely). Width fits the wider
-    // of the icon row or the "Actions" header, plus cell padding. No fixed 104–140px, and not resizable.
+    // of the icon row or the "Actions" header, plus a small gutter. No fixed 104–140px, and not resizable.
     const ACTION_ICON_W = 32; // FxInlineAction is size-8
-    const ACTION_ICON_GAP = 4; // gap-1 between icons
-    const ACTION_HEADER_W = 54; // ~ width of the "Actions" label, so single-icon stages don't clip it
-    const ACTION_CELL_PAD = 24; // right-aligned icons + breathing room
+    const ACTION_ICON_GAP = 0; // no extra spacing between icons
+    const ACTION_HEADER_W = 40; // keep the header label from clipping
+    const ACTION_CELL_PAD = 4; // tiny gutter only
     const iconsW = config.inline.length * ACTION_ICON_W + Math.max(0, config.inline.length - 1) * ACTION_ICON_GAP;
     const actionsW = Math.max(iconsW, ACTION_HEADER_W) + ACTION_CELL_PAD;
     columns.push({
@@ -887,7 +887,7 @@ export default function JobWorkspacePage() {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="flex h-full min-h-0 flex-col gap-5 px-6 py-6 md:px-8">
+      <div className="flex h-full min-h-0 flex-col gap-5 px-6 py-4 md:px-8 md:py-5">
         <FxPanel className="rounded-[16px]">
           {/* Job header / summary action row [Sree] */}
           <div className="flex flex-col gap-5 pb-[16px] xl:flex-row xl:items-center xl:justify-between">
@@ -930,7 +930,7 @@ export default function JobWorkspacePage() {
           </div>
         </FxPanel>
 
-        <div className="flex min-h-0 flex-1 flex-col gap-4 pt-[24px]">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 pt-[12px]">
           <FxTabs
             variant="rounded"
             value={activeTab}

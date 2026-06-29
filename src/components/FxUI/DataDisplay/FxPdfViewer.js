@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Component } from "react";
+import { Component, memo } from "react";
 import dynamic from "next/dynamic";
 import { FileWarning, Loader2 } from "lucide-react";
 /* - - - - - - - - - - - - - - - - */
@@ -56,7 +56,9 @@ const FxPdfViewerClient = dynamic(() => import("@/components/FxUI/DataDisplay/Fx
   ),
 });
 
-function FxPdfViewer(props) {
+// memo: react-pdf is expensive + stateful, so don't re-render it when a parent re-renders for unrelated reasons
+// (e.g. a live-data sheet rebuilding its row). With a stable `file`, the viewer stays mounted and undisturbed.
+const FxPdfViewer = memo(function FxPdfViewer(props) {
   // Key the boundary by file so switching documents resets a prior error and retries.
   const resetKey = typeof props.file === "string" ? props.file : props.file?.name ?? "file";
   return (
@@ -64,7 +66,7 @@ function FxPdfViewer(props) {
       <FxPdfViewerClient {...props} />
     </PdfErrorBoundary>
   );
-}
+});
 /* - - - - - - - - - - - - - - - - */
 export { FxPdfViewer };
 /* - - - - - - - - - - - - - - - - */

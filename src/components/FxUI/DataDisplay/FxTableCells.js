@@ -330,7 +330,7 @@ function FxInlineAction({ icon: Icon, label, onClick, tone, disabled = false }) 
 export function FxActionsCell({ items = [], inline = [], align = "right", menuLabel = "Row actions", className }) {
   const justify = align === "left" ? "justify-start" : align === "center" ? "justify-center" : "justify-end";
   return (
-    <div className={cn("flex items-center gap-1", justify, className)} onClick={stop}>
+    <div className={cn("flex items-center gap-0", justify, className)} onClick={stop}>
       {inline.map(({ key, label, ...action }, index) => (
         <FxInlineAction key={`inline-${key ?? label ?? index}`} label={label} {...action} />
       ))}

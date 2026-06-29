@@ -23,7 +23,7 @@ function FxEditableField({
   onSave,
   placeholder = "—",
   size = "sm",
-  pencil = "right",
+  pencil = "left", // hover-reveal pencil sits on the left for any alignment (project pattern)
   align = "left", // read-mode text alignment of label + value (use "right" in a right-aligned column)
   valueClassName, // override the read-mode value text style (e.g. a larger/bolder name)
   href, // when set, the read-mode value is a link (e.g. mailto:/tel:); the pencil still triggers edit

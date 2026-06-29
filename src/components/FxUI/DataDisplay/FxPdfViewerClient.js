@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { ChevronLeft, ChevronRight, Download, FileWarning, Loader2, Minus, Plus, ScanLine } from "lucide-react";
 
-import { FxButton, FxIconButton } from "@/components/FxUI/Forms";
+import { FxIconButton } from "@/components/FxUI/Forms";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -121,10 +121,9 @@ function FxPdfViewerClient({ file, showToolbar = true, className }) {
             <FxIconButton size="sm" variant={fitWidth ? "primary" : "ghost"} aria-label="Fit width" title="Fit width" onClick={() => setFitWidth(true)}>
               <ScanLine className="size-4" />
             </FxIconButton>
-            <FxButton size="sm" variant="secondary" onClick={handleDownload}>
+            <FxIconButton size="sm" variant="ghost" aria-label="Download" title="Download" onClick={handleDownload}>
               <Download className="size-4" />
-              Download
-            </FxButton>
+            </FxIconButton>
           </div>
         </div>
       ) : null}

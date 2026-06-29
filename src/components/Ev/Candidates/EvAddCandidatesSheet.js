@@ -51,7 +51,7 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
   const [selectedId, setSelectedId] = useState(null);
   const [hiddenIds, setHiddenIds] = useState([]);
   const [showListPane, setShowListPane] = useState(true);
-  const [previewTab, setPreviewTab] = useState("background");
+  const [previewTab, setPreviewTab] = useState("resume"); // résumé first — Background may run costly AI generation
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null); // session-only blob (never persisted; revoked on unmount)
@@ -300,7 +300,7 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
 
             {/* Preview — candidate summary card + Background/Resume */}
             <div className="flex min-h-0 flex-col gap-3">
-              {selected ? <EvCandidateCard candidate={selected} mode="compact" /> : null}
+              {selected ? <EvCandidateCard candidate={selected} mode="summary" /> : null}
 
               <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)]">
                 <div className="flex-none border-b border-[var(--fx-border)] px-3 py-2">
@@ -309,8 +309,8 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
                     value={previewTab}
                     onValueChange={setPreviewTab}
                     tabs={[
+                      { value: "resume", label: "Résumé" },
                       { value: "background", label: "Background" },
-                      { value: "resume", label: "Resume" },
                     ]}
                   />
                 </div>
