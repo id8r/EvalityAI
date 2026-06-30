@@ -1,4 +1,4 @@
-/* src/components/Ev/Candidates/EvCandidateDetailsSheet.js | Candidate Details workspace sheet (read pane + action pane) | Sree | 2026-06-29 */
+/* src/components/Ev/Candidates/EvCandidateDetailsSheet.js | Candidate Details workspace sheet (read pane + action pane) | Sree | 2026-06-30 */
 
 "use client";
 
@@ -7,25 +7,16 @@ import { PencilLine, Trash2 } from "lucide-react";
 
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import { FxConfirmDialog } from "@/components/FxUI/Overlays/FxConfirmDialog";
-import { FxTabs } from "@/components/FxUI/Navigation";
-import { FxBadge, FxPdfViewer } from "@/components/FxUI/DataDisplay";
 import { FxButton, FxIconButton, FxTextarea } from "@/components/FxUI/Forms";
 import { EvCandidateProgress } from "@/components/Ev/Candidates/EvCandidateProgress";
 import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
-import { isPdfResume, resolveResumeUrl } from "@/lib/EvResume";
-import { cn } from "@/lib/FxUtils";
+import { EvCandidatePreview } from "@/components/Ev/Candidates/EvCandidatePreview";
 /* - - - - - - - - - - - - - - - - */
 
-// Composes EvCandidateProgress + a Background/Résumé read pane (left) and EvCandidateCard + recruiter notes (right).
-// Pure composition — edits/notes are emitted via callbacks (onEditField, onSaveNote); the sheet owns no persistence.
+// Composes EvCandidateProgress + the shared Resume/Background preview (read pane) and EvCandidateCard +
+// recruiter notes (action pane). Pure composition — edits/notes/resume are emitted via callbacks; no persistence here.
 
 const EYEBROW = "text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--fx-text-muted)]";
-const SECTION_TITLE = "text-[12px] font-semibold uppercase tracking-[0.04em] text-[var(--fx-text-muted)]";
-const BODY = "text-[14px] leading-[22px] text-[var(--fx-text)]";
-
-function yearsLabel(years) {
-  return years == null ? "experience" : `${years} year${years === 1 ? "" : "s"} of experience`;
-}
 
 // Absolute date + time for a saved note, e.g. "13 Jun 2026, 3:45 pm".
 function formatNoteTime(value) {
@@ -33,79 +24,6 @@ function formatNoteTime(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
   return date.toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true });
-}
-
-// Use the résumé's extracted data when present; otherwise synthesize a short profile from candidate fields.
-function buildBackground(candidate) {
-  const extracted = candidate?.resume?.extracted;
-  const role = [candidate?.currentTitle, candidate?.currentCompany].filter(Boolean).join(" at ");
-  return {
-    summary: extracted?.summary ?? `${candidate?.name ?? "This candidate"} brings ${yearsLabel(candidate?.totalExperienceYears)} aligned to ${candidate?.currentTitle ?? "this role"}.`,
-    experience: extracted?.experience?.length ? extracted.experience : role ? [role] : [],
-    skills: extracted?.skills ?? [],
-    education: extracted?.education ?? [],
-    synthesized: !extracted,
-  };
-}
-
-function Section({ title, children }) {
-  return (
-    <div className="space-y-2">
-      <div className={SECTION_TITLE}>{title}</div>
-      {children}
-    </div>
-  );
-}
-
-function BackgroundPane({ candidate }) {
-  const bg = buildBackground(candidate);
-  return (
-    <div className="space-y-5">
-      <Section title="Professional Summary">
-        <p className={BODY}>{bg.summary}</p>
-      </Section>
-      {bg.experience.length ? (
-        <Section title="Experience">
-          <ul className="space-y-1">
-            {bg.experience.map((item) => (
-              <li key={`exp-${String(item).trim()}`} className={BODY}>{item}</li>
-            ))}
-          </ul>
-        </Section>
-      ) : null}
-      {bg.skills.length ? (
-        <Section title="Skills">
-          <div className="flex flex-wrap gap-1.5">
-            {bg.skills.map((skill) => (
-              <FxBadge key={skill} tone="neutral" variant="soft" size="sm">{skill}</FxBadge>
-            ))}
-          </div>
-        </Section>
-      ) : null}
-      {bg.education.length ? (
-        <Section title="Education">
-          <ul className="space-y-1">
-            {bg.education.map((item) => (
-              <li key={`edu-${String(item).trim()}`} className={BODY}>{item}</li>
-            ))}
-          </ul>
-        </Section>
-      ) : null}
-      {bg.synthesized ? <p className="text-[12px] text-[var(--fx-text-muted)]">Synthesized from candidate data — no résumé on file.</p> : null}
-    </div>
-  );
-}
-
-function ResumePane({ candidate }) {
-  const url = isPdfResume(candidate?.resume) ? resolveResumeUrl(candidate.resume, candidate.id) : null;
-  if (!url) {
-    return <div className="m-4 rounded-[10px] border border-dashed border-[var(--fx-border)] p-6 text-center text-[13px] text-[var(--fx-text-muted)]">No résumé on file for this candidate.</div>;
-  }
-  return (
-    <div className="h-full">
-      <FxPdfViewer file={url} showToolbar className="h-full rounded-none border-0" />
-    </div>
-  );
 }
 
 function NoteRow({ note, onEditNote, onDelete }) {
@@ -190,9 +108,7 @@ function NotesPane({ notes, onSaveNote, onEditNote, onDeleteNote }) {
   );
 }
 
-function EvCandidateDetailsSheet({ open, onOpenChange, row, onEditField, onSaveNote, onEditNote, onDeleteNote }) {
-  // Résumé first/default — Background may run (costly) AI generation, so don't trigger it on open.
-  const [tab, setTab] = useState("resume");
+function EvCandidateDetailsSheet({ open, onOpenChange, row, onEditField, onSaveNote, onEditNote, onDeleteNote, onUploadResume }) {
   const candidate = row?.candidate;
   const app = row?.app;
   const scoreLabel = row?.stage === "unscreened" ? "CV Match Score" : "Fit Score";
@@ -206,7 +122,7 @@ function EvCandidateDetailsSheet({ open, onOpenChange, row, onEditField, onSaveN
       <FxSheet.Header title="Candidate Details" />
       {row ? (
         <FxSheet.Panes>
-          {/* Read pane — progress + résumé/background. Equal width to the action pane (just two columns). */}
+          {/* Read pane — progress + the shared Resume/Background preview (fill mode). */}
           <FxSheet.Pane role="primary">
             <div className="flex h-full min-h-0 flex-col gap-6">
               <div className="flex-none">
@@ -215,21 +131,7 @@ function EvCandidateDetailsSheet({ open, onOpenChange, row, onEditField, onSaveN
                   <EvCandidateProgress current={app?.stage} dates={dates} />
                 </div>
               </div>
-
-              {/* One bordered group: tabs as the white header, content fills the rest and scrolls within. */}
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)]">
-                <div className="flex-none border-b border-[var(--fx-border)] px-2.5 py-2">
-                  <FxTabs
-                    variant="segmented"
-                    value={tab}
-                    onValueChange={setTab}
-                    tabs={[{ value: "resume", label: "Résumé" }, { value: "background", label: "Background" }]}
-                  />
-                </div>
-                <div className="min-h-0 flex-1 overflow-hidden">
-                  {tab === "resume" ? <ResumePane candidate={candidate} /> : <div className="h-full overflow-y-auto p-4"><BackgroundPane candidate={candidate} /></div>}
-                </div>
-              </div>
+              <EvCandidatePreview key={candidate?.id} candidate={candidate} fill allowUpload onUploadResume={onUploadResume} />
             </div>
           </FxSheet.Pane>
 

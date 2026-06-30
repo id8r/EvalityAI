@@ -107,7 +107,7 @@ const ACTION_DEFS = {
   resume: { icon: FileText, label: "View Resume", tone: "neutral", run: (h, r) => h.openDetail("resume", r[0]) },
   download: { icon: Download, label: "Download Resume", tone: "accent", run: (h, r) => h.download(r) },
   prescreen: { icon: Mail, label: "Start Pre-Screening", tone: "accent", run: (h, r) => h.startPreScreen(r) },
-  emailScreen: { icon: Mail, label: "Email Pre-Screen", tone: "accent", run: (h, r) => h.startPreScreen(r) },
+  emailScreen: { icon: Mail, label: "Email Pre-Screen", tone: "accent", run: (h, r) => h.emailScreen(r) },
   manualScreen: { icon: Users, label: "Manual Pre-Screen", tone: "neutral", run: (h, r) => h.openDetail("manualScreen", r[0]) },
   preScreenResult: { icon: ClipboardCheck, label: "View Pre-Screen Result", tone: "neutral", run: (h, r) => h.openDetail("preScreenResult", r[0]) },
   share: { icon: Share2, label: "Share for Review", tone: "accent", run: (h, r) => h.openDetail("share", r[0]) },
@@ -502,15 +502,61 @@ function buildStageColumns(config, h) {
       resizable: false,
       headerClassName: "!px-2",
       cellClassName: "!px-2 !pr-0",
-      cell: (row) => (
-        <FxActionsCell
-          align="left"
-          inline={config.inline.map((id) => {
-            const action = ACTION_DEFS[id];
-            return { key: id, icon: action.icon, label: action.label, tone: action.tone === "danger" ? "danger" : undefined, onClick: () => action.run(h, [row]) };
-          })}
-        />
-      ),
+      cell: (row) =>
+        config.inline.includes("emailScreen") ? (
+          <div className="flex items-center gap-0" onClick={(event) => event.stopPropagation()}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Email Pre-Screen"
+                  onClick={() => ACTION_DEFS.emailScreen.run(h, [row])}
+                  className={cn(
+                    "relative inline-flex size-8 items-center justify-center rounded-[6px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fx-ring)]",
+                    row.emailScreeningCount > 0
+                      ? "bg-[color:color-mix(in_srgb,var(--fx-success)_12%,var(--fx-surface)_88%)] text-[var(--fx-success)] hover:bg-[color:color-mix(in_srgb,var(--fx-success)_18%,var(--fx-surface)_82%)]"
+                      : "text-[var(--fx-text-muted)] hover:bg-[var(--fx-bg-soft)] hover:text-[var(--fx-text)]",
+                  )}
+                >
+                  <Mail className="size-4" />
+                  {row.emailScreeningCount > 0 ? (
+                    <span className="absolute -right-[5px] -top-[5px] inline-flex min-w-[16px] items-center justify-center rounded-full bg-[var(--fx-success)] px-[4px] text-[10px] font-semibold leading-[14px] text-white">
+                      {row.emailScreeningCount}
+                    </span>
+                  ) : null}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" sideOffset={8}>
+                {row.emailScreeningCount > 0
+                  ? `Email sent ${row.emailScreeningCount} ${row.emailScreeningCount === 1 ? "time" : "times"}`
+                  : "Email Pre-Screening"}
+              </TooltipContent>
+            </Tooltip>
+            {config.inline.includes("manualScreen") ? (
+              <FxActionsCell
+                align="left"
+                inline={[
+                  {
+                    key: "manualScreen",
+                    icon: ACTION_DEFS.manualScreen.icon,
+                    label: ACTION_DEFS.manualScreen.label,
+                    tone: undefined,
+                    onClick: () => ACTION_DEFS.manualScreen.run(h, [row]),
+                  },
+                ]}
+                className="pl-0"
+              />
+            ) : null}
+          </div>
+        ) : (
+          <FxActionsCell
+            align="left"
+            inline={config.inline.map((id) => {
+              const action = ACTION_DEFS[id];
+              return { key: id, icon: action.icon, label: action.label, tone: action.tone === "danger" ? "danger" : undefined, onClick: () => action.run(h, [row]) };
+            })}
+          />
+        ),
     });
   }
 
@@ -642,6 +688,8 @@ export default function JobWorkspacePage() {
   const [candidateDetailId, setCandidateDetailId] = useState(null);
   const [startPreScreeningOpen, setStartPreScreeningOpen] = useState(false);
   const [startPreScreeningRows, setStartPreScreeningRows] = useState([]);
+  const [emailScreeningOpen, setEmailScreeningOpen] = useState(false);
+  const [emailScreeningRows, setEmailScreeningRows] = useState([]);
   const [rejectConfirmOpen, setRejectConfirmOpen] = useState(false);
   const [rejectRowsState, setRejectRowsState] = useState([]);
   const [rejectKey, setRejectKey] = useState(0); // remount the reject dialog per open → fresh note
@@ -680,6 +728,7 @@ export default function JobWorkspacePage() {
     const currentSalary = candidate?.currentSalary ?? null;
     const expectedSalary = app?.qualification?.expectedSalary ?? candidate?.expectedSalary ?? null;
     const availabilityDays = app?.qualification?.availability?.days ?? candidate?.availabilityDays ?? null;
+    const emailScreening = app?.screening?.email ?? {};
     return {
       id: app.id,
       app,
@@ -698,6 +747,8 @@ export default function JobWorkspacePage() {
       currentTitle: candidate?.currentTitle ?? "",
       currentCompany: candidate?.currentCompany ?? "",
       location: candidate?.location ?? "—",
+      emailScreeningCount: Math.max(0, Number(emailScreening?.attemptCount ?? 0)),
+      emailScreeningStartedAt: emailScreening?.startedAt ?? null,
       currentSalary,
       currentSalaryCurrency: currentSalary?.currency ?? candidate?.salaryCurrency ?? salaryCurrency,
       expectedSalary,
@@ -776,6 +827,37 @@ export default function JobWorkspacePage() {
     toast.success(`${meta?.fileName ?? "Resume"} ready to preview`, { description: "Preview is session-only — only file details are saved in this demo." });
   }
 
+  const handleOpenEmailScreening = (rows) => {
+    const next = resolveActionRows(rows);
+    if (!next.length) return;
+    setEmailScreeningRows(next);
+    setEmailScreeningOpen(true);
+  };
+
+  const handleEmailScreening = (rows) => {
+    const next = resolveActionRows(rows);
+    if (!next.length) return;
+    const startedAt = new Date().toISOString();
+    next.forEach((row) => {
+      const currentEmail = row.app?.screening?.email ?? {};
+      updateApplication(row.app.id, {
+        screening: {
+          ...(row.app?.screening ?? {}),
+          status: "in_progress",
+          mode: "email",
+          email: {
+            ...currentEmail,
+            startedAt,
+            attemptCount: Math.max(1, Number(currentEmail.attemptCount ?? 0) + 1),
+          },
+        },
+      });
+    });
+    toast.success("Email sent", {
+      description: `${next[0].candidateName} ${next.length === 1 ? "was" : "and others were"} queued for email screening.`,
+    });
+  };
+
   const dedupeRows = (rows) => Array.from(new Map(rows.map((row) => [row.id, row])).values());
 
   // Empty selection falls back to "act on what's visible" so bulk + single-row paths share one resolver.
@@ -829,6 +911,12 @@ export default function JobWorkspacePage() {
     if (!next.length) return;
     setStartPreScreeningRows(next);
     setStartPreScreeningOpen(true);
+  };
+
+  const handleConfirmEmailScreening = () => {
+    handleEmailScreening(emailScreeningRows);
+    setEmailScreeningOpen(false);
+    setEmailScreeningRows([]);
   };
 
   const handleConfirmStartPreScreening = () => {
@@ -889,6 +977,7 @@ export default function JobWorkspacePage() {
     },
     download: handleDownloadRows,
     startPreScreen: handleOpenStartPreScreening,
+    emailScreen: handleOpenEmailScreening,
     reject: handleOpenRejectConfirm,
     move: moveRows,
     drop: dropRows,
@@ -1069,6 +1158,18 @@ export default function JobWorkspacePage() {
         }}
         candidates={startPreScreeningRows}
         onConfirm={handleConfirmStartPreScreening}
+      />
+      <EvStartPreScreeningSheet
+        open={emailScreeningOpen}
+        onOpenChange={(open) => {
+          setEmailScreeningOpen(open);
+          if (!open) setEmailScreeningRows([]);
+        }}
+        title="Email Pre-Screening"
+        description="Draft the email pre-screening step here. Sending will mark the attempt and update the badge count."
+        confirmLabel="Send"
+        candidates={emailScreeningRows}
+        onConfirm={handleConfirmEmailScreening}
       />
       <EvCandidateDetailsSheet
         open={candidateDetailOpen}

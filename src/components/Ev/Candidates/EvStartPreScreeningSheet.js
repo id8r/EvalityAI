@@ -7,7 +7,15 @@ import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
-function EvStartPreScreeningSheet({ open, onOpenChange, candidates = [], onConfirm }) {
+function EvStartPreScreeningSheet({
+  open,
+  onOpenChange,
+  candidates = [],
+  onConfirm,
+  title = "Start Pre-Screening",
+  description = "Selected candidates will move into Pre-Screened. We can wire the full screening flow here next.",
+  confirmLabel = "Start Pre-Screening",
+}) {
   const count = candidates.length;
 
   return (
@@ -15,8 +23,8 @@ function EvStartPreScreeningSheet({ open, onOpenChange, candidates = [], onConfi
       open={open}
       onOpenChange={onOpenChange}
       size="md"
-      title="Start Pre-Screening"
-      description="Selected candidates will move into Pre-Screened. We can wire the full screening flow here next."
+      title={title}
+      description={description}
       footerStart={<span className="text-[13px] text-[var(--fx-text-muted)]">{count} candidate{count === 1 ? "" : "s"} selected</span>}
       footer={
         <FxButton
@@ -26,7 +34,7 @@ function EvStartPreScreeningSheet({ open, onOpenChange, candidates = [], onConfi
             onConfirm?.();
           }}
         >
-          Start Pre-Screening
+          {confirmLabel}
         </FxButton>
       }
     >
