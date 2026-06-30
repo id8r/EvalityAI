@@ -53,7 +53,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { EvJobCreateSheet } from "@/components/Ev/Jobs/EvJobCreateSheet";
 import { EvAddCandidatesSheet } from "@/components/Ev/Candidates/EvAddCandidatesSheet";
 import { EvRejectCandidateDialog } from "@/components/Ev/Candidates/EvRejectCandidateDialog";
-import { EvStartPreScreeningSheet } from "@/components/Ev/Candidates/EvStartPreScreeningSheet";
+import { EvBulkEmailScreeningSheet } from "@/components/Ev/Candidates/EvBulkEmailScreeningSheet";
 import { EvManualScreeningSheet } from "@/components/Ev/Candidates/EvManualScreeningSheet";
 import { EvEmailScreeningSheet } from "@/components/Ev/Candidates/EvEmailScreeningSheet";
 import { EvCvMatchBreakdown } from "@/components/Ev/Candidates/EvCvMatchBreakdown";
@@ -108,7 +108,7 @@ const ACTION_DEFS = {
   open: { icon: Eye, label: "Open Candidate", tone: "neutral", run: (h, r) => h.openDetail("candidate", r[0]) },
   resume: { icon: FileText, label: "View Resume", tone: "neutral", run: (h, r) => h.openDetail("resume", r[0]) },
   download: { icon: Download, label: "Download Resume", tone: "accent", run: (h, r) => h.download(r) },
-  prescreen: { icon: Mail, label: "Start Pre-Screening", tone: "accent", run: (h, r) => h.startPreScreen(r) },
+  prescreen: { icon: Mail, label: "Email Pre-Screening", tone: "accent", run: (h, r) => h.startPreScreen(r) },
   emailScreen: { icon: Mail, label: "Email Pre-Screen", tone: "accent", run: (h, r) => h.emailScreen(r) },
   manualScreen: { icon: Users, label: "Manual Pre-Screen", tone: "neutral", run: (h, r) => h.manualScreen(r) },
   preScreenResult: { icon: ClipboardCheck, label: "View Pre-Screen Result", tone: "neutral", run: (h, r) => h.openDetail("preScreenResult", r[0]) },
@@ -975,8 +975,8 @@ export default function JobWorkspacePage() {
     setEmailScreeningRows([]);
   };
 
-  const handleConfirmStartPreScreening = () => {
-    moveRows(startPreScreeningRows, "prescreened", "Candidates moved to Pre-Screened");
+  const handleSendBulkEmail = (sentRows) => {
+    handleEmailScreening(sentRows ?? startPreScreeningRows); // mark each candidate emailed → bumps the table email count
     setStartPreScreeningOpen(false);
     setStartPreScreeningRows([]);
   };
@@ -1207,14 +1207,16 @@ export default function JobWorkspacePage() {
         onPick={handlePickCandidate}
         onUpload={handleUploadResumes}
       />
-      <EvStartPreScreeningSheet
+      <EvBulkEmailScreeningSheet
+        key={startPreScreeningRows.map((row) => row.id).join("|") || "bulk-email"}
         open={startPreScreeningOpen}
         onOpenChange={(open) => {
           setStartPreScreeningOpen(open);
           if (!open) setStartPreScreeningRows([]);
         }}
-        candidates={startPreScreeningRows}
-        onConfirm={handleConfirmStartPreScreening}
+        rows={startPreScreeningRows}
+        job={job}
+        onSend={(sentRows) => handleSendBulkEmail(sentRows)}
       />
       <EvEmailScreeningSheet
         key={emailScreeningRows[0]?.id ?? "email"}
