@@ -79,6 +79,9 @@ function FxSheet({
   side = "right",
   size = "md",
   expandable = false,
+  expanded: expandedProp, // controlled expand (with onExpandedChange); else uncontrolled from defaultExpanded
+  onExpandedChange,
+  defaultExpanded = false,
   dismissible = true,
   className,
   children,
@@ -95,7 +98,8 @@ function FxSheet({
   onOpenAutoFocus,
 }) {
   void presentation; // reserved extension point
-  const [expanded, setExpanded] = useState(false);
+  const [internalExpanded, setInternalExpanded] = useState(defaultExpanded);
+  const expanded = expandedProp ?? internalExpanded;
   const [panes, setPanes] = useState([]); // [{ id, role, collapsible, label }]
   const [visibility, setVisibility] = useState({}); // id -> bool
 
@@ -108,7 +112,11 @@ function FxSheet({
   }, []);
   const unregisterPane = useCallback((id) => setPanes((prev) => prev.filter((p) => p.id !== id)), []);
   const setVisible = useCallback((id, value) => setVisibility((prev) => ({ ...prev, [id]: value })), []);
-  const toggleExpanded = useCallback(() => setExpanded((v) => !v), []);
+  const toggleExpanded = useCallback(() => {
+    const next = !expanded;
+    onExpandedChange?.(next);
+    if (expandedProp === undefined) setInternalExpanded(next); // uncontrolled fallback
+  }, [expanded, expandedProp, onExpandedChange]);
 
   const ctx = useMemo(
     () => ({ side, expandable, expanded, toggleExpanded, panes, visibility, registerPane, unregisterPane, setVisible }),

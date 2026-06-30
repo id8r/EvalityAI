@@ -1220,7 +1220,6 @@ export default function JobWorkspacePage() {
         onSend={() => handleConfirmEmailScreening()}
       />
       <EvManualScreeningSheet
-        key={manualScreeningRow?.id ?? "manual"}
         open={manualScreeningOpen}
         onOpenChange={(open) => {
           setManualScreeningOpen(open);

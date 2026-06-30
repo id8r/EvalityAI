@@ -3,17 +3,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { FxButton, FxInput, FxTextarea } from "@/components/FxUI/Forms";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
-import { EvResumePanel } from "@/components/Ev/Candidates/EvResumePanel";
+import { EvCandidatePreview } from "@/components/Ev/Candidates/EvCandidatePreview";
 import { EvScreeningQuestionList } from "@/components/Ev/Candidates/EvScreeningQuestionList";
 import { DEFAULT_SCREENING_QUESTIONS, buildAiScreeningQuestions } from "@/lib/EvScreening";
-import { cn } from "@/lib/FxUtils";
+import { useScreeningExpanded } from "@/lib/useScreeningExpanded";
 /* - - - - - - - - - - - - - - - - */
 
 /*
@@ -77,7 +77,7 @@ function StandardScreening({ form, setField }) {
           <p className="text-[14px] leading-[20px] text-[var(--fx-text)]">By when can the candidate join?</p>
           <InlineRadio value={form.joinBy} onValueChange={(value) => setField("joinBy", value)} options={[{ value: "date", label: "Specific Date" }, { value: "days", label: "Availability in Days" }]} />
           {form.joinBy === "date" ? (
-            <FxInput type="date" value={form.joinDate} onChange={(event) => setField("joinDate", event.target.value)} clearable={false} className="w-[220px]" />
+            <FxInput type="date" value={form.joinDate} onChange={(event) => setField("joinDate", event.target.value)} clearable={false} className="w-[176px]" />
           ) : (
             <div className="flex items-center gap-2">
               <FxInput type="number" min={0} value={form.joinDays} onChange={(event) => setField("joinDays", event.target.value)} clearable={false} className="w-[96px]" inputClassName="text-center" />
@@ -86,7 +86,8 @@ function StandardScreening({ form, setField }) {
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        {/* Current Salary · Salary Expectation · Fit Score on one row. */}
+        <div className="grid grid-cols-3 gap-4">
           <div className="space-y-1.5">
             <p className={FIELD_LABEL}>Current Salary</p>
             <FxInput value={form.currentSalary} onChange={(event) => setField("currentSalary", event.target.value)} clearable={false} inputClassName="text-right" />
@@ -95,11 +96,10 @@ function StandardScreening({ form, setField }) {
             <p className={FIELD_LABEL}>Salary Expectation</p>
             <FxInput value={form.salaryExpectation} onChange={(event) => setField("salaryExpectation", event.target.value)} clearable={false} inputClassName="text-right" />
           </div>
-        </div>
-
-        <div className="space-y-1.5">
-          <p className={FIELD_LABEL}>Fit Score</p>
-          <FxInput value={form.fitScore} onChange={(event) => setField("fitScore", event.target.value)} clearable={false} inputClassName="text-right" />
+          <div className="space-y-1.5">
+            <p className={FIELD_LABEL}>Fit Score</p>
+            <FxInput value={form.fitScore} onChange={(event) => setField("fitScore", event.target.value)} clearable={false} inputClassName="text-right" />
+          </div>
         </div>
 
         <div className="space-y-1.5">
@@ -115,11 +115,18 @@ function StandardScreening({ form, setField }) {
 }
 
 function EvManualScreeningSheet({ open, onOpenChange, row, rows = [], onNavigate, onReject, onMoveToPrescreen, job }) {
+  const [expanded, setExpanded] = useScreeningExpanded();
   const [tab, setTab] = useState("standard");
-  const [showLeft, setShowLeft] = useState(true);
-  // Standard-tab form lifted here (sheet is keyed by row id upstream → re-inits per candidate).
   const [form, setForm] = useState(() => initStandardForm(row));
   const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
+
+  // Previous/Next swap `row` WITHOUT remounting the sheet (no key upstream) — so re-init the form here when the
+  // candidate changes, the React-approved way (adjust state during render, no effect, no animation).
+  const [formRowId, setFormRowId] = useState(row?.id ?? null);
+  if (row && row.id !== formRowId) {
+    setFormRowId(row.id);
+    setForm(initStandardForm(row));
+  }
 
   const candidate = row?.candidate ?? null;
   const index = row ? rows.findIndex((item) => item.id === row.id) : -1;
@@ -130,7 +137,7 @@ function EvManualScreeningSheet({ open, onOpenChange, row, rows = [], onNavigate
 
   const headerActions = (
     <>
-      {/* Previous/Next traverse the candidate list (Manual only). */}
+      {/* Previous/Next traverse the candidate list (Manual only). Sheet width is the built-in Expand/Restore. */}
       <FxButton variant="ghost" size="sm" disabled={!hasPrev} onClick={() => hasPrev && onNavigate?.(rows[index - 1])}>
         <ArrowLeft className="size-4" />
         Previous
@@ -139,32 +146,22 @@ function EvManualScreeningSheet({ open, onOpenChange, row, rows = [], onNavigate
         Next
         <ArrowRight className="size-4" />
       </FxButton>
-      <button
-        type="button"
-        aria-label={showLeft ? "Collapse resume" : "Expand resume"}
-        title={showLeft ? "Collapse resume" : "Expand resume"}
-        onClick={() => setShowLeft((current) => !current)}
-        className="flex size-8 items-center justify-center rounded-[6px] text-[var(--fx-text-muted)] transition-colors hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)]"
-      >
-        {showLeft ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
-      </button>
     </>
   );
 
   return (
-    <FxSheet open={open} onOpenChange={onOpenChange} side="right" size="xl" expandable>
+    <FxSheet open={open} onOpenChange={onOpenChange} side="right" size="xl" expandable expanded={expanded} onExpandedChange={setExpanded}>
       <FxSheet.Header title="Manual Pre-Screening" actions={headerActions} />
       {row ? (
         <>
           <FxSheet.Body className="flex min-h-0 flex-col overflow-hidden">
-            <div className={cn("grid min-h-0 flex-1 gap-4", showLeft ? "lg:grid-cols-[minmax(0,1fr)_1px_minmax(0,1fr)]" : "lg:grid-cols-1")}>
-              {showLeft ? (
-                <div className="flex min-h-0 flex-col gap-4 overflow-y-auto pr-1">
-                  <EvCandidateCard candidate={candidate} application={row.app} mode="summary" score={{ label: "Fit Score", value: fitValue }} />
-                  <EvResumePanel candidate={candidate} />
-                </div>
-              ) : null}
-              {showLeft ? <div className="hidden w-px bg-[var(--fx-border)] lg:block" /> : null}
+            <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_1px_minmax(0,1fr)]">
+              {/* Whole left pane scrolls — card not pinned; resume + background flow at their natural height. */}
+              <div className="flex min-h-0 flex-col gap-4 overflow-y-auto pr-1">
+                <EvCandidateCard candidate={candidate} application={row.app} mode="summary" score={{ label: "Fit Score", value: fitValue }} />
+                <EvCandidatePreview candidate={candidate} />
+              </div>
+              <div className="hidden w-px bg-[var(--fx-border)] lg:block" />
 
               <div className="flex min-h-0 flex-col overflow-hidden rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)]">
                 <div className="flex-none border-b border-[var(--fx-border)] px-4 py-2.5">

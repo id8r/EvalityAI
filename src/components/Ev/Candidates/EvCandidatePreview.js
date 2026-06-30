@@ -5,7 +5,7 @@
 import { useMemo, useRef, useState } from "react";
 import { Calendar, FileText, History, Info, Upload } from "lucide-react";
 
-import { FxBadge, FxPdfViewer } from "@/components/FxUI/DataDisplay";
+import { FxBadge, FxPdfViewer, FxSectionHeader } from "@/components/FxUI/DataDisplay";
 import { FxButton } from "@/components/FxUI/Forms";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { buildResumeFromUpload, isPdfResume, registerLocalResume, resolveResumeUrl } from "@/lib/EvResume";
@@ -180,7 +180,7 @@ function ResumeMessage({ fill }) {
 }
 
 // ---- The shared preview card ----
-function EvCandidatePreview({ candidate, fill = false, defaultTab = "resume", allowUpload = false, onUploadResume }) {
+function EvCandidatePreview({ candidate, fill = false, defaultTab = "resume", resumeOnly = false, allowUpload = false, onUploadResume }) {
   // Callers key this component by candidate id, so internal state (tab, optimistic upload) resets per candidate
   // via remount — no reset effect needed.
   const [tab, setTab] = useState(defaultTab);
@@ -201,15 +201,20 @@ function EvCandidatePreview({ candidate, fill = false, defaultTab = "resume", al
   const resume = localResume ?? candidate.resume;
   const resumeUrl = isPdfResume(resume) ? resolveResumeUrl(resume, candidate.id) : null;
   const resumeText = (resume?.text || resume?.extracted?.summary || "").trim();
+  const showResume = resumeOnly || tab === "resume";
 
   return (
     <div className={cn(CARD, fill && "flex min-h-0 flex-1 flex-col overflow-hidden")}>
-      <div className={cn("rounded-t-[12px] border-b border-[var(--fx-border)] bg-[var(--fx-surface)] px-3 py-2", fill ? "flex-none" : "sticky top-0 z-[2]")}>
-        <FxTabs variant="segmented" value={tab} onValueChange={setTab} tabs={PREVIEW_TABS} />
-      </div>
+      {resumeOnly ? (
+        <FxSectionHeader title="Resume" className={cn("rounded-t-[12px]", fill ? "flex-none" : "sticky top-0 z-[2]")} />
+      ) : (
+        <div className={cn("rounded-t-[12px] border-b border-[var(--fx-border)] bg-[var(--fx-surface-subtle)] px-3 py-2", fill ? "flex-none" : "sticky top-0 z-[2]")}>
+          <FxTabs variant="segmented" value={tab} onValueChange={setTab} tabs={PREVIEW_TABS} />
+        </div>
+      )}
 
       <div className={cn(fill && "min-h-0 flex-1 overflow-hidden")}>
-        {tab === "background" ? (
+        {!showResume ? (
           <div className={cn("p-4", fill && "h-full overflow-y-auto")}>
             <BackgroundPanel candidate={candidate} />
           </div>

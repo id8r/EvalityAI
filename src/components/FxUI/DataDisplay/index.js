@@ -6,6 +6,7 @@ export { FxTable } from "@/components/FxUI/DataDisplay/FxTable";
 export { FxColumnManager } from "@/components/FxUI/DataDisplay/FxColumnManager";
 export { FxRichText } from "@/components/FxUI/DataDisplay/FxRichText";
 export { FxPdfViewer } from "@/components/FxUI/DataDisplay/FxPdfViewer";
+export { FxSectionHeader } from "@/components/FxUI/DataDisplay/FxSectionHeader";
 export { useFxTable } from "@/components/FxUI/DataDisplay/useFxTable";
 export {
   FX_TABLE_CELL_PRESETS,

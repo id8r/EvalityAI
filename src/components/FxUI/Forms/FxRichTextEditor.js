@@ -117,6 +117,7 @@ function FxRichTextEditor({
   maxHeight,
   maxLength,
   showCount = false,
+  fill = false, // stretch to fill a flex parent (content area scrolls) instead of growing with content
   id,
   className,
   contentClassName,
@@ -282,7 +283,7 @@ function FxRichTextEditor({
   ) : null;
 
   return (
-    <div className={cn("flex w-full flex-col gap-2", className)}>
+    <div className={cn("flex w-full flex-col gap-2", fill && "min-h-0 flex-1", className)}>
       {label ? (
         <Label htmlFor={id}>
           {label}
@@ -295,6 +296,7 @@ function FxRichTextEditor({
         className={cn(
           "overflow-hidden rounded-[6px] border border-[var(--fx-border)] bg-[var(--fx-surface)] transition-colors",
           "focus-within:border-[var(--fx-primary)] focus-within:ring-2 focus-within:ring-[var(--fx-ring)]",
+          fill && "flex min-h-0 flex-1 flex-col", // stretch to the parent; the content area handles its own scroll
           disabled && "opacity-60",
           message && "border-[var(--fx-danger)]",
         )}
@@ -304,7 +306,7 @@ function FxRichTextEditor({
             minHeight: "var(--fx-rte-min)",
             ...(maxHeight ? { maxHeight, overflowY: "auto" } : {}),
           }}
-          className={cn(contentClassName, "min-h-[var(--fx-rte-min)]")}
+          className={cn(contentClassName, "min-h-[var(--fx-rte-min)]", fill && "min-h-0 flex-1 overflow-y-auto")}
         >
           <EditorContent editor={editor} />
         </div>

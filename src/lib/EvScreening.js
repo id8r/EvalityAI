@@ -43,32 +43,3 @@ export function buildEmailHtml(candidate, roleTitle) {
     `<p>Best regards,<br>The <strong>${APP_SHORT_NAME}</strong> Hiring Team</p>`,
   ].join("");
 }
-
-// Plain-text resume fallback when a candidate has no PDF on file (demo parity with the old product).
-export function buildResumeText(candidate) {
-  if (!candidate) return "";
-  const years = candidate.totalExperienceYears ?? candidate.experience ?? null;
-  const expLabel = years == null ? "experience" : `${years}+ years`;
-  const role = candidate.currentTitle || "this role";
-  const contact = [candidate.email, candidate.phone].filter(Boolean).join(" · ");
-  const skills = candidate.resume?.extracted?.skills?.length ? candidate.resume.extracted.skills.join(" · ") : role;
-  return [
-    candidate.name ?? "Candidate",
-    role,
-    candidate.location || "Location not captured",
-    contact,
-    "",
-    "Professional Summary",
-    `${candidate.name ?? "This candidate"} brings ${expLabel} and a background aligned to ${role}.`,
-    "",
-    "Experience",
-    `Current role: ${role}`,
-    `Focus areas: ${role} delivery, stakeholder coordination, and execution.`,
-    "",
-    "Skills",
-    skills,
-    "",
-    "Education",
-    "Bachelor's degree or equivalent",
-  ].join("\n");
-}

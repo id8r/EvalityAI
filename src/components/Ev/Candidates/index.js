@@ -10,6 +10,5 @@ export { EvAddCandidatesSheet } from "@/components/Ev/Candidates/EvAddCandidates
 export { EvStartPreScreeningSheet } from "@/components/Ev/Candidates/EvStartPreScreeningSheet";
 export { EvManualScreeningSheet } from "@/components/Ev/Candidates/EvManualScreeningSheet";
 export { EvEmailScreeningSheet } from "@/components/Ev/Candidates/EvEmailScreeningSheet";
-export { EvResumePanel } from "@/components/Ev/Candidates/EvResumePanel";
 export { EvScreeningQuestionList } from "@/components/Ev/Candidates/EvScreeningQuestionList";
 /* - - - - - - - - - - - - - - - - */
