@@ -963,6 +963,7 @@ export default function JobWorkspacePage() {
           interested: formData.interested,
           currentSalary: toNumber(formData.currentSalary),
           note: formData.note ?? "",
+          coveredQuestions: Array.isArray(formData.covered) ? formData.covered : [],
         },
       },
     });

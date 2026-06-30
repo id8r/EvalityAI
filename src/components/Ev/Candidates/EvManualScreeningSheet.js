@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
 import { EvCandidatePreview } from "@/components/Ev/Candidates/EvCandidatePreview";
 import { EvScreeningQuestionList } from "@/components/Ev/Candidates/EvScreeningQuestionList";
+import { EvScreeningChecklist } from "@/components/Ev/Candidates/EvScreeningChecklist";
 import { DEFAULT_SCREENING_QUESTIONS, buildAiScreeningQuestions } from "@/lib/EvScreening";
 import { useScreeningExpanded } from "@/lib/useScreeningExpanded";
 /* - - - - - - - - - - - - - - - - */
@@ -61,6 +62,7 @@ function initStandardForm(row) {
     salaryExpectation: salaryToInput(row?.expectedSalary),
     fitScore: row?.matchScore == null ? "" : String(row.matchScore),
     note: "",
+    covered: [], // question ids the recruiter ticked off during the call
   };
 }
 
@@ -108,8 +110,12 @@ function StandardScreening({ form, setField }) {
         </div>
       </div>
 
-      {/* Same standard question set as job creation (read-only here) — no hint notes, just the questions. */}
-      <EvScreeningQuestionList questions={DEFAULT_SCREENING_QUESTIONS} showNote={false} />
+      {/* Same standard question set as job creation — as a tick-off checklist the recruiter works through on the call. */}
+      <EvScreeningChecklist
+        questions={DEFAULT_SCREENING_QUESTIONS}
+        checked={form.covered}
+        onToggle={(id) => setField("covered", form.covered.includes(id) ? form.covered.filter((qid) => qid !== id) : [...form.covered, id])}
+      />
     </div>
   );
 }
