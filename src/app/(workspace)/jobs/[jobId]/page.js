@@ -753,6 +753,12 @@ export default function JobWorkspacePage() {
       location: candidate?.location ?? "—",
       emailScreeningCount: Math.max(0, Number(emailScreening?.attemptCount ?? 0)),
       emailScreeningStartedAt: emailScreening?.startedAt ?? null,
+      // One timestamp per send; fall back to the single startedAt for older/seeded data.
+      emailScreeningHistory: Array.isArray(emailScreening?.history)
+        ? emailScreening.history
+        : emailScreening?.startedAt
+          ? [emailScreening.startedAt]
+          : [],
       currentSalary,
       currentSalaryCurrency: currentSalary?.currency ?? candidate?.salaryCurrency ?? salaryCurrency,
       expectedSalary,
@@ -853,6 +859,7 @@ export default function JobWorkspacePage() {
             ...currentEmail,
             startedAt,
             attemptCount: Math.max(1, Number(currentEmail.attemptCount ?? 0) + 1),
+            history: [...(Array.isArray(currentEmail.history) ? currentEmail.history : []), startedAt], // one entry per send
           },
         },
       });
@@ -1218,6 +1225,11 @@ export default function JobWorkspacePage() {
         row={emailScreeningRows[0] ?? null}
         job={job}
         onSend={() => handleConfirmEmailScreening()}
+        onReject={(targetRow) => {
+          setEmailScreeningOpen(false);
+          setEmailScreeningRows([]);
+          handleOpenRejectConfirm([targetRow]);
+        }}
       />
       <EvManualScreeningSheet
         open={manualScreeningOpen}

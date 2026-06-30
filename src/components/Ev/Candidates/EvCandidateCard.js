@@ -82,7 +82,7 @@ function FieldCell({ fieldKey, candidate, application, align, canEdit, onEditFie
     return <FxEditableField label={def.label} value={value ?? ""} href={href} placeholder="N/A" align={align} pencil="left" onSave={(next) => onEditField(fieldKey, next)} />;
   }
   return (
-    <div className={cn("flex min-w-0 flex-col gap-1", right && "items-end")}>
+    <div className={cn("flex min-w-0 flex-col gap-[2px]", right && "items-end")}>
       <span className={cn(LABEL_CLASS, right && "text-right")}>{def.label}</span>
       {href ? (
         <a href={href} title={typeof value === "string" ? value : undefined} className={cn("max-w-full truncate text-[14px] leading-[22px] text-[var(--fx-primary)] hover:underline", right && "text-right")}>
@@ -155,7 +155,7 @@ function EvCandidateCard({ candidate, application, mode = "summary", score, onEd
   const nameClass = cn(FX_TYPOGRAPHY.title, "text-[var(--fx-text)]");
 
   return (
-    <div className={cn(bordered && "rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-5", className)}>
+    <div className={cn(bordered && "rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-[16px]", className)}>
       <div className="space-y-5">
         {/* Header: name | score (row 1) and experience | score label (row 2), neatly aligned. */}
         <div className="space-y-0.5">
@@ -180,7 +180,7 @@ function EvCandidateCard({ candidate, application, mode = "summary", score, onEd
 
         {/* Facing-pair fields (skipped for the minimal variant) */}
         {pairs.length ? (
-          <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-[16px]">
             {pairs.flatMap(([left, right]) => [
               <FieldCell key={left} fieldKey={left} candidate={candidate} application={application} align="left" canEdit={canEdit(left)} onEditField={onEditField} />,
               <FieldCell key={right} fieldKey={right} candidate={candidate} application={application} align="right" canEdit={canEdit(right)} onEditField={onEditField} />,

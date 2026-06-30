@@ -153,44 +153,44 @@ function EvManualScreeningSheet({ open, onOpenChange, row, rows = [], onNavigate
     <FxSheet open={open} onOpenChange={onOpenChange} side="right" size="xl" expandable expanded={expanded} onExpandedChange={setExpanded}>
       <FxSheet.Header title="Manual Pre-Screening" actions={headerActions} />
       {row ? (
-        <>
-          <FxSheet.Body className="flex min-h-0 flex-col overflow-hidden">
-            <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1fr)_1px_minmax(0,1fr)]">
-              {/* Whole left pane scrolls — card not pinned; resume + background flow at their natural height. */}
-              <div className="flex min-h-0 flex-col gap-4 overflow-y-auto pr-1">
-                <EvCandidateCard candidate={candidate} application={row.app} mode="summary" score={{ label: "Fit Score", value: fitValue }} />
-                <EvCandidatePreview candidate={candidate} />
-              </div>
-              <div className="hidden w-px bg-[var(--fx-border)] lg:block" />
+        <FxSheet.Panes>
+          {/* Left pane scrolls as one — card not pinned; resume + background flow at natural height. */}
+          <FxSheet.Pane role="primary">
+            <div className="space-y-4">
+              <EvCandidateCard candidate={candidate} application={row.app} mode="summary" score={{ label: "Fit Score", value: fitValue }} />
+              <EvCandidatePreview candidate={candidate} />
+            </div>
+          </FxSheet.Pane>
 
-              <div className="flex min-h-0 flex-col overflow-hidden rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)]">
-                <div className="flex-none border-b border-[var(--fx-border)] px-4 py-2.5">
-                  <FxTabs variant="underlined" value={tab} onValueChange={setTab} tabs={PREVIEW_TABS} />
+          {/* Right pane — Standard / AI screening tabs. */}
+          <FxSheet.Pane role="secondary" width="50%" className="flex flex-col">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)]">
+              <div className="flex-none border-b border-[var(--fx-border)] bg-[var(--fx-surface-subtle)] px-4 py-2.5">
+                <FxTabs variant="underlined" value={tab} onValueChange={setTab} tabs={PREVIEW_TABS} />
+              </div>
+              {/* Both rendered, inactive hidden — toggling tabs keeps the Standard form's entered values. */}
+              <div className="min-h-0 flex-1 overflow-y-auto p-4">
+                <div className={tab === "standard" ? undefined : "hidden"}>
+                  <StandardScreening form={form} setField={setField} />
                 </div>
-                {/* Both rendered, inactive hidden — toggling tabs keeps the Standard form's entered values. */}
-                <div className="min-h-0 flex-1 overflow-y-auto p-4">
-                  <div className={tab === "standard" ? undefined : "hidden"}>
-                    <StandardScreening form={form} setField={setField} />
-                  </div>
-                  <div className={tab === "ai" ? undefined : "hidden"}>
-                    <EvScreeningQuestionList questions={aiQuestions} />
-                  </div>
+                <div className={tab === "ai" ? undefined : "hidden"}>
+                  <EvScreeningQuestionList questions={aiQuestions} />
                 </div>
               </div>
             </div>
-          </FxSheet.Body>
-
-          <FxSheet.Footer
-            footerStart={
-              <FxButton variant="destructive" size="md" onClick={() => onReject?.(row)}>Reject</FxButton>
-            }
-          >
-            <FxButton variant="primary" size="md" className="min-w-[160px]" onClick={() => onMoveToPrescreen?.(row, form)}>Move to Prescreen</FxButton>
-          </FxSheet.Footer>
-        </>
+          </FxSheet.Pane>
+        </FxSheet.Panes>
       ) : (
         <FxSheet.Body />
       )}
+
+      <FxSheet.Footer
+        footerStart={
+          <FxButton variant="destructive" size="md" onClick={() => onReject?.(row)}>Reject</FxButton>
+        }
+      >
+        <FxButton variant="primary" size="md" className="min-w-[160px]" onClick={() => onMoveToPrescreen?.(row, form)}>Move to Prescreen</FxButton>
+      </FxSheet.Footer>
     </FxSheet>
   );
 }

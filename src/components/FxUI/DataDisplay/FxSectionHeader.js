@@ -10,8 +10,8 @@ import { cn } from "@/lib/FxUtils";
 // render on the right.
 function FxSectionHeader({ title, actions, children, className }) {
   return (
-    <div className={cn("flex items-center justify-between gap-2 border-b border-[var(--fx-border)] bg-[var(--fx-surface-subtle)] px-4 py-2.5", className)}>
-      {children ?? <span className="text-[13px] font-semibold leading-none text-[var(--fx-text)]">{title}</span>}
+    <div className={cn("flex items-center justify-between gap-2 border-b border-[var(--fx-border)] bg-[var(--fx-surface-subtle)] px-4 py-[16px]", className)}>
+      {children ?? <span className="text-[15px] font-medium leading-none text-[var(--fx-text-muted)]">{title}</span>}
       {actions ? <div className="flex items-center gap-1">{actions}</div> : null}
     </div>
   );
