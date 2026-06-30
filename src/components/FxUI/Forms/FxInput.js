@@ -25,6 +25,7 @@ const FxInput = forwardRef(function FxInput(
     size = "sm",
     variant = "outline",
     clearable = true,
+    clearOnEscape = false, // Esc clears the field (and keeps focus) — search fields opt in
     onClear,
     required = false,
     disabled = false,
@@ -69,6 +70,15 @@ const FxInput = forwardRef(function FxInput(
     onClear?.();
   }
 
+  // Esc clears the field when opted in (search UX) — reuses handleClear so focus stays put.
+  function handleKeyDown(event) {
+    if (clearOnEscape && event.key === "Escape" && hasValue) {
+      event.preventDefault();
+      handleClear();
+    }
+    onKeyDown?.(event);
+  }
+
   const clearPadding = showClear ? (variant === "underline" ? "pr-6" : "pr-9") : "";
 
   return (
@@ -95,7 +105,7 @@ const FxInput = forwardRef(function FxInput(
           value={value}
           defaultValue={defaultValue}
           onChange={handleChange}
-          onKeyDown={onKeyDown}
+          onKeyDown={handleKeyDown}
           {...props}
         />
         {showClear ? (

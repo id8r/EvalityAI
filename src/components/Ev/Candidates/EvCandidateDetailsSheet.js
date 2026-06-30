@@ -67,8 +67,8 @@ function BackgroundPane({ candidate }) {
       {bg.experience.length ? (
         <Section title="Experience">
           <ul className="space-y-1">
-            {bg.experience.map((item, index) => (
-              <li key={`exp-${index}`} className={BODY}>{item}</li>
+            {bg.experience.map((item) => (
+              <li key={`exp-${String(item).trim()}`} className={BODY}>{item}</li>
             ))}
           </ul>
         </Section>
@@ -85,8 +85,8 @@ function BackgroundPane({ candidate }) {
       {bg.education.length ? (
         <Section title="Education">
           <ul className="space-y-1">
-            {bg.education.map((item, index) => (
-              <li key={`edu-${index}`} className={BODY}>{item}</li>
+            {bg.education.map((item) => (
+              <li key={`edu-${String(item).trim()}`} className={BODY}>{item}</li>
             ))}
           </ul>
         </Section>
@@ -170,7 +170,7 @@ function NotesPane({ notes, onSaveNote, onEditNote, onDeleteNote }) {
       {notes.length ? (
         <ul className="space-y-2">
           {[...notes].reverse().map((note, index) => (
-            <NoteRow key={note.id ?? index} note={note} onEditNote={onEditNote} onDelete={setDeleteId} />
+            <NoteRow key={`note-${note.id ?? note.at ?? note.createdAt ?? index}`} note={note} onEditNote={onEditNote} onDelete={setDeleteId} />
           ))}
         </ul>
       ) : (

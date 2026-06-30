@@ -146,11 +146,23 @@ function FxSheet({
             if (!dismissible || isInteractionInLayerAbove(event)) event.preventDefault();
           }}
           onFocusOutside={(event) => {
-            // Opening a dropdown moves focus into its portal — that focus-outside must not close the sheet.
-            if (isInteractionInLayerAbove(event)) event.preventDefault();
+            // Modal sheet: never auto-close on a focus move out. Opening/toggling a dropdown shifts focus
+            // through its portal (and momentarily to <body> when it closes), which previously slipped past
+            // the layer-above guard and dismissed the sheet. Closing stays on Esc + pointer-outside.
+            event.preventDefault();
           }}
           onEscapeKeyDown={(event) => {
-            if (!dismissible) event.preventDefault();
+            if (!dismissible) {
+              event.preventDefault();
+              return;
+            }
+            // Esc inside a focused field must NOT close the sheet — the field owns Esc (a search
+            // clears its own text via clearOnEscape) and keeps focus. Don't move focus here, or the
+            // focus trap grabs the first tab trigger. Only an Esc with no field focused closes the sheet.
+            const el = event.target;
+            if (el instanceof HTMLElement && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) {
+              event.preventDefault();
+            }
           }}
         >
           {content}

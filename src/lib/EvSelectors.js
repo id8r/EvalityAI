@@ -66,16 +66,32 @@ export function experienceLabel(roleSpec) {
   return from != null ? `${from}+ yrs` : `${to} yrs`;
 }
 
-// --- Candidate historic jobs (their applications joined to jobs) ---
+// Stages where the candidate is still being actively considered (i.e. "in another job's queue").
+const ACTIVE_STAGES = new Set(["unscreened", "pre_screened", "shortlisted", "interviewing", "offered"]);
+export function isActiveStage(stage) {
+  return ACTIVE_STAGES.has(stage);
+}
+
+// --- Candidate historic jobs (their applications joined to jobs), newest first ---
 export function candidateHistoricJobs(candidateId) {
   return getApplications()
     .filter((app) => app.candidateId === candidateId)
     .map((app) => {
       const job = getJob(app.jobId);
       if (!job) return null;
-      return { applicationId: app.id, jobId: job.core.id, jobTitle: job.core.title, stage: app.stage, clientStatus: app.clientStatus };
+      return {
+        applicationId: app.id,
+        jobId: job.core.id,
+        jobTitle: job.core.title,
+        stage: app.stage,
+        clientStatus: app.clientStatus,
+        appliedAt: app.appliedAt ?? app.createdAt ?? null,
+        updatedAt: app.updatedAt ?? null,
+        active: isActiveStage(app.stage),
+      };
     })
-    .filter(Boolean);
+    .filter(Boolean)
+    .sort((a, b) => new Date(b.appliedAt ?? 0) - new Date(a.appliedAt ?? 0));
 }
 
 // --- Client rollups (openJobs / candidates / lastActivity) ---

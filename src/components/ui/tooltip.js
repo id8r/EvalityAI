@@ -24,7 +24,8 @@ function TooltipContent({ className, sideOffset = 6, ...props }) {
         data-slot="tooltip-content"
         sideOffset={sideOffset}
         className={cn(
-          "z-50 max-w-[220px] overflow-hidden rounded-[8px] border border-[var(--fx-border-light)] bg-[var(--fx-surface-raised)] px-3 py-2 text-xs leading-5 text-foreground",
+          // Near-black tooltip (our --fx-dark-panel) with fixed light text — the bg is dark in both themes.
+          "z-50 max-w-[220px] overflow-hidden rounded-[6px] bg-[var(--fx-dark-panel)] px-2.5 py-1.5 text-xs leading-5 text-[#f1f4f9]",
           FX_SHADOW.md,
           className,
         )}

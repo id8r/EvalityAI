@@ -12,11 +12,12 @@ import { cn } from "@/lib/FxUtils";
 /*
   Reusable, toolbar-agnostic search input. Wraps FxInput (clear-✕ included), adds a leading search
   icon and a global "/" shortcut that focuses the field — ignored while typing elsewhere. The "/"
-  hint shows only while empty (it cedes the right slot to the clear-✕ once there's text). Controlled
-  or uncontrolled like FxInput; pass shortcut={false} to drop the key binding.
+  hint shows only while empty (it cedes the right slot to the clear-✕ once there's text). Esc clears
+  the text and keeps focus (clearOnEscape; pass clearOnEscape={false} to opt out). Controlled or
+  uncontrolled like FxInput; pass shortcut={false} to drop the key binding.
 */
 const FxToolbarSearch = forwardRef(function FxToolbarSearch(
-  { placeholder = "Search", shortcut = "/", className, inputClassName, value, defaultValue, onChange, ...props },
+  { placeholder = "Search", shortcut = "/", clearOnEscape = true, className, inputClassName, value, defaultValue, onChange, ...props },
   ref,
 ) {
   const innerRef = useRef(null);
@@ -60,6 +61,7 @@ const FxToolbarSearch = forwardRef(function FxToolbarSearch(
         value={value}
         defaultValue={defaultValue}
         onChange={handleChange}
+        clearOnEscape={clearOnEscape}
         inputClassName={cn("pl-9", showHint && "pr-9", inputClassName)}
         {...props}
       />

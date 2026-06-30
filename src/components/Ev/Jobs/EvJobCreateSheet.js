@@ -252,7 +252,7 @@ function formFromJob(job) {
     secondarySkills: Array.isArray(content.secondarySkills) ? content.secondarySkills : [],
     questions: Array.isArray(screeningConfig.questions)
       ? screeningConfig.questions.map((item, index) => ({
-          id: item.id ?? `question-${index + 1}`,
+          id: normalizeQuestionId(item.id, index),
           label: item.label ?? "Custom",
           question: item.question ?? item.text ?? "",
           note: item.note ?? "",
@@ -306,6 +306,13 @@ function createQuestionItem(label, question, note = "") {
     question,
     note,
   };
+}
+
+function normalizeQuestionId(value, index = 0) {
+  const raw = String(value ?? "").trim();
+  if (!raw) return `question-${index + 1}`;
+  if (raw.startsWith("question-")) return raw;
+  return `question-${raw}-${index + 1}`;
 }
 
 function normalizeQuestionKey(value) {
@@ -648,7 +655,7 @@ function EvJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
 
     return (
       <div
-        key={question.id}
+        key={normalizeQuestionId(question.id, questionIndex)}
         draggable={dragHandleQuestionId === question.id}
         onDragStart={() => setDraggedQuestionId(question.id)}
         onDragOver={(event) => {
@@ -1004,7 +1011,7 @@ function EvJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
             const isSelected = selectedValues.includes(option);
             return (
               <label
-                key={option}
+                key={`${prompt.id}-${String(option)}`}
                 className={cn(
                   "flex w-full items-start gap-3 rounded-[12px] border px-3.5 py-3 text-left transition-colors",
                   !isIncluded

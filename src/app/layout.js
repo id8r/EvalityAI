@@ -2,6 +2,7 @@ import "./globals.css";
 
 import { FxThemeController } from "@/components/FxUI/AppShell/FxThemeController";
 import { Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { DemoResetControl } from "@/components/dev/DemoResetControl";
 
 export const metadata = {
@@ -14,7 +15,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <FxThemeController />
-        {children}
+        <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
         <Sonner />
         <DemoResetControl />
       </body>

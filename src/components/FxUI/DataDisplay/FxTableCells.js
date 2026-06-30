@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { FX_TYPOGRAPHY } from "@/lib/FxTheme";
 import { formatSalaryRange } from "@/lib/EvFormat";
 import { cn } from "@/lib/FxUtils";
@@ -302,11 +303,10 @@ export function FxStackedCell({ primary, secondary, indicator, onClick, classNam
 }
 
 function FxInlineAction({ icon: Icon, label, onClick, tone, disabled = false }) {
-  return (
+  const button = (
     <button
       type="button"
       aria-label={label}
-      title={label}
       disabled={disabled}
       onClick={(event) => {
         stop(event);
@@ -323,6 +323,13 @@ function FxInlineAction({ icon: Icon, label, onClick, tone, disabled = false }) 
     >
       {Icon ? <Icon className="size-4" /> : null}
     </button>
+  );
+  if (!label) return button;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipContent side="bottom" sideOffset={6}>{label}</TooltipContent>
+    </Tooltip>
   );
 }
 

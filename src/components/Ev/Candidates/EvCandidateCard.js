@@ -111,7 +111,10 @@ function HistorySection({ history }) {
       {count ? (
         <div className="max-h-[320px] space-y-2 overflow-y-auto p-2.5">
           {history.map((item, index) => (
-            <div key={item.applicationId ?? item.jobId ?? index} className="rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-3">
+            <div
+              key={`history-${item.applicationId ?? item.jobId ?? item.stage ?? item.jobTitle ?? index}`}
+              className="rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-3"
+            >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="truncate text-[14px] font-medium leading-[20px] text-[var(--fx-text)]">{item.jobTitle ?? "Untitled role"}</div>
