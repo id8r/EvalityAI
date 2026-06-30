@@ -54,6 +54,7 @@ import { EvJobCreateSheet } from "@/components/Ev/Jobs/EvJobCreateSheet";
 import { EvAddCandidatesSheet } from "@/components/Ev/Candidates/EvAddCandidatesSheet";
 import { EvRejectCandidateDialog } from "@/components/Ev/Candidates/EvRejectCandidateDialog";
 import { EvStartPreScreeningSheet } from "@/components/Ev/Candidates/EvStartPreScreeningSheet";
+import { EvManualScreeningSheet } from "@/components/Ev/Candidates/EvManualScreeningSheet";
 import { EvCvMatchBreakdown } from "@/components/Ev/Candidates/EvCvMatchBreakdown";
 import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
 import { EvCandidateDetailsSheet } from "@/components/Ev/Candidates/EvCandidateDetailsSheet";
@@ -168,7 +169,7 @@ const DETAIL_META = {
   candidate: { title: (r) => r?.candidateName ?? "Candidate", desc: "Candidate workspace" },
   cvMatch: { title: () => "Overall CV Match Score", desc: () => "" },
   preScreenResult: { title: () => "Pre-Screen Result", desc: "Screening summary & answers" },
-  manualScreen: { title: (r) => `Manual Screening — ${r?.candidateName ?? "Candidate"}`, desc: "Record manual pre-screen answers" },
+  manualScreen: { title: () => "Manual Screening", desc: "Record manual pre-screen answers" },
   resume: { title: (r) => `${r?.candidateName ?? "Candidate"} — Resume`, desc: "Resume preview" },
   schedule: { title: () => "Schedule Interview", desc: "Set up an interview" },
   share: { title: () => "Share for Review", desc: "Send candidates to the client" },
@@ -690,6 +691,8 @@ export default function JobWorkspacePage() {
   const [startPreScreeningRows, setStartPreScreeningRows] = useState([]);
   const [emailScreeningOpen, setEmailScreeningOpen] = useState(false);
   const [emailScreeningRows, setEmailScreeningRows] = useState([]);
+  const [manualScreeningOpen, setManualScreeningOpen] = useState(false);
+  const [manualScreeningRow, setManualScreeningRow] = useState(null);
   const [rejectConfirmOpen, setRejectConfirmOpen] = useState(false);
   const [rejectRowsState, setRejectRowsState] = useState([]);
   const [rejectKey, setRejectKey] = useState(0); // remount the reject dialog per open → fresh note
@@ -913,6 +916,13 @@ export default function JobWorkspacePage() {
     setStartPreScreeningOpen(true);
   };
 
+  const handleOpenManualScreening = (rows) => {
+    const next = resolveActionRows(rows);
+    if (!next.length) return;
+    setManualScreeningRow(next[0]);
+    setManualScreeningOpen(true);
+  };
+
   const handleConfirmEmailScreening = () => {
     handleEmailScreening(emailScreeningRows);
     setEmailScreeningOpen(false);
@@ -978,6 +988,7 @@ export default function JobWorkspacePage() {
     download: handleDownloadRows,
     startPreScreen: handleOpenStartPreScreening,
     emailScreen: handleOpenEmailScreening,
+    manualScreen: handleOpenManualScreening,
     reject: handleOpenRejectConfirm,
     move: moveRows,
     drop: dropRows,
@@ -1170,6 +1181,18 @@ export default function JobWorkspacePage() {
         confirmLabel="Send"
         candidates={emailScreeningRows}
         onConfirm={handleConfirmEmailScreening}
+      />
+      <EvManualScreeningSheet
+        open={manualScreeningOpen}
+        onOpenChange={(open) => {
+          setManualScreeningOpen(open);
+          if (!open) setManualScreeningRow(null);
+        }}
+        candidate={manualScreeningRow?.candidate ?? null}
+        onConfirm={() => {
+          setManualScreeningOpen(false);
+          setManualScreeningRow(null);
+        }}
       />
       <EvCandidateDetailsSheet
         open={candidateDetailOpen}
