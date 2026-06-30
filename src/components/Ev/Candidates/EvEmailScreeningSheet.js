@@ -3,20 +3,22 @@
 "use client";
 
 import { useState } from "react";
+import { FileText } from "lucide-react";
 
-import { FxAiButton, FxButton, FxInput, FxRichTextEditor } from "@/components/FxUI/Forms";
+import { FxAiButton, FxButton, FxIconToggle, FxInput, FxRichTextEditor } from "@/components/FxUI/Forms";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import { FxConfirmDialog } from "@/components/FxUI/Overlays/FxConfirmDialog";
 import { EvCandidatePreview } from "@/components/Ev/Candidates/EvCandidatePreview";
 import { buildEmailHtml } from "@/lib/EvScreening";
 import { useScreeningExpanded } from "@/lib/useScreeningExpanded";
-import { cn } from "@/lib/FxUtils";
+import { cn, scoreToneTextClass } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
 /*
-  Email Pre-Screening — opened from the Unscreened "Email Pre-Screen" action. Two panes (full-height divider via
-  FxSheet.Panes): left = resume only; right = To/Subject/composer bound as one group, with the send history below.
-  "Generate Using AI" seeds a realistic HTML draft. Footer: Cancel · Send (marks the attempt; bumps the JW badge).
+  Email Pre-Screening (single) — opened from the Unscreened "Email Pre-Screen" action. Résumé pane + composer,
+  with an always-on candidate header (name + CV match). View controls match the bulk sheet's responsibilities:
+    📄 File → show/hide the RÉSUMÉ pane    ⤢ (FxSheet expandable) → sheet WIDTH only
+  Right = To/Subject/composer bound as one group, send history below. Footer: Cancel · Reject · Send.
   Closing with a drafted email asks to discard first.
 */
 // "30 Jun 2026, 3:45 pm" — date + time so same-day sends are distinguishable.
@@ -65,7 +67,8 @@ const FIELD_LABEL = "w-[60px] shrink-0 text-[13px] font-medium text-[var(--fx-te
 function EvEmailScreeningSheet({ open, onOpenChange, row, job, onSend, onReject }) {
   const candidate = row?.candidate ?? null;
   const roleTitle = job?.core?.title ?? "this role";
-  const [expanded, setExpanded] = useScreeningExpanded();
+  const [expanded, setExpanded] = useScreeningExpanded(); // ⤢ sheet width only
+  const [showResume, setShowResume] = useState(true); // 📄 résumé pane
   const [to, setTo] = useState(candidate?.email ?? "");
   const [subject, setSubject] = useState(`Pre-Screening Questions for ${roleTitle}`);
   const [body, setBody] = useState("");
@@ -85,19 +88,30 @@ function EvEmailScreeningSheet({ open, onOpenChange, row, job, onSend, onReject 
 
   return (
     <FxSheet open={open} onOpenChange={handleOpenChange} side="right" size="xl" expandable expanded={expanded} onExpandedChange={setExpanded}>
-      <FxSheet.Header title="Email Pre-Screening" />
+      <FxSheet.Header
+        title="Email Pre-Screening"
+        actions={<FxIconToggle icon={FileText} pressed={showResume} onClick={() => setShowResume((current) => !current)} label={showResume ? "Hide résumé" : "Show résumé"} />}
+      />
       {row ? (
         <FxSheet.Panes>
-          {/* Left — resume only (no Background tab here). */}
-          <FxSheet.Pane role="primary" className="p-0">
-            <div className="flex h-full min-h-0 flex-col p-4">
-              <EvCandidatePreview candidate={candidate} fill resumeOnly />
-            </div>
-          </FxSheet.Pane>
+          {/* 📄 Left — resume only (no Background tab here). */}
+          {showResume ? (
+            <FxSheet.Pane role="primary" className="p-0">
+              <div className="flex h-full min-h-0 flex-col p-4">
+                <EvCandidatePreview candidate={candidate} fill resumeOnly />
+              </div>
+            </FxSheet.Pane>
+          ) : null}
 
-          {/* Right — To/Subject/composer bound in one group; send history sits below it. */}
-          <FxSheet.Pane role="secondary" width="50%" className="p-0">
+          {/* Right — candidate header + To/Subject/composer group; send history below. Primary (fills) when résumé hidden. */}
+          <FxSheet.Pane role={showResume ? "secondary" : "primary"} width={showResume ? "50%" : undefined} className="p-0">
             <div className="flex h-full min-h-0 flex-col gap-4 p-4">
+              {/* Always-on candidate context — name + CV match. */}
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-[16px] font-semibold text-[var(--fx-text)]">{row.candidateName}</p>
+                <p className={cn("text-[14px] font-semibold", scoreToneTextClass(row.matchScore))}>CV Match {row.matchScore == null ? "—" : `${row.matchScore}%`}</p>
+              </div>
+
               <div className="flex min-h-0 flex-1 flex-col gap-3 rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-bg-soft)] p-4">
                 {/* Labels inline-left to save vertical space. */}
                 <div className="flex items-center gap-3">

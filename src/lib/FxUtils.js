@@ -25,6 +25,18 @@ export function scoreTone(value, fallback = "neutral") {
   return "danger";
 }
 
+// Score → text-color class (for inline score labels). Mirrors scoreTone's thresholds.
+const SCORE_TONE_TEXT_CLASS = {
+  success: "text-[var(--fx-success)]",
+  warning: "text-[var(--fx-warning)]",
+  danger: "text-[var(--fx-danger)]",
+  primary: "text-[var(--fx-primary)]",
+  neutral: "text-[var(--fx-text)]",
+};
+export function scoreToneTextClass(value, fallback = "neutral") {
+  return SCORE_TONE_TEXT_CLASS[scoreTone(value, fallback)] ?? SCORE_TONE_TEXT_CLASS.neutral;
+}
+
 // Clamp a numeric percentage into 0–100 (non-numeric → 0).
 export function clampPct(value) {
   const n = Number(value);

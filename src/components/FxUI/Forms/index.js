@@ -3,6 +3,7 @@
 export { FxAiButton } from "@/components/FxUI/Forms/FxAiButton";
 export { FxButton } from "@/components/FxUI/Forms/FxButton";
 export { FxIconButton } from "@/components/FxUI/Forms/FxButton";
+export { FxIconToggle } from "@/components/FxUI/Forms/FxIconToggle";
 export { FxCheckboxField } from "@/components/FxUI/Forms/FxCheckboxField";
 export { FxCreatableSelect } from "@/components/FxUI/Forms/FxCreatableSelect";
 export { FxEditableField } from "@/components/FxUI/Forms/FxEditableField";
