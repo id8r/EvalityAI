@@ -12,4 +12,6 @@ export { EvEmailScreeningSheet } from "@/components/Ev/Candidates/EvEmailScreeni
 export { EvBulkEmailScreeningSheet } from "@/components/Ev/Candidates/EvBulkEmailScreeningSheet";
 export { EvScreeningQuestionList } from "@/components/Ev/Candidates/EvScreeningQuestionList";
 export { EvScreeningChecklist } from "@/components/Ev/Candidates/EvScreeningChecklist";
+export { EvEmailHistory } from "@/components/Ev/Candidates/EvEmailHistory";
+export { EvPreScreenResultSheet } from "@/components/Ev/Candidates/EvPreScreenResultSheet";
 /* - - - - - - - - - - - - - - - - */

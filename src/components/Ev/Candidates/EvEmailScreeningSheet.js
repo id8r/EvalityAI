@@ -9,6 +9,7 @@ import { FxAiButton, FxButton, FxIconToggle, FxInput, FxRichTextEditor } from "@
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import { FxConfirmDialog } from "@/components/FxUI/Overlays/FxConfirmDialog";
 import { EvCandidatePreview } from "@/components/Ev/Candidates/EvCandidatePreview";
+import { EvEmailHistory } from "@/components/Ev/Candidates/EvEmailHistory";
 import { buildEmailHtml } from "@/lib/EvScreening";
 import { useScreeningExpanded } from "@/lib/useScreeningExpanded";
 import { cn, scoreToneTextClass } from "@/lib/FxUtils";
@@ -21,47 +22,6 @@ import { cn, scoreToneTextClass } from "@/lib/FxUtils";
   Right = To/Subject/composer bound as one group, send history below. Footer: Cancel · Reject · Send.
   Closing with a drafted email asks to discard first.
 */
-// "30 Jun 2026, 3:45 pm" — date + time so same-day sends are distinguishable.
-function formatSentAt(value) {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", hour12: true });
-}
-
-// Compact timeline of sends — latest on top with a filled dot, older as a muted thread. No repeated labels.
-function EmailHistory({ entries }) {
-  return (
-    <div className="flex-none rounded-[10px] border border-[var(--fx-border)] bg-[var(--fx-surface)] px-3.5 py-3">
-      <div className="flex items-center justify-between">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fx-text-muted)]">Email history</p>
-        <span className="rounded-full bg-[var(--fx-surface-hover)] px-2 py-0.5 text-[11px] font-medium text-[var(--fx-text-muted)]">{entries.length} sent</span>
-      </div>
-      <ol className="mt-2.5">
-        {entries.map((at, index) => {
-          const isLatest = index === 0;
-          const isLast = index === entries.length - 1;
-          return (
-            <li key={`${at}-${index}`} className="relative flex items-start gap-3 pb-3 last:pb-0">
-              {!isLast ? <span aria-hidden="true" className="absolute bottom-0 left-[3px] top-[14px] w-px bg-[var(--fx-border)]" /> : null}
-              <span
-                className={cn(
-                  "relative z-[1] mt-[5px] size-[7px] shrink-0 rounded-full",
-                  isLatest ? "bg-[var(--fx-primary)]" : "border border-[var(--fx-border-strong)] bg-[var(--fx-surface)]",
-                )}
-              />
-              <div className="flex min-w-0 flex-1 items-baseline justify-between gap-2">
-                <span className="text-[13px] leading-[18px] text-[var(--fx-text)]">{formatSentAt(at) ?? "—"}</span>
-                {isLatest ? <span className="shrink-0 text-[11px] font-medium text-[var(--fx-primary)]">Latest</span> : null}
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-    </div>
-  );
-}
-
 const FIELD_LABEL = "w-[60px] shrink-0 text-[13px] font-medium text-[var(--fx-text-muted)]";
 
 function EvEmailScreeningSheet({ open, onOpenChange, row, job, onSend, onReject }) {
@@ -129,7 +89,7 @@ function EvEmailScreeningSheet({ open, onOpenChange, row, job, onSend, onReject 
               </div>
 
               {/* Older context — a timeline of sends (counter mirrors the JW email icon). Hidden until first send. */}
-              {sentHistory.length ? <EmailHistory entries={sentHistory} /> : null}
+              {sentHistory.length ? <div className="flex-none"><EvEmailHistory entries={sentHistory} /></div> : null}
             </div>
           </FxSheet.Pane>
         </FxSheet.Panes>
@@ -139,11 +99,9 @@ function EvEmailScreeningSheet({ open, onOpenChange, row, job, onSend, onReject 
 
       <FxSheet.Footer
         footerStart={
-          <FxButton variant="outline" size="md" onClick={() => handleOpenChange(false)}>Cancel</FxButton>
+          <FxButton variant="destructive" size="md" onClick={() => onReject?.(row)}>Reject</FxButton>
         }
       >
-        {/* Reject in-context — after repeated unanswered emails, reject without leaving the sheet. */}
-        <FxButton variant="destructiveOutline" size="md" onClick={() => onReject?.(row)}>Reject</FxButton>
         <FxButton variant="primary" size="md" className="min-w-[120px]" disabled={!canSend} onClick={() => onSend?.(row, { to, subject, body })}>Send</FxButton>
       </FxSheet.Footer>
 

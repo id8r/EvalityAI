@@ -185,24 +185,26 @@ const SCORE_TONE_CLASS = {
   primary: "bg-[var(--fx-surface-selected)] text-[var(--fx-primary)]",
 };
 
-export function FxScoreCell({ value, suffix = "%", tone, onClick, className }) {
+export function FxScoreCell({ value, suffix = "%", tone, icon: Icon, title, onClick, className }) {
   const text = isBlank(value) ? EMPTY : `${value}${suffix}`;
   if (tone || onClick) {
     return (
       <button
         type="button"
         disabled={!onClick}
+        title={title}
         onClick={(event) => {
           stop(event);
           onClick?.(event);
         }}
         className={cn(
-          "inline-flex h-7 min-w-[56px] items-center justify-center rounded-[6px] px-2 text-[13px] font-medium tabular-nums",
+          "inline-flex h-7 min-w-[56px] items-center justify-center gap-1 rounded-[6px] px-2 text-[13px] font-medium tabular-nums",
           onClick ? "transition-opacity hover:opacity-80" : "cursor-default",
           SCORE_TONE_CLASS[tone] ?? "bg-[var(--fx-surface-muted)] text-[var(--fx-text)]",
           className,
         )}
       >
+        {Icon ? <Icon className="size-3.5 shrink-0" /> : null}
         {text}
       </button>
     );

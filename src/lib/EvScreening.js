@@ -1,6 +1,23 @@
 /* src/lib/EvScreening.js | Screening question source + demo synthesis (shared by job-create + manual pre-screen) | Sree | 2026-06-30 */
 
+import { Mail, Sparkles, Users } from "lucide-react";
+
 import { APP_SHORT_NAME } from "@/lib/FxConstants";
+import { formatMoney } from "@/lib/EvFormat";
+/* - - - - - - - - - - - - - - - - */
+
+// Single source of truth for how a screening method is shown (icon + label) — reused everywhere a "Manual /
+// Email / AI Call" appears (Fit Score pill, Pre-Screen Result, etc.). Manual uses the people icon (matches the
+// Unscreened "Manual Pre-Screen" action). `ai` is display-only; the seed uses "ai_call".
+export const SCREENING_TYPES = {
+  manual: { icon: Users, label: "Manual Call" },
+  email: { icon: Mail, label: "Email Screened" },
+  ai: { icon: Sparkles, label: "AI Call" },
+};
+export function screeningTypeMeta(mode) {
+  if (mode === "ai" || mode === "ai_call") return SCREENING_TYPES.ai;
+  return SCREENING_TYPES[mode] ?? null;
+}
 
 // Single source of truth for the STANDARD screening questions. Job creation seeds/edits from these; the Manual
 // Pre-Screening sheet shows the same set read-only — so the two never drift.
@@ -42,4 +59,57 @@ export function buildEmailHtml(candidate, roleTitle) {
     `<p>This link is unique to you and expires in <strong>5 days</strong>. If anything is unclear, just reply to this email and we'll help.</p>`,
     `<p>Best regards,<br>The <strong>${APP_SHORT_NAME}</strong> Hiring Team</p>`,
   ].join("");
+}
+
+// ---- Demo AI-call RESULT synthesis (read-time, deterministic from the row) ----
+// No AI-call workflow exists; for seeded `ai_call` apps we synthesize a believable result so the AI tabs aren't
+// empty. Everything below is derived from the row's fit score / candidate fields — stable, no randomness.
+const round1 = (n) => Math.round(n * 10) / 10;
+
+export function buildAiCallAnalysis(row) {
+  const base = row?.matchScore != null ? Math.max(2.6, Math.min(4.8, row.matchScore / 20 + 0.3)) : 4.0;
+  const dimensions = [
+    { key: "communication", label: "Communication", delta: 0.0, justification: "Candidate communicated clearly, stayed concise, and answered screening prompts without hesitation." },
+    { key: "confidence", label: "Confidence", delta: -0.2, justification: "Candidate appeared comfortable discussing prior work, ownership, and decision-making in a recruiter call setting." },
+    { key: "domain", label: "Domain Knowledge", delta: 0.2, justification: "Candidate demonstrated a strong working understanding of the role's technology stack and day-to-day workflows." },
+    { key: "resumeReality", label: "Resume to Reality", delta: -0.1, justification: "Screening responses were largely consistent with the resume, with no major credibility gaps surfaced during the call." },
+  ].map((dim) => ({ ...dim, score: round1(Math.max(1, Math.min(5, base + dim.delta))) }));
+  const overall = round1(dimensions.reduce((sum, dim) => sum + dim.score, 0) / dimensions.length);
+  return {
+    dimensions,
+    summary: { score: overall, text: "Strong candidate for further evaluation. Signals across communication, confidence, and domain understanding were consistently positive." },
+  };
+}
+
+export function buildAiTranscript(row, job) {
+  const name = row?.candidateName ?? "the candidate";
+  const role = job?.core?.title ?? "this role";
+  const days = row?.availabilityDays ?? row?.app?.qualification?.availability?.days ?? null;
+  const current = row?.currentSalary?.amount ? formatMoney(row.currentSalary.amount, row.currentSalary.currency) : null;
+  const expected = row?.expectedSalary?.amount ? formatMoney(row.expectedSalary.amount, row.expectedSalary.currency) : null;
+  const comp = current || expected ? `Currently ${current ?? "—"}, looking for ${expected ?? "—"}.` : null;
+  return [
+    { q: `Hello, this is Shreya, an AI recruiter from ${APP_SHORT_NAME}. Am I speaking with ${name}?`, a: "Yes, where are you calling from?" },
+    { q: `We're hiring for ${role}. Is this a good time to speak?`, a: "Yes, this works for me." },
+    { q: `Can you describe a recent example of work that best matches the ${role} requirements?`, a: null },
+    { q: "What is your current notice period?", a: days != null ? `${days} days` : "Around a month" },
+    { q: "What is your current annual compensation and expected compensation for your next role?", a: comp },
+    { q: "Are you comfortable with the role's location and work setup?", a: "Yes, that works for me." },
+  ];
+}
+
+export function buildVoiceRecording() {
+  return {
+    title: "AI Screening Call",
+    subtitle: "Recorded screening conversation",
+    duration: "02:46",
+    markers: [
+      { label: "Q1", at: "00:08" },
+      { label: "Q2", at: "00:24" },
+      { label: "Q3", at: "00:52" },
+      { label: "Q4", at: "01:20" },
+      { label: "Q5", at: "01:48" },
+      { label: "Q6", at: "02:20" },
+    ],
+  };
 }

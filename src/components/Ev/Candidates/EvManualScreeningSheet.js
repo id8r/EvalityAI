@@ -77,15 +77,35 @@ function StandardScreening({ form, setField }) {
 
         <div className="space-y-2">
           <p className="text-[14px] leading-[20px] text-[var(--fx-text)]">By when can the candidate join?</p>
-          <InlineRadio value={form.joinBy} onValueChange={(value) => setField("joinBy", value)} options={[{ value: "date", label: "Specific Date" }, { value: "days", label: "Availability in Days" }]} />
-          {form.joinBy === "date" ? (
-            <FxInput type="date" value={form.joinDate} onChange={(event) => setField("joinDate", event.target.value)} clearable={false} className="w-[176px]" />
-          ) : (
-            <div className="flex items-center gap-2">
-              <FxInput type="number" min={0} value={form.joinDays} onChange={(event) => setField("joinDays", event.target.value)} clearable={false} className="w-[96px]" inputClassName="text-center" />
-              <span className="text-[14px] text-[var(--fx-text-muted)]">Days</span>
-            </div>
-          )}
+          <div className="flex flex-wrap items-start gap-6">
+            <label className="flex min-w-[160px] flex-col gap-2">
+              <InlineRadio value={form.joinBy} onValueChange={(value) => setField("joinBy", value)} options={[{ value: "date", label: "Specific Date" }]} />
+              <FxInput
+                type="date"
+                value={form.joinDate}
+                onChange={(event) => setField("joinDate", event.target.value)}
+                clearable={false}
+                className="w-[144px] shrink-0"
+                disabled={form.joinBy !== "date"}
+              />
+            </label>
+            <label className="flex min-w-[180px] flex-col gap-2">
+              <InlineRadio value={form.joinBy} onValueChange={(value) => setField("joinBy", value)} options={[{ value: "days", label: "Availability in Days" }]} />
+              <div className="flex items-center gap-2">
+                <FxInput
+                  type="number"
+                  min={0}
+                  value={form.joinDays}
+                  onChange={(event) => setField("joinDays", event.target.value)}
+                  clearable={false}
+                  className="w-[96px]"
+                  inputClassName="text-center"
+                  disabled={form.joinBy !== "days"}
+                />
+                <span className="text-[14px] text-[var(--fx-text-muted)]">Days</span>
+              </div>
+            </label>
+          </div>
         </div>
 
         {/* Current Salary · Salary Expectation · Fit Score on one row. */}

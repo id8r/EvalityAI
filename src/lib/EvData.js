@@ -199,6 +199,12 @@ export function updateApplication(id, patch) {
   setCollection("applications", getApplications().map((app) => (app.id === id ? { ...app, ...patch, updatedAt: nowIso() } : app)));
   return getApplication(id);
 }
+// Stamp the first time a recruiter opens this candidate (clears the "new/unviewed" marker). Idempotent.
+export function markApplicationViewed(id) {
+  const app = getApplication(id);
+  if (!app || app.viewedAt) return app;
+  return updateApplication(id, { viewedAt: nowIso() });
+}
 // Move to a new stage and append to stageHistory.
 export function setApplicationStage(id, stage, actorId = null) {
   const app = getApplication(id);

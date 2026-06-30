@@ -59,6 +59,7 @@ import { EvEmailScreeningSheet } from "@/components/Ev/Candidates/EvEmailScreeni
 import { EvCvMatchBreakdown } from "@/components/Ev/Candidates/EvCvMatchBreakdown";
 import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
 import { EvCandidateDetailsSheet } from "@/components/Ev/Candidates/EvCandidateDetailsSheet";
+import { EvPreScreenResultSheet } from "@/components/Ev/Candidates/EvPreScreenResultSheet";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import {
   createApplication,
@@ -68,6 +69,7 @@ import {
   addApplicationNote,
   deleteApplicationNote,
   getJob,
+  markApplicationViewed,
   setApplicationStage,
   updateApplication,
   updateApplicationNote,
@@ -75,6 +77,7 @@ import {
   updateJob,
 } from "@/lib/EvData";
 import { employmentTypeLabel, experienceLabel, jobLocationLabel, stageLabel } from "@/lib/EvSelectors";
+import { screeningTypeMeta } from "@/lib/EvScreening";
 import { formatMoney } from "@/lib/EvFormat";
 import { isPdfResume, resolveResumeUrl } from "@/lib/EvResume";
 import { FxPanel } from "@/components/FxUI/Layout/FxPanel";
@@ -98,6 +101,7 @@ const NEW_ROW_CLASS =
 // Column id sets reused across stages.
 const SHARED_COLUMNS = ["name", "phone", "score", "experience", "currentSalary", "expectedSalary", "email", "availability"];
 const INTERVIEW_COLUMNS = ["name", "phone", "scheduleDetails", "interviewer", "interviewStage", "recommendation", "feedback"];
+
 
 /*
   Action descriptors — referenced by id from each stage's inline / bulk / kebab lists.
@@ -434,7 +438,19 @@ function buildStageColumns(config, h) {
       key: "score", header: config.scoreLabel ?? "Score", width: 120, minWidth: 104, align: "center", sortable: true, sortType: "number",
       sortInitialDirection: "desc", // first click sorts high → low
       sortAccessor: (row) => row.matchScore,
-      cell: (row) => <FxScoreCell value={row.matchScore} tone={scoreTone(row.matchScore, "primary")} onClick={() => h.openDetail(config.scoreKind ?? "preScreenResult", row)} />,
+      cell: (row) => {
+        // Screening-type icon sits INSIDE the pill (post-screening stages only); unscreened shows the raw CV match.
+        const type = config.scoreKind === "preScreenResult" ? screeningTypeMeta(row.screeningMode) : null;
+        return (
+          <FxScoreCell
+            value={row.matchScore}
+            tone={scoreTone(row.matchScore, "primary")}
+            icon={type?.icon}
+            title={type?.label}
+            onClick={() => h.openDetail(config.scoreKind ?? "preScreenResult", row)}
+          />
+        );
+      },
     },
     experience: {
       key: "experience", header: "Experience", width: 112, minWidth: 100, align: "center", sortable: true, sortType: "number",
@@ -688,6 +704,8 @@ export default function JobWorkspacePage() {
   const [detail, setDetail] = useState({ open: false, kind: "candidate", row: null });
   const [candidateDetailOpen, setCandidateDetailOpen] = useState(false);
   const [candidateDetailId, setCandidateDetailId] = useState(null);
+  const [preScreenResultRow, setPreScreenResultRow] = useState(null);
+  const [preScreenResultOpen, setPreScreenResultOpen] = useState(false);
   const [startPreScreeningOpen, setStartPreScreeningOpen] = useState(false);
   const [startPreScreeningRows, setStartPreScreeningRows] = useState([]);
   const [emailScreeningOpen, setEmailScreeningOpen] = useState(false);
@@ -741,7 +759,8 @@ export default function JobWorkspacePage() {
       clientStatus: app.clientStatus ?? null,
       interview: app.interview ?? null,
       trustScore: app?.qualification?.trustScore ?? null,
-      isNew: ageInDays(app.appliedAt, now) <= NEW_RESUME_DAYS,
+      isNew: ageInDays(app.appliedAt, now) <= NEW_RESUME_DAYS && !app.viewedAt, // new = recently applied AND not yet opened
+      screeningMode: app?.screening?.mode ?? null,
       candidateName: candidate?.name ?? "Unknown candidate",
       matchScore: app?.qualification?.matchScore ?? candidate?.matchScore ?? null,
       experience: candidate?.totalExperienceYears ?? candidate?.experience ?? candidate?.yearsOfExperience ?? null,
@@ -1004,6 +1023,10 @@ export default function JobWorkspacePage() {
     const candidateId = candidateDetailRow?.candidate?.id;
     if (candidateId) updateCandidate(candidateId, { [field]: value });
   };
+  const handleUploadCandidateResume = (candidate, meta) => {
+    // Persist the metadata-only resume (no binary); the session blob (keyed by candidate id) drives the preview.
+    if (candidate?.id) updateCandidate(candidate.id, { resume: meta });
+  };
   const handleSaveCandidateNote = (text) => {
     const app = candidateDetailRow?.app;
     if (!app) return;
@@ -1025,8 +1048,14 @@ export default function JobWorkspacePage() {
   const handlers = {
     openDetail: (kind, row) => {
       if (kind === "candidate") {
+        if (row?.app?.id) markApplicationViewed(row.app.id); // clears the new/unviewed marker
         setCandidateDetailId(row?.id ?? null);
         setCandidateDetailOpen(true);
+        return;
+      }
+      if (kind === "preScreenResult") {
+        setPreScreenResultRow(row);
+        setPreScreenResultOpen(true);
         return;
       }
       setDetail({ open: true, kind, row });
@@ -1263,9 +1292,29 @@ export default function JobWorkspacePage() {
         }}
         row={candidateDetailRow}
         onEditField={handleEditCandidateField}
+        onUploadResume={handleUploadCandidateResume}
         onSaveNote={handleSaveCandidateNote}
         onEditNote={handleEditCandidateNote}
         onDeleteNote={handleDeleteCandidateNote}
+      />
+      <EvPreScreenResultSheet
+        key={preScreenResultRow?.id ?? "prescreen-result"}
+        open={preScreenResultOpen}
+        onOpenChange={(open) => {
+          setPreScreenResultOpen(open);
+          if (!open) setPreScreenResultRow(null);
+        }}
+        row={preScreenResultRow}
+        job={job}
+        onReject={(targetRow) => {
+          setPreScreenResultOpen(false);
+          handleOpenRejectConfirm([targetRow]);
+        }}
+        onShortlist={(targetRow) => {
+          moveRows([targetRow], "shortlisted", "Shortlisted");
+          setPreScreenResultOpen(false);
+          setPreScreenResultRow(null);
+        }}
       />
       <EvRejectCandidateDialog
         key={rejectKey}

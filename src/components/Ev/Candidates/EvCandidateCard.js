@@ -10,13 +10,16 @@ import { FX_TYPOGRAPHY } from "@/lib/FxTheme";
 import { cn, scoreTone } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
-// Presentational. Variants (mode, additive): minimal = name + optional experience/location + optional score;
-// compact = minimal + Email·Phone; summary = compact + Current/Expected CTC, Notice Period, CV Added Date;
-// full = summary + Historic Applications.
-// score (optional) shows top-right, colored by value. Email/Phone render as mailto/tel links; bordered={false}
-// drops the card frame (e.g. CV-match header). Editing (card never persists, pencil reveals on hover): when
-// onEditField is set, Email + Phone are editable by default (editable={false} → read-only); Name only with editableName.
-// Data: candidate = person, application = job-specific, history = past apps (caller-supplied; one accordion in full mode).
+// Presentational, composed of fixed regions: identity header (name) · primary metric (`score` = {label,value},
+// top-right, colored by value) · property list · optional `footer`.
+// Property list comes from EITHER:
+//   - `fields` (composition): [{ label, value, align? }] — value may be a node (e.g. icon + text). Used to reuse
+//     this card beyond candidate data (e.g. Pre-Screen Result: metric "Screening Score 71%" + screening fields).
+//   - else the candidate registry by `mode` (additive): minimal = name (+ exp/location, score); compact = +Email·Phone;
+//     summary = +Current/Expected CTC, Notice Period, CV Added Date; full = +Historic Applications.
+// Email/Phone render as mailto/tel links; bordered={false} drops the frame. Editing (never persists; pencil on hover):
+// with onEditField, Email+Phone editable by default (editable={false} → read-only), Name only with editableName.
+// Data: candidate = person, application = job-specific, history = past apps (caller-supplied; accordion in full mode).
 
 const FIELDS = {
   experience: { label: "Experience", get: (c) => formatYears(c?.totalExperienceYears) },
@@ -95,6 +98,18 @@ function FieldCell({ fieldKey, candidate, application, align, canEdit, onEditFie
   );
 }
 
+// Caller-supplied field (used via the `fields` prop) — a plain label/value pair; value may be a React node
+// (e.g. an icon + text). No registry, no editing, no links — just piped-in content.
+function CustomFieldCell({ field, align }) {
+  const right = align === "right";
+  return (
+    <div className={cn("flex min-w-0 flex-col gap-[2px]", right && "items-end")}>
+      <span className={cn(LABEL_CLASS, right && "text-right")}>{field.label}</span>
+      <span className={cn(VALUE_CLASS, "max-w-full", right && "text-right")}>{field.value ?? "—"}</span>
+    </div>
+  );
+}
+
 // The whole section is one native <details> accordion (zero JS); expanded, each past application is a small card.
 function HistorySection({ history }) {
   const count = history?.length ?? 0;
@@ -142,7 +157,7 @@ function HistorySection({ history }) {
   );
 }
 
-function EvCandidateCard({ candidate, application, mode = "summary", score, onEditField, editable = true, editableName = false, history, bordered = true, className }) {
+function EvCandidateCard({ candidate, application, mode = "summary", score, fields, footer, onEditField, editable = true, editableName = false, history, bordered = true, className }) {
   const editing = typeof onEditField === "function";
   // Email/Phone editable by default (gate with editable={false}); Name only when editableName is set.
   const canEdit = (field) => {
@@ -151,7 +166,9 @@ function EvCandidateCard({ candidate, application, mode = "summary", score, onEd
     return editable && (field === "email" || field === "phone");
   };
   const pairs = MODE_PAIRS[mode] ?? MODE_PAIRS.summary;
-  const subtitle = [FIELDS.experience.get(candidate), FIELDS.location.get(candidate)].filter(Boolean).join(" · ");
+  // Caller-supplied `fields` drive a composed card (e.g. Pre-Screen Result); the candidate identity subtitle is
+  // suppressed since the property list isn't candidate-registry data.
+  const subtitle = fields ? "" : [FIELDS.experience.get(candidate), FIELDS.location.get(candidate)].filter(Boolean).join(" · ");
   const nameClass = cn(FX_TYPOGRAPHY.title, "text-[var(--fx-text)]");
 
   return (
@@ -178,8 +195,17 @@ function EvCandidateCard({ candidate, application, mode = "summary", score, onEd
           ) : null}
         </div>
 
-        {/* Facing-pair fields (skipped for the minimal variant) */}
-        {pairs.length ? (
+        {/* Property list — caller-supplied `fields` (composition), else the mode's registry pairs (candidate default). */}
+        {fields ? (
+          fields.length ? (
+            <div className="grid grid-cols-2 gap-x-6 gap-y-[16px]">
+              {/* Facing pairs like the registry grid: left column left-aligned, right column right-aligned. */}
+              {fields.map((field, index) => (
+                <CustomFieldCell key={field.label ?? index} field={field} align={field.align ?? (index % 2 === 0 ? "left" : "right")} />
+              ))}
+            </div>
+          ) : null
+        ) : pairs.length ? (
           <div className="grid grid-cols-2 gap-x-6 gap-y-[16px]">
             {pairs.flatMap(([left, right]) => [
               <FieldCell key={left} fieldKey={left} candidate={candidate} application={application} align="left" canEdit={canEdit(left)} onEditField={onEditField} />,
@@ -189,6 +215,8 @@ function EvCandidateCard({ candidate, application, mode = "summary", score, onEd
         ) : null}
 
         {mode === "full" ? <HistorySection history={history} /> : null}
+        {/* Optional footer/actions region. */}
+        {footer || null}
       </div>
     </div>
   );
