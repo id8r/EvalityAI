@@ -1108,7 +1108,7 @@ function EvJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
           fullWidth
           showIcons={false}
         >
-          <FxTabs.Content value="basic" className="mt-5 space-y-5">
+          <FxTabs.Content key="basic" value="basic" className="mt-5 space-y-5">
             <div className="rounded-[16px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-5">
               <div className="grid gap-6 xl:grid-cols-12">
                 <div className="xl:col-span-12">
@@ -1349,7 +1349,7 @@ function EvJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
             </div>
           </FxTabs.Content>
 
-          <FxTabs.Content value="description" className="mt-5 space-y-5">
+          <FxTabs.Content key="description" value="description" className="mt-5 space-y-5">
             <div className="space-y-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
@@ -1436,7 +1436,7 @@ function EvJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
             </div>
           </FxTabs.Content>
 
-          <FxTabs.Content value="questionnaire" className="mt-5 space-y-5">
+          <FxTabs.Content key="questionnaire" value="questionnaire" className="mt-5 space-y-5">
             <div className="space-y-6">
               <div className="space-y-[4px]">
                 <p className="text-[16px] leading-[24px] font-normal text-[var(--fx-text)]">Setup Screening Mode</p>
@@ -1596,7 +1596,7 @@ function EvJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
             </div>
           </FxTabs.Content>
 
-          <FxTabs.Content value="benefits" className="mt-5 space-y-5">
+          <FxTabs.Content key="benefits" value="benefits" className="mt-5 space-y-5">
             <div className="space-y-4">
               <p className="text-[14px] leading-[22px] text-[var(--fx-text-muted)]">
                 Check the benefits offered in the company. The AI agent will respond to candidate queries based on the details provided here.
@@ -1612,7 +1612,7 @@ function EvJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
             </div>
           </FxTabs.Content>
 
-          <FxTabs.Content value="evaluation" className="mt-5 space-y-5">
+          <FxTabs.Content key="evaluation" value="evaluation" className="mt-5 space-y-5">
             <div className="space-y-6">
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
@@ -1641,7 +1641,7 @@ function EvJobCreateSheet({ open, onOpenChange, onCreate, initialJob = null }) {
             </div>
           </FxTabs.Content>
 
-          <FxTabs.Content value="review" className="mt-5 space-y-5">
+          <FxTabs.Content key="review" value="review" className="mt-5 space-y-5">
             <div className="space-y-4">
               <p className="text-[15px] font-medium text-[var(--fx-text)]">Review your job before publishing.</p>
               <div className="space-y-1 rounded-[16px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">

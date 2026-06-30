@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { buildResumeFromUpload, formatFileSize, isPdfResume, resolveResumeUrl } from "@/lib/EvResume";
 import { candidateHistoricJobs, stageLabel } from "@/lib/EvSelectors";
+import { APP_SHORT_NAME } from "@/lib/FxConstants";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -53,35 +54,32 @@ function formatDate(value) {
   return date.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function SnapshotRow({ label, value }) {
+// Stacked label-above-value (mirrors the CanCard field) — legible for long values, no right-edge truncation.
+function DetailField({ label, value, align = "left" }) {
   return (
-    <div className="flex items-baseline justify-between gap-3">
-      <dt className="shrink-0 text-[12px] text-[var(--fx-text-muted)]">{label}</dt>
-      <dd className="min-w-0 truncate text-right text-[13px] text-[var(--fx-text)]">{value}</dd>
+    <div className={cn("space-y-0.5", align === "right" && "text-right")}>
+      <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fx-text-muted)]">{label}</p>
+      <p className="text-[13px] leading-[18px] text-[var(--fx-text)]">{value}</p>
     </div>
   );
 }
 
-// One referral: collapsed = job + stage + applied date; expanded = applied/updated/result detail.
+// Always-open referral card: job title, then Applied / Last updated on opposite edges, result below (plain text).
 function ReferralCard({ entry }) {
   return (
-    <details className="group rounded-[10px] border border-[var(--fx-border)] bg-[var(--fx-surface)]">
-      <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5">
-        <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-medium text-[var(--fx-text)]">{entry.jobTitle}</p>
-          <p className="text-[12px] text-[var(--fx-text-muted)]">Applied {formatDate(entry.appliedAt)}</p>
-        </div>
-        <FxBadge tone={entry.active ? "primary" : "neutral"} variant="outline" size="sm">
-          {stageLabel(entry.stage)}
-        </FxBadge>
-        <ChevronDown className="size-4 shrink-0 text-[var(--fx-text-muted)] transition-transform group-open:rotate-180" />
-      </summary>
-      <div className="space-y-1 border-t border-[var(--fx-border)] px-3 py-2.5">
-        <SnapshotRow label="Applied" value={formatDate(entry.appliedAt)} />
-        <SnapshotRow label="Last updated" value={formatDate(entry.updatedAt)} />
-        <SnapshotRow label="Result" value={entry.clientStatus || stageLabel(entry.stage)} />
+    <div className="space-y-2.5 rounded-[10px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-3">
+      <p className="truncate text-[13px] font-semibold text-[var(--fx-text)]" title={entry.jobTitle}>{entry.jobTitle}</p>
+      <div className="flex items-start justify-between gap-3">
+        <DetailField label="Applied" value={formatDate(entry.appliedAt)} />
+        <DetailField label="Last updated" value={formatDate(entry.updatedAt)} align="right" />
       </div>
-    </details>
+      <div className="border-t border-[var(--fx-border)] pt-2">
+        <DetailField
+          label="Result"
+          value={<span className={entry.active ? "text-[var(--fx-primary)]" : undefined}>{entry.clientStatus || stageLabel(entry.stage)}</span>}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -103,10 +101,10 @@ function BackgroundPanel({ candidate }) {
 
       <section className="space-y-1.5">
         <div className={BG_SECTION_TITLE}>Snapshot</div>
-        <dl className="space-y-1">
-          <SnapshotRow label="Current" value={currentRole || "Not captured."} />
-          <SnapshotRow label="Location" value={candidate?.location || "Not captured."} />
-        </dl>
+        <div className="space-y-3">
+          <DetailField label="Current" value={currentRole || "Not captured."} />
+          <DetailField label="Location" value={candidate?.location || "Not captured."} />
+        </div>
         {skills.length ? (
           <div className="flex flex-wrap gap-1.5 pt-1">
             {skills.map((skill) => (
@@ -120,29 +118,28 @@ function BackgroundPanel({ candidate }) {
       <section className="flex items-center gap-2 rounded-[10px] border border-[var(--fx-border)] bg-[var(--fx-bg-soft)] px-3 py-2.5">
         <Calendar className="size-4 shrink-0 text-[var(--fx-text-muted)]" />
         <p className="text-[12px] leading-[18px] text-[var(--fx-text-muted)]">
-          In Evality since <span className="font-medium text-[var(--fx-text)]">{formatDate(candidate?.createdAt)}</span>
+          In {APP_SHORT_NAME} since <span className="font-medium text-[var(--fx-text)]">{formatDate(candidate?.createdAt)}</span>
           {" · last updated "}
           <span className="font-medium text-[var(--fx-text)]">{formatDate(candidate?.updatedAt)}</span>
         </p>
       </section>
 
-      {activeCount ? (
-        <div className="flex items-start gap-2 rounded-[10px] border border-[color:color-mix(in_srgb,var(--fx-primary)_30%,var(--fx-border))] bg-[color:color-mix(in_srgb,var(--fx-primary)_8%,var(--fx-surface))] px-3 py-2.5">
-          <Info className="mt-0.5 size-4 shrink-0 text-[var(--fx-primary)]" />
-          <p className="text-[12px] leading-[18px] text-[var(--fx-text)]">
-            Currently in {activeCount} other {activeCount === 1 ? "job's" : "jobs'"} pipeline — already under process elsewhere.
-          </p>
-        </div>
-      ) : null}
-
-      <section className="space-y-2">
-        <div className="flex items-center gap-2">
-          <History className="size-4 text-[var(--fx-text-muted)]" />
-          <div className={BG_SECTION_TITLE}>Referral History</div>
-          <span className="rounded-full bg-[var(--fx-surface-hover)] px-1.5 text-[11px] font-medium text-[var(--fx-text-muted)]">{history.length}</span>
+      <section className="space-y-3">
+        <div className="flex items-center gap-2 border-b border-[var(--fx-border)] pb-2">
+          <History className="size-[18px] text-[var(--fx-text-muted)]" />
+          <h4 className="text-[14px] font-semibold text-[var(--fx-text)]">Referral History</h4>
         </div>
         {history.length ? (
-          <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2.5">
+            {/* "in another queue" sits at the grid's top, spanning both columns — count lives here, not in the header. */}
+            {activeCount ? (
+              <div className="col-span-2 flex items-start gap-2 rounded-[10px] border border-[color:color-mix(in_srgb,var(--fx-primary)_30%,var(--fx-border))] bg-[color:color-mix(in_srgb,var(--fx-primary)_8%,var(--fx-surface))] px-3 py-2.5">
+                <Info className="mt-0.5 size-4 shrink-0 text-[var(--fx-primary)]" />
+                <p className="text-[12px] leading-[18px] text-[var(--fx-text)]">
+                  Currently in {activeCount} other {activeCount === 1 ? "job's" : "jobs'"} pipeline — already under process elsewhere.
+                </p>
+              </div>
+            ) : null}
             {history.map((entry) => (
               <ReferralCard key={entry.applicationId} entry={entry} />
             ))}
@@ -166,7 +163,7 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
   const [selectedId, setSelectedId] = useState(null);
   const [hiddenIds, setHiddenIds] = useState([]);
   const [showListPane, setShowListPane] = useState(true);
-  const [previewTab, setPreviewTab] = useState("resume"); // résumé first — Background may run costly AI generation
+  const [previewTab, setPreviewTab] = useState("resume"); // resume first — Background may run costly AI generation
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [uploadedUrl, setUploadedUrl] = useState(null); // session-only blob (never persisted; revoked on unmount)
@@ -362,10 +359,10 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
                           ))}
                         </DropdownMenuContent>
                       </DropdownMenu>
-                      <FxToolbarSearch className="sm:w-full" placeholder={`Search ${ageFiltered.length}`} value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} />
+                      <FxToolbarSearch className="sm:w-full" placeholder="Search" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} />
                     </div>
                   ) : (
-                    <FxToolbarSearch className="sm:w-full" placeholder={`Search ${visible.length} candidates`} value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} />
+                    <FxToolbarSearch className="sm:w-full" placeholder="Search" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} />
                   )}
                 </div>
                 <div className="min-h-0 flex-1 overflow-y-auto p-2">
@@ -405,44 +402,43 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
             {/* Vertical divider between list and preview */}
             {showListPane ? <div className="hidden w-px bg-[var(--fx-border)] lg:block" /> : null}
 
-            {/* Preview — candidate summary card + Background/Resume */}
-            <div className="flex min-h-0 flex-col gap-3">
-              {/* compact (not summary) — keep the identity slim so the résumé/background gets the height. */}
+            {/* Preview — this column is the single scroll surface; card + tabs + content flow to their
+                natural height (no nested mini-scroll). The tab switcher stays pinned while you scroll. */}
+            <div className="flex min-h-0 flex-col gap-3 overflow-y-auto">
+              {/* compact (not summary) — keep the identity slim so the resume/background gets the height. */}
               {selected ? <EvCandidateCard candidate={selected} mode="compact" /> : null}
 
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)]">
-                <div className="flex-none border-b border-[var(--fx-border)] px-3 py-2">
+              <div className="rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)]">
+                <div className="sticky top-0 z-[2] rounded-t-[12px] border-b border-[var(--fx-border)] bg-[var(--fx-surface)] px-3 py-2">
                   <FxTabs
                     variant="segmented"
                     value={previewTab}
                     onValueChange={setPreviewTab}
                     tabs={[
-                      { value: "resume", label: "Résumé" },
+                      { value: "resume", label: "Resume" },
                       { value: "background", label: "Background" },
                     ]}
                   />
                 </div>
-                {/* Single content surface — no inner card; each view fills the area. */}
-                <div className="min-h-0 flex-1 overflow-hidden">
-                  {previewTab === "background" ? (
-                    <div className="h-full overflow-y-auto p-4">
-                      <BackgroundPanel candidate={selected} />
+                {previewTab === "background" ? (
+                  <div className="p-4">
+                    <BackgroundPanel candidate={selected} />
+                  </div>
+                ) : resumePreviewUrl ? (
+                  // rounded-b + overflow-hidden → the viewer's bottom matches the parent card's rounded corners (like the Background tab).
+                  <FxPdfViewer file={resumePreviewUrl} showToolbar autoHeight className="overflow-hidden rounded-none rounded-b-[12px] border-0" />
+                ) : resumeText ? (
+                  <div className="p-4">
+                    <pre className="whitespace-pre-wrap break-words font-sans text-[13px] leading-[21px] text-[var(--fx-text)]">{resumeText}</pre>
+                  </div>
+                ) : (
+                  <div className="flex min-h-[240px] items-center justify-center">
+                    <div className="space-y-2 text-center">
+                      <FileText className="mx-auto size-6 text-[var(--fx-text-muted)]" />
+                      <p className="text-[13px] text-[var(--fx-text-muted)]">No resume on file for this candidate.</p>
                     </div>
-                  ) : resumePreviewUrl ? (
-                    <FxPdfViewer file={resumePreviewUrl} showToolbar className="h-full rounded-none border-0" />
-                  ) : resumeText ? (
-                    <div className="h-full overflow-y-auto p-4">
-                      <pre className="whitespace-pre-wrap break-words font-sans text-[13px] leading-[21px] text-[var(--fx-text)]">{resumeText}</pre>
-                    </div>
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <div className="space-y-2 text-center">
-                        <FileText className="mx-auto size-6 text-[var(--fx-text-muted)]" />
-                        <p className="text-[13px] text-[var(--fx-text-muted)]">No resume on file for this candidate.</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

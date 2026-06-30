@@ -44,11 +44,13 @@ function ErrorState() {
   );
 }
 
-function FxPdfViewerClient({ file, showToolbar = true, className }) {
+// autoHeight: the viewer flows to the page's natural height (fit-width by default) and lets the PARENT
+// scroll — no inner scroll window. Use when the resume should grow inside a scrolling pane.
+function FxPdfViewerClient({ file, showToolbar = true, autoHeight = false, className }) {
   const [numPages, setNumPages] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1);
-  const [fitWidth, setFitWidth] = useState(false);
+  const [fitWidth, setFitWidth] = useState(autoHeight);
   const [containerWidth, setContainerWidth] = useState(0);
   const [error, setError] = useState(false);
   const containerRef = useRef(null);
@@ -97,7 +99,13 @@ function FxPdfViewerClient({ file, showToolbar = true, className }) {
   const pageSizing = fitWidth && containerWidth ? { width: Math.max(240, containerWidth - 32) } : { scale };
 
   return (
-    <div className={cn("flex h-full min-h-0 flex-col overflow-hidden rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)]", className)}>
+    <div
+      className={cn(
+        "flex flex-col rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)]",
+        autoHeight ? "h-auto" : "h-full min-h-0 overflow-hidden",
+        className,
+      )}
+    >
       {showToolbar && !error ? (
         <div className="flex flex-none flex-wrap items-center justify-between gap-3 border-b border-[var(--fx-border)] bg-[var(--fx-surface)] px-3 py-2">
           <div className="flex items-center gap-1">
@@ -128,7 +136,10 @@ function FxPdfViewerClient({ file, showToolbar = true, className }) {
         </div>
       ) : null}
 
-      <div ref={containerRef} className="min-h-0 flex-1 overflow-auto bg-[var(--fx-pdf-canvas)] p-4">
+      <div
+        ref={containerRef}
+        className={cn("bg-[var(--fx-pdf-canvas)] p-4", autoHeight ? "overflow-visible" : "min-h-0 flex-1 overflow-auto")}
+      >
         <Document
           file={file}
           onLoadSuccess={({ numPages: count }) => {
