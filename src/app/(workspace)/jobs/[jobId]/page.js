@@ -55,6 +55,7 @@ import { EvAddCandidatesSheet } from "@/components/Ev/Candidates/EvAddCandidates
 import { EvRejectCandidateDialog } from "@/components/Ev/Candidates/EvRejectCandidateDialog";
 import { EvStartPreScreeningSheet } from "@/components/Ev/Candidates/EvStartPreScreeningSheet";
 import { EvManualScreeningSheet } from "@/components/Ev/Candidates/EvManualScreeningSheet";
+import { EvEmailScreeningSheet } from "@/components/Ev/Candidates/EvEmailScreeningSheet";
 import { EvCvMatchBreakdown } from "@/components/Ev/Candidates/EvCvMatchBreakdown";
 import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
 import { EvCandidateDetailsSheet } from "@/components/Ev/Candidates/EvCandidateDetailsSheet";
@@ -109,7 +110,7 @@ const ACTION_DEFS = {
   download: { icon: Download, label: "Download Resume", tone: "accent", run: (h, r) => h.download(r) },
   prescreen: { icon: Mail, label: "Start Pre-Screening", tone: "accent", run: (h, r) => h.startPreScreen(r) },
   emailScreen: { icon: Mail, label: "Email Pre-Screen", tone: "accent", run: (h, r) => h.emailScreen(r) },
-  manualScreen: { icon: Users, label: "Manual Pre-Screen", tone: "neutral", run: (h, r) => h.openDetail("manualScreen", r[0]) },
+  manualScreen: { icon: Users, label: "Manual Pre-Screen", tone: "neutral", run: (h, r) => h.manualScreen(r) },
   preScreenResult: { icon: ClipboardCheck, label: "View Pre-Screen Result", tone: "neutral", run: (h, r) => h.openDetail("preScreenResult", r[0]) },
   share: { icon: Share2, label: "Share for Review", tone: "accent", run: (h, r) => h.openDetail("share", r[0]) },
   shortlist: { icon: Check, label: "Shortlist", tone: "accent", run: (h, r) => h.move(r, "shortlisted", "Shortlisted") },
@@ -923,6 +924,43 @@ export default function JobWorkspacePage() {
     setManualScreeningOpen(true);
   };
 
+  // Persist the Manual Standard-tab fields onto the Application (workflow state stays on the Application, not the Candidate).
+  const persistManualScreening = (row, formData) => {
+    const app = row?.app;
+    if (!app?.id || !formData) return;
+    const toNumber = (value) => {
+      const parsed = Number(String(value ?? "").replace(/[^0-9.]/g, ""));
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    };
+    const currency = row.currentSalaryCurrency ?? "INR";
+    const expected = toNumber(formData.salaryExpectation);
+    const days = formData.joinBy === "days" ? toNumber(formData.joinDays) : null;
+    const availability =
+      formData.joinBy === "days" && days != null
+        ? { mode: "days", days }
+        : formData.joinBy === "date" && formData.joinDate
+          ? { mode: "date", date: formData.joinDate }
+          : app.qualification?.availability ?? null;
+    updateApplication(app.id, {
+      qualification: {
+        ...(app.qualification ?? {}),
+        matchScore: toNumber(formData.fitScore) ?? app.qualification?.matchScore ?? null,
+        expectedSalary: expected != null ? { amount: expected, currency } : app.qualification?.expectedSalary ?? null,
+        availability,
+      },
+      screening: {
+        ...(app.screening ?? {}),
+        status: "completed",
+        mode: "manual",
+        manual: {
+          interested: formData.interested,
+          currentSalary: toNumber(formData.currentSalary),
+          note: formData.note ?? "",
+        },
+      },
+    });
+  };
+
   const handleConfirmEmailScreening = () => {
     handleEmailScreening(emailScreeningRows);
     setEmailScreeningOpen(false);
@@ -1170,26 +1208,35 @@ export default function JobWorkspacePage() {
         candidates={startPreScreeningRows}
         onConfirm={handleConfirmStartPreScreening}
       />
-      <EvStartPreScreeningSheet
+      <EvEmailScreeningSheet
+        key={emailScreeningRows[0]?.id ?? "email"}
         open={emailScreeningOpen}
         onOpenChange={(open) => {
           setEmailScreeningOpen(open);
           if (!open) setEmailScreeningRows([]);
         }}
-        title="Email Pre-Screening"
-        description="Draft the email pre-screening step here. Sending will mark the attempt and update the badge count."
-        confirmLabel="Send"
-        candidates={emailScreeningRows}
-        onConfirm={handleConfirmEmailScreening}
+        row={emailScreeningRows[0] ?? null}
+        job={job}
+        onSend={() => handleConfirmEmailScreening()}
       />
       <EvManualScreeningSheet
+        key={manualScreeningRow?.id ?? "manual"}
         open={manualScreeningOpen}
         onOpenChange={(open) => {
           setManualScreeningOpen(open);
           if (!open) setManualScreeningRow(null);
         }}
-        candidate={manualScreeningRow?.candidate ?? null}
-        onConfirm={() => {
+        row={manualScreeningRow}
+        rows={stageRows}
+        job={job}
+        onNavigate={(nextRow) => setManualScreeningRow(nextRow)}
+        onReject={(targetRow) => {
+          setManualScreeningOpen(false);
+          handleOpenRejectConfirm([targetRow]);
+        }}
+        onMoveToPrescreen={(targetRow, formData) => {
+          persistManualScreening(targetRow, formData);
+          moveRows([targetRow], "prescreened", "Moved to Pre-Screened");
           setManualScreeningOpen(false);
           setManualScreeningRow(null);
         }}

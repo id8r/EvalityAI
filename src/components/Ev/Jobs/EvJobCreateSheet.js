@@ -44,6 +44,7 @@ import { EvUploadJobDescriptionDialog } from "@/components/Ev/Jobs/EvUploadJobDe
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { DEFAULT_SCREENING_QUESTIONS } from "@/lib/EvScreening";
 import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
@@ -162,44 +163,8 @@ const EVALUATION_CONTEXT_PROMPTS = [
   },
 ];
 
-const DEFAULT_JOB_QUESTION_SUGGESTIONS = [
-  {
-    id: "availability",
-    label: "Availability",
-    question: "We must fill this role immediately, How soon can you join us?",
-    note: "Capture near-term readiness quickly.",
-  },
-  {
-    id: "notice-period",
-    label: "Notice Period",
-    question: "What is your current notice period?",
-    note: "Useful for prioritizing candidates in motion.",
-  },
-  {
-    id: "current-salary",
-    label: "Current Salary",
-    question: "What is your Current Annual Salary in INR?",
-    note: "Use only when compensation alignment matters.",
-  },
-  {
-    id: "salary-expectation",
-    label: "Salary Expectation",
-    question: "What are your Salary Expectations?",
-    note: "Keep this focused on the target range for the role.",
-  },
-  {
-    id: "job-location",
-    label: "Job Location",
-    question: "The Job Role is on-site based out of the selected location. Are you comfortable commuting to the location?",
-    note: "Useful when commute or work setup fit matters.",
-  },
-  {
-    id: "current-company",
-    label: "Current Company",
-    question: "What is the name of the Current Company you are working with?",
-    note: "Helpful when the current employer context matters.",
-  },
-];
+// Shared with the Manual Pre-Screening sheet so the standard question set never drifts (see @/lib/EvScreening).
+const DEFAULT_JOB_QUESTION_SUGGESTIONS = DEFAULT_SCREENING_QUESTIONS;
 
 const DEFAULT_FORM = {
   title: "",
