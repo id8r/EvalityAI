@@ -345,21 +345,6 @@ function EvScheduleInterviewSheet({ open, onOpenChange, row, job, onSchedule }) 
                 <GroupLabel>Notes / agenda</GroupLabel>
                 <FxTextarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="Context or focus areas for the interviewer (optional)." />
               </div>
-
-              {/* Live confirmation banner — key entities bolded so it reads as a clear recap of what's being booked. */}
-              {confirm ? (
-                <p className="flex items-start gap-2 rounded-[10px] border border-[color:color-mix(in_srgb,var(--fx-primary)_34%,var(--fx-border))] bg-[color:color-mix(in_srgb,var(--fx-primary)_11%,var(--fx-surface))] px-3.5 py-3 text-[13px] leading-[20px] text-[var(--fx-text)]">
-                  <CalendarCheck className="mt-[2px] size-4 shrink-0 text-[var(--fx-primary)]" />
-                  <span>
-                    Booking a <strong className="font-semibold text-[var(--fx-text)]">{confirm.round}</strong>{" "}
-                    <strong className="font-semibold text-[var(--fx-text)]">{confirm.mode}</strong> interview
-                    {confirm.who ? <> with <strong className="font-semibold text-[var(--fx-text)]">{confirm.who}</strong></> : null} on{" "}
-                    <strong className="font-semibold text-[var(--fx-text)]">{confirm.date}</strong> at{" "}
-                    <strong className="font-semibold text-[var(--fx-text)]">{confirm.time}</strong>
-                    <span className="text-[var(--fx-text-muted)]"> · {confirm.duration} min{confirm.tz ? `, ${confirm.tz}` : ""}</span>.
-                  </span>
-                </p>
-              ) : null}
               </div>
              </div>
             </div>
@@ -369,9 +354,26 @@ function EvScheduleInterviewSheet({ open, onOpenChange, row, job, onSchedule }) 
         <FxSheet.Body />
       )}
 
-      <FxSheet.Footer footerStart={<FxButton variant="outline" size="md" onClick={() => handleOpenChange(false)}>Cancel</FxButton>}>
+      <FxSheet.Footer
+        footerStart={<FxButton variant="outline" size="md" onClick={() => handleOpenChange(false)}>Cancel</FxButton>}
+        footerCenter={
+          confirm ? (
+            <p className="flex min-w-0 items-center gap-2 rounded-[6px] border border-[var(--fx-border)] bg-[var(--fx-surface)] px-3 py-[8px] text-[13px] leading-[18px] text-[var(--fx-text)]">
+              <CalendarCheck className="size-4 shrink-0 text-[var(--fx-text-muted)]" />
+              <span className="min-w-0 truncate">
+                <span className="font-semibold text-[var(--fx-accent)]">{confirm.round}</span>{" "}
+                <span className="font-semibold text-[var(--fx-accent)]">{confirm.mode}</span> interview
+                {confirm.who ? <> with <span className="font-semibold text-[var(--fx-accent)]">{confirm.who}</span></> : null} on{" "}
+                <span className="font-semibold text-[var(--fx-accent)]">{confirm.date}</span> at{" "}
+                <span className="font-semibold text-[var(--fx-accent)]">{confirm.time}</span>
+                {" · "}<span className="font-semibold text-[var(--fx-accent)]">{confirm.duration} min{confirm.tz ? `, ${confirm.tz}` : ""}</span>
+              </span>
+            </p>
+          ) : null
+        }
+      >
         <FxButton variant="primary" size="md" className="min-w-[150px]" disabled={!canSchedule} onClick={handleSubmit}>
-          Schedule &amp; Send Invite
+          Send Invite
         </FxButton>
       </FxSheet.Footer>
 

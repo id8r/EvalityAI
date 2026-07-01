@@ -127,7 +127,7 @@ function SheetBody({ className, ...props }) {
 }
 
 // Fixed footer: `left` group (secondary actions) and `right` group (primary actions).
-function SheetFooter({ className, left, right, ...props }) {
+function SheetFooter({ className, left, center, right, ...props }) {
   return (
     <div
       data-slot="sheet-footer"
@@ -141,6 +141,7 @@ function SheetFooter({ className, left, right, ...props }) {
       {...props}
     >
       <div className={cn("flex min-w-0 items-center", FX_SHEET.footer.gap)}>{left}</div>
+      {center ? <div className="flex min-w-0 flex-1 items-center justify-center px-3">{center}</div> : null}
       <div className={cn("flex items-center", FX_SHEET.footer.gap)}>{right}</div>
     </div>
   );

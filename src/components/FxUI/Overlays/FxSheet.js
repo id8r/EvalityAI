@@ -316,8 +316,8 @@ function FxSheetBody({ className, children }) {
 }
 
 // Sticky footer (never scrolls): `footerStart` = secondary actions (left), children = primary actions (right).
-function FxSheetFooter({ footerStart, className, children }) {
-  return <SheetFooter left={footerStart} right={children} className={className} />;
+function FxSheetFooter({ footerStart, footerCenter, className, children }) {
+  return <SheetFooter left={footerStart} center={footerCenter} right={children} className={className} />;
 }
 /* - - - - - - - - - - - - - - - - */
 
