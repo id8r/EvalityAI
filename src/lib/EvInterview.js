@@ -213,11 +213,12 @@ export const ITEM_TYPES = [
   { value: "feedback", label: "Feedback" },
 ];
 
-// Decision outcome drives the round marker + the derived journey status (roundOutcome/interviewStatus).
+// Decision outcome drives the round marker, the derived journey status, and the round's next-action CTA.
 export const DECISION_OUTCOMES = [
   { value: "advance", label: "Advance", tone: "success" },
   { value: "hold", label: "Hold", tone: "warning" },
   { value: "reject", label: "Reject", tone: "danger" },
+  { value: "offer", label: "Offer", tone: "primary" },
 ];
 
 const DONE_INTERVIEW_STATUSES = ["done", "cancelled"];
@@ -248,15 +249,83 @@ export function isItemOverdue(item, todayKey) {
   return item.dueDate < todayKey;
 }
 
-// Header-strip signals: overdue items + rounds that have an interview but no decision yet. Pure.
+// Header-strip signals (each carries roundId so the strip can scroll the recruiter to the exact round). Pure.
 export function journeyAttention(rounds = [], todayKey) {
   const overdue = [];
-  let awaitingDecision = 0;
+  const awaiting = [];
   rounds.forEach((round) => {
-    (round.items ?? []).forEach((it) => { if (isItemOverdue(it, todayKey)) overdue.push({ ...it, roundName: round.name }); });
-    if ((round.items ?? []).some((it) => it.type === "interview") && !roundOutcome(round)) awaitingDecision += 1;
+    const items = round.items ?? [];
+    items.forEach((it) => { if (isItemOverdue(it, todayKey)) overdue.push({ id: it.id, title: it.title, roundId: round.id, roundName: round.name }); });
+    // "Awaiting decision" is only actionable once the interview is concluded (done) or feedback exists — not while it's still upcoming.
+    const concluded = items.some((it) => it.type === "interview" && it.status === "done") || items.some((it) => it.type === "feedback");
+    if (concluded && !roundOutcome(round)) awaiting.push({ roundId: round.id, roundName: round.name });
   });
-  return { overdue, awaitingDecision };
+  return { overdue, awaiting, awaitingDecision: awaiting.length };
+}
+
+/* - - - - Journey orientation — "where is the candidate + what's the next move?" (all pure) - - - - */
+
+// The active round the recruiter is working = the last column. null when the journey is empty.
+export function currentRound(rounds = []) {
+  return rounds.length ? rounds[rounds.length - 1] : null;
+}
+
+// A round's human state + badge tone, derived from its items (rounds store no state of their own).
+export function roundState(round, todayKey) {
+  const outcome = roundOutcome(round);
+  if (outcome) {
+    const meta = DECISION_OUTCOMES.find((o) => o.value === outcome);
+    return { key: outcome, label: meta?.label ?? outcome, tone: meta?.tone ?? "neutral" };
+  }
+  const items = round?.items ?? [];
+  if (!items.length) return { key: "empty", label: "Not started", tone: "subtle" };
+  if (items.some((it) => isItemOverdue(it, todayKey))) return { key: "overdue", label: "Overdue", tone: "danger" };
+  const interviews = items.filter((it) => it.type === "interview");
+  if (interviews.length) {
+    const done = interviews.some((it) => it.status === "done") || items.some((it) => it.type === "feedback");
+    return done ? { key: "awaiting_decision", label: "Awaiting decision", tone: "warning" } : { key: "scheduled", label: "Scheduled", tone: "primary" };
+  }
+  return { key: "in_progress", label: "In progress", tone: "primary" };
+}
+
+// Items still needing action — feeds the round's pending count.
+export function roundPendingItems(round, todayKey) {
+  return (round?.items ?? []).filter((it) => {
+    if (it.type === "task") return it.status !== "done";
+    if (it.type === "feedback") return it.status !== "submitted";
+    if (it.type === "interview") return !["done", "cancelled"].includes(it.status);
+    if (it.type === "decision") return !it.payload?.outcome;
+    return isItemOverdue(it, todayKey); // notes only surface if dated + overdue
+  });
+}
+
+/*
+  The single strongest next action for a round, so the board can render one guiding CTA instead of a freeform
+  task board. Outcome-driven once a decision exists; otherwise walks the schedule → feedback → decision lifecycle.
+*/
+export function roundPrimaryAction(round, isLast) {
+  const outcome = roundOutcome(round);
+  if (outcome === "advance") return isLast ? { key: "create_next_round", label: "Create next round" } : null;
+  if (outcome === "offer") return { key: "move_to_offered", label: "Move to Offered" };
+  if (outcome === "reject") return { key: "reject_candidate", label: "Reject Candidate" };
+  if (outcome === "hold") return { key: "add_task", label: "Add follow-up task" };
+  const items = round?.items ?? [];
+  if (!items.length) return { key: "add_interview", label: "Schedule interview" };
+  if (items.some((it) => it.type === "interview") && !items.some((it) => it.type === "feedback")) return { key: "record_feedback", label: "Record feedback" };
+  if (!items.some((it) => it.type === "decision")) return { key: "record_decision", label: "Record decision" };
+  return null;
+}
+
+// Board-level "next recommended action" for the header — the earliest round with an open primary action.
+export function nextActionHint(journey) {
+  const rounds = journey?.rounds ?? [];
+  if (!rounds.length) return { label: "Add the first round to begin", roundId: null, action: { key: "add_round", label: "Add round" } };
+  const lastId = rounds[rounds.length - 1].id;
+  for (const round of rounds) {
+    const action = roundPrimaryAction(round, round.id === lastId);
+    if (action) return { label: `${action.label} · ${round.name}`, roundId: round.id, action };
+  }
+  return { label: "Journey up to date", roundId: lastId, action: null };
 }
 
 // One interview card synthesized from the legacy flat single-interview object. Deterministic id → idempotent normalize.
@@ -264,7 +333,8 @@ function interviewItemFromFlat(iv) {
   return {
     id: "itm_seed_interview",
     type: "interview",
-    title: iv.scheduleDetails || iv.stage || "Interview",
+    title: `${iv.stage || "Round 1"} Interview`, // reads as an event ("Technical Interview"), not a duplicate round label
+
     assigneeId: null,
     dueDate: iv.date ?? null,
     flagged: false,

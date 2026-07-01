@@ -263,6 +263,55 @@ export function interviewMoveItem(id, itemId, dir) {
   });
   return persistInterviewRounds(id, next, summary);
 }
+
+// Map the Schedule sheet's submit payload → an interview item's payload.
+function interviewPayloadFrom(p = {}) {
+  return {
+    mode: p.mode ?? null,
+    dateKey: p.dateKey ?? null,
+    slotStart: p.slotStart ?? null,
+    durationMin: p.durationMin ?? null,
+    timezone: p.timezone ?? null,
+    interviewers: p.interviewers ?? [],
+    where: p.where ?? null,
+    notes: p.notes ?? "",
+    sharePacket: p.sharePacket ?? null,
+    scheduleDetails: p.scheduleDetails ?? "",
+  };
+}
+function newInterviewItem(roundName, p) {
+  return { id: genId("itm"), type: "interview", title: `${roundName} Interview`, assigneeId: null, dueDate: p.dateKey ?? null, flagged: false, links: [], status: "scheduled", createdAt: nowIso(), payload: p };
+}
+
+// Schedule-sheet write path (reschedule = keep prior slot as history; missing itemId = add an interview to the round).
+export function interviewUpsertInterview(id, roundId, itemId, payload, { keepHistory = true } = {}) {
+  const { rounds, summary } = getInterviewJourney(id);
+  const p = interviewPayloadFrom(payload);
+  const next = rounds.map((r) => {
+    if (r.id !== roundId) return r;
+    let matched = false;
+    const items = (r.items ?? []).map((it) => {
+      if (it.id !== itemId || it.type !== "interview") return it;
+      matched = true;
+      const prev = it.payload ?? {};
+      const history = keepHistory && prev.dateKey
+        ? [...(prev.history ?? []), { dateKey: prev.dateKey, slotStart: prev.slotStart, durationMin: prev.durationMin, timezone: prev.timezone, at: nowIso() }]
+        : (prev.history ?? []);
+      return { ...it, status: "rescheduled", dueDate: p.dateKey ?? it.dueDate, payload: { ...prev, ...p, history } };
+    });
+    if (!matched) items.push(newInterviewItem(r.name, p));
+    return { ...r, items };
+  });
+  return persistInterviewRounds(id, next, summary);
+}
+
+// Create the next round (after an Advance) with its interview already scheduled.
+export function interviewCreateNextRound(id, name, payload) {
+  const { rounds, summary } = getInterviewJourney(id);
+  const roundName = name?.trim() || `Round ${rounds.length + 1}`;
+  const round = { id: genId("rnd"), order: rounds.length + 1, name: roundName, createdAt: nowIso(), items: [newInterviewItem(roundName, interviewPayloadFrom(payload))] };
+  return persistInterviewRounds(id, [...rounds, round], summary);
+}
 // Append a recruiter note (job-specific) to the application.
 export function addApplicationNote(id, text, actorId = null) {
   const app = getApplication(id);

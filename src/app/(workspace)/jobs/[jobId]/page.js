@@ -22,9 +22,9 @@ import {
   Minus,
   PencilLine,
   PhoneCall,
-  MessagesSquare,
   RotateCcw,
   Share2,
+  Workflow,
   UserRoundX,
   Users,
 } from "lucide-react";
@@ -32,6 +32,7 @@ import {
 import { FxAiButton, FxButton, FxIconButton, FxToolbarSearch } from "@/components/FxUI/Forms";
 import { FxPageToolbar, FxWorkspaceTableFrame } from "@/components/FxUI/Layout";
 import { FxTabs } from "@/components/FxUI/Navigation";
+import { FxConfirmDialog } from "@/components/FxUI/Overlays/FxConfirmDialog";
 import {
   FxTable,
   FxActionsCell,
@@ -80,6 +81,9 @@ import {
   updateApplicationNote,
   updateCandidate,
   updateJob,
+  getInterviewJourney,
+  interviewUpsertInterview,
+  interviewCreateNextRound,
 } from "@/lib/EvData";
 import { employmentTypeLabel, experienceLabel, jobLocationLabel, stageLabel } from "@/lib/EvSelectors";
 import { screeningTypeMeta } from "@/lib/EvScreening";
@@ -113,7 +117,7 @@ const INTERVIEW_COLUMNS = ["name", "phone", "scheduleDetails", "interviewer", "i
   `run(h, rows)` dispatches to the page handlers (h). `tone`: accent | danger | neutral. `sep`: kebab separator before.
 */
 const ACTION_DEFS = {
-  view: { icon: Eye, label: "View Candidate", tone: "neutral", run: (h, r) => h.openDetail("candidate", r[0]) },
+  view: { icon: Eye, label: "View Candidate", tone: "neutral", sep: true, run: (h, r) => h.openDetail("candidate", r[0]) },
   open: { icon: Eye, label: "Open Candidate", tone: "neutral", run: (h, r) => h.openDetail("candidate", r[0]) },
   resume: { icon: FileText, label: "View Resume", tone: "neutral", run: (h, r) => h.openDetail("resume", r[0]) },
   download: { icon: Download, label: "Download Resume", tone: "accent", run: (h, r) => h.download(r) },
@@ -131,7 +135,13 @@ const ACTION_DEFS = {
   moveToPrescreened: { icon: RotateCcw, label: "Move to Pre-Screened", tone: "accent", run: (h, r) => h.move(r, "prescreened", "Moved to Pre-Screened") },
   moveToShortlisted: { icon: ArrowRight, label: "Move to Shortlisted", tone: "neutral", run: (h, r) => h.move(r, "shortlisted", "Moved to Shortlisted") },
   moveBackPrescreened: { icon: RotateCcw, label: "Move back to Pre-Screened", tone: "neutral", run: (h, r) => h.move(r, "prescreened", "Moved to Pre-Screened") },
-  interviewWorkspace: { icon: MessagesSquare, label: "Interview Workspace", tone: "neutral", run: (h, r) => h.openDetail("interview", r[0]) },
+  interviewWorkspace: { icon: Workflow, label: "Open Interview Workspace", tone: "neutral", run: (h, r) => h.openDetail("interview", r[0]) },
+  rescheduleInterview: { icon: CalendarClock, label: "Reschedule Interview", tone: "neutral", run: (h, r) => h.rescheduleInterview(r[0]) },
+  addFeedback: { icon: ClipboardCheck, label: "Add Feedback", tone: "neutral", run: (h, r) => h.openDetail("interview", r[0], { action: "feedback" }) },
+  recordDecision: { icon: FileText, label: "Record Decision", tone: "neutral", run: (h, r) => h.openDetail("interview", r[0], { action: "decision" }) },
+  createNextRound: { icon: ArrowRight, label: "Create Next Round", tone: "neutral", run: (h, r) => h.rescheduleInterview(r[0], { nextRound: true }) },
+  moveToOffered: { icon: Check, label: "Move to Offered", tone: "accent", run: (h, r) => h.offer(r) },
+  markDropped: { icon: UserRoundX, label: "Mark Candidate Dropped", tone: "danger", run: (h, r) => h.drop(r) },
 };
 
 /*
@@ -154,7 +164,7 @@ const STAGE_CONFIG = {
   },
   interviewing: {
     columns: INTERVIEW_COLUMNS, dot: true, selectable: false, defaultSort: null,
-    inline: ["interviewWorkspace"], bulk: [], kebab: ["view", "resume", "download", "rejectCandidate"],
+    inline: ["interviewWorkspace"], bulk: [], kebab: ["interviewWorkspace", "rescheduleInterview", "addFeedback", "recordDecision", "createNextRound", "moveToOffered", "view", "resume", "download", "rejectCandidate", "markDropped"],
   },
   offered: {
     columns: SHARED_COLUMNS, scoreLabel: "Fit Score", scoreKind: "preScreenResult", dot: true, selectable: false, defaultSort: null,
@@ -288,6 +298,35 @@ function effectiveMatchScore(app, candidate) {
 function matchesScreenFilter(app, filter) {
   if (filter === "all") return true;
   return effectiveScreeningMode(app) === filter; // ai_call | manual
+}
+
+function nextRoundLabel(current = "Round 1") {
+  const match = String(current).match(/^(.*?)(\d+)$/);
+  if (!match) return "Round 2";
+  const [, prefix, num] = match;
+  return `${prefix}${Number(num) + 1}`;
+}
+
+function buildScheduleInitial(row, { nextRound = false } = {}) {
+  const interview = row?.app?.interview ?? {};
+  const person = interview.interviewers?.[0] ?? {};
+  const round = nextRound ? nextRoundLabel(interview.stage ?? "Round 1") : interview.stage ?? "Round 1";
+  return {
+    round,
+    mode: interview.mode ?? "remote",
+    interviewerName: person.name ?? "",
+    interviewerCompany: person.company ?? "",
+    interviewerEmail: person.email ?? "",
+    interviewerPhone: person.phone ?? "",
+    durationMin: interview.durationMin ?? undefined,
+    timezone: interview.timezone ?? undefined,
+    where: interview.where ?? undefined,
+    notes: interview.notes ?? "",
+    dateKey: nextRound ? null : interview.date ?? null,
+    slotStart: nextRound ? null : interview.slotStart ?? null,
+    sharePacket: interview.sharePacket ?? undefined,
+    interviewers: interview.interviewers ?? (person.email ? [person] : []),
+  };
 }
 
 function statusToneForStage(stage) {
@@ -504,7 +543,24 @@ function buildStageColumns(config, h) {
     },
     // interviewing-only columns (data wires in with the Interview Workspace sheet; structure faithful to old)
     scheduleDetails: { key: "scheduleDetails", header: "Schedule Details", width: 200, minWidth: 160, sortable: false, cell: (row) => <FxTextCell value={row.interview?.scheduleDetails} muted /> },
-    interviewer: { key: "interviewer", header: "Interviewer", width: 150, minWidth: 120, sortable: false, cell: (row) => <FxTextCell value={row.interview?.interviewer} /> },
+  interviewer: {
+      key: "interviewer",
+      header: "Interviewer",
+      width: 200,
+      minWidth: 180,
+      sortable: false,
+      cell: (row) => {
+        const interviewer = row.interview?.interviewers?.[0] ?? null;
+        const name = interviewer?.name || row.interview?.interviewer || "—";
+        const email = interviewer?.email || row.interview?.interviewerEmail || "";
+        return (
+          <div className="min-w-0">
+            <div className="truncate text-[13px] font-medium text-[var(--fx-text)]">{name}</div>
+            {email ? <div className="truncate text-[12px] text-[var(--fx-text-muted)]">{email}</div> : null}
+          </div>
+        );
+      },
+    },
     interviewStage: { key: "interviewStage", header: "Stage", width: 90, minWidth: 80, align: "center", sortable: false, cell: (row) => <FxTextCell value={row.interview?.stage} muted /> },
     recommendation: { key: "recommendation", header: "Recommendation", width: 150, minWidth: 120, align: "center", sortable: false, cell: (row) => <FxTextCell value={row.interview?.recommendation} muted /> },
     feedback: {
@@ -520,7 +576,7 @@ function buildStageColumns(config, h) {
     // of the icon row or the "Actions" header, plus a small gutter. No fixed 104–140px, and not resizable.
     const ACTION_ICON_W = 32; // FxInlineAction is size-8
     const ACTION_ICON_GAP = 0; // no extra spacing between icons
-    const ACTION_HEADER_W = 64; // floor that fits the "Actions" header even with a single inline icon
+    const ACTION_HEADER_W = config.inline.length === 1 && config.inline[0] === "interviewWorkspace" ? 56 : 64; // interview row can be tighter; others keep a safer floor
     const ACTION_CELL_PAD = 4; // tiny gutter only
     const iconsW = config.inline.length * ACTION_ICON_W + Math.max(0, config.inline.length - 1) * ACTION_ICON_GAP;
     const actionsW = Math.max(iconsW, ACTION_HEADER_W) + ACTION_CELL_PAD;
@@ -721,7 +777,7 @@ export default function JobWorkspacePage() {
   const [addCandidatesMode, setAddCandidatesMode] = useState("add");
   const [addCandidatesKey, setAddCandidatesKey] = useState(0);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [detail, setDetail] = useState({ open: false, kind: "candidate", row: null });
+  const [detail, setDetail] = useState({ open: false, kind: "candidate", row: null, action: null });
   const [candidateDetailOpen, setCandidateDetailOpen] = useState(false);
   const [candidateDetailId, setCandidateDetailId] = useState(null);
   const [preScreenResultRow, setPreScreenResultRow] = useState(null);
@@ -729,6 +785,8 @@ export default function JobWorkspacePage() {
   const [shareRows, setShareRows] = useState([]);
   const [shareOpen, setShareOpen] = useState(false);
   const [scheduleRow, setScheduleRow] = useState(null);
+  const [scheduleMode, setScheduleMode] = useState("create");
+  const [scheduleInitial, setScheduleInitial] = useState(null);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [startPreScreeningOpen, setStartPreScreeningOpen] = useState(false);
   const [startPreScreeningRows, setStartPreScreeningRows] = useState([]);
@@ -742,6 +800,9 @@ export default function JobWorkspacePage() {
   const [dropConfirmOpen, setDropConfirmOpen] = useState(false);
   const [dropRowsState, setDropRowsState] = useState([]);
   const [dropKey, setDropKey] = useState(0); // remount the drop dialog per open → fresh note
+  const [offerConfirmOpen, setOfferConfirmOpen] = useState(false);
+  const [offerRowsState, setOfferRowsState] = useState([]);
+  const [offerKey, setOfferKey] = useState(0); // remount per open → fresh confirm state
 
   const jobId = String(params?.jobId ?? "");
   const requestedTab = searchParams.get("tab");
@@ -982,11 +1043,40 @@ export default function JobWorkspacePage() {
   const handleOpenSchedule = (rows) => {
     const next = resolveActionRows(rows);
     if (!next.length) return;
+    setScheduleMode("create");
+    setScheduleInitial(null);
     setScheduleRow(next[0]); // single-candidate path — no bulk scheduling
+    setScheduleOpen(true);
+  };
+  const handleRescheduleInterview = (row, options = {}) => {
+    if (!row?.id) return;
+    setScheduleMode(options.nextRound ? "next-round" : "reschedule");
+    setScheduleInitial(buildScheduleInitial(row, { nextRound: Boolean(options.nextRound) }));
+    setScheduleRow(row);
     setScheduleOpen(true);
   };
   const handleScheduleInterview = (targetRow, payload) => {
     if (!targetRow?.id || !payload) return;
+    const closeSchedule = () => { setScheduleOpen(false); setScheduleRow(null); setScheduleMode("create"); setScheduleInitial(null); };
+
+    // Round Board reuse — reschedule the current round's interview, or schedule the next round; both write into rounds[].
+    if (scheduleMode === "reschedule") {
+      const rounds = getInterviewJourney(targetRow.id).rounds ?? [];
+      const round = rounds[rounds.length - 1] ?? null;
+      const interview = round ? [...(round.items ?? [])].reverse().find((it) => it.type === "interview") : null;
+      if (round) interviewUpsertInterview(targetRow.id, round.id, interview?.id ?? null, payload);
+      toast.success("Interview rescheduled", { description: `${targetRow.candidateName} · ${payload.scheduleDetails}.` });
+      closeSchedule();
+      return;
+    }
+    if (scheduleMode === "next-round" || scheduleMode === "nextRound") {
+      interviewCreateNextRound(targetRow.id, payload.round, payload);
+      toast.success("Next round scheduled", { description: `${payload.round} · ${payload.scheduleDetails}.` });
+      closeSchedule();
+      return;
+    }
+
+    // create / schedule — original Shortlisted→Interviewing entry (flat write; normalizeInterview folds it into rounds[]).
     const at = new Date().toISOString();
     const interviewerLabel = (payload.interviewers ?? []).map((person) => person.name || person.email).filter(Boolean).join(", ");
     updateApplication(targetRow.id, {
@@ -1014,8 +1104,7 @@ export default function JobWorkspacePage() {
         ? `${targetRow.candidateName} · ${payload.scheduleDetails}. Invite sent.`
         : `${targetRow.candidateName} · ${payload.scheduleDetails}.`,
     });
-    setScheduleOpen(false);
-    setScheduleRow(null);
+    closeSchedule();
   };
 
   const holdRows = (rows) => {
@@ -1111,6 +1200,20 @@ export default function JobWorkspacePage() {
     setDropKey((current) => current + 1);
     setDropConfirmOpen(true);
   };
+  const handleOpenOfferConfirm = (rows) => {
+    const next = resolveActionRows(rows);
+    if (!next.length) return;
+    setOfferRowsState(next);
+    setOfferKey((current) => current + 1);
+    setOfferConfirmOpen(true);
+  };
+  const handleConfirmMoveToOffered = () => {
+    const next = offerRowsState.length ? offerRowsState : [];
+    if (!next.length) return;
+    moveRows(next, "offered", "Moved to Offered");
+    setOfferConfirmOpen(false);
+    setOfferRowsState([]);
+  };
 
   const handleConfirmReject = (note) => {
     // Persist the rejection note on the application (LS) so it's retrievable when reviewing the rejected candidate.
@@ -1156,7 +1259,7 @@ export default function JobWorkspacePage() {
 
   // Handler bag passed into the stage config actions.
   const handlers = {
-    openDetail: (kind, row) => {
+    openDetail: (kind, row, meta = {}) => {
       if (kind === "candidate") {
         if (row?.app?.id) markApplicationViewed(row.app.id); // clears the new/unviewed marker
         setCandidateDetailId(row?.id ?? null);
@@ -1168,7 +1271,7 @@ export default function JobWorkspacePage() {
         setPreScreenResultOpen(true);
         return;
       }
-      setDetail({ open: true, kind, row });
+      setDetail({ open: true, kind, row, ...meta });
     },
     download: handleDownloadRows,
     startPreScreen: handleOpenStartPreScreening,
@@ -1177,7 +1280,9 @@ export default function JobWorkspacePage() {
     reject: handleOpenRejectConfirm,
     share: handleOpenShare,
     schedule: handleOpenSchedule,
+    rescheduleInterview: handleRescheduleInterview,
     move: moveRows,
+    offer: handleOpenOfferConfirm,
     drop: handleOpenDropConfirm,
     onHold: holdRows,
   };
@@ -1440,14 +1545,20 @@ export default function JobWorkspacePage() {
         onShare={handleShareForReview}
       />
       <EvScheduleInterviewSheet
-        key={scheduleRow?.id ?? "schedule"}
+        key={`${scheduleRow?.id ?? "schedule"}-${scheduleMode}`}
         open={scheduleOpen}
         onOpenChange={(open) => {
           setScheduleOpen(open);
-          if (!open) setScheduleRow(null);
+          if (!open) {
+            setScheduleRow(null);
+            setScheduleMode("create");
+            setScheduleInitial(null);
+          }
         }}
         row={scheduleRow}
         job={job}
+        initial={scheduleInitial}
+        context={scheduleMode}
         onSchedule={handleScheduleInterview}
       />
       <EvRejectCandidateDialog
@@ -1470,11 +1581,32 @@ export default function JobWorkspacePage() {
         candidates={dropRowsState}
         onConfirm={handleConfirmDrop}
       />
+      <FxConfirmDialog
+        key={offerKey}
+        open={offerConfirmOpen}
+        onOpenChange={(open) => {
+          setOfferConfirmOpen(open);
+          if (!open) setOfferRowsState([]);
+        }}
+        title={offerRowsState.length > 1 ? "Move Candidates to Offered?" : "Move Candidate to Offered?"}
+        description={
+          offerRowsState.length > 1
+            ? "Moving them to Offered will place them in the Offered tab."
+            : "Moving this candidate to Offered will place them in the Offered tab."
+        }
+        confirmLabel="Move to Offered"
+        tone="default"
+        onConfirm={handleConfirmMoveToOffered}
+      />
       {/* Interview Workspace = the Round Board (candidate journey). Other detail kinds use the generic sheet below. */}
       <EvInterviewBoardSheet
         open={detail.open && detail.kind === "interview"}
         onOpenChange={(open) => setDetail((current) => ({ ...current, open }))}
         row={detail.row}
+        job={job}
+        initialAction={detail.action}
+        onMoveToOffered={(r) => { moveRows([r], "offered", "Moved to Offered"); setDetail((current) => ({ ...current, open: false })); }}
+        onRejectCandidate={(r) => { setDetail((current) => ({ ...current, open: false })); handleOpenRejectConfirm([r]); }}
       />
       <FxSheet
         open={detail.open && detail.kind !== "interview"}

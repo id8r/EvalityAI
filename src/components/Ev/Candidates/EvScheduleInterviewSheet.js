@@ -58,6 +58,14 @@ const WHERE_META = {
   in_person: { icon: MapPin, label: "Address", placeholder: "Office address / room" },
   phone: { icon: Phone, label: "Dial-in Number", placeholder: "+91 98765 43210" },
 };
+// Title/submit copy by context (create/schedule = the original Shortlisted→Schedule flow; the others are the Round Board reuse).
+const SHEET_COPY = {
+  create: { title: "Schedule Interview", submit: "Send Invite" },
+  schedule: { title: "Schedule Interview", submit: "Send Invite" },
+  reschedule: { title: "Reschedule Interview", submit: "Update Interview" },
+  nextRound: { title: "Schedule Next Round", submit: "Send Invite" },
+  "next-round": { title: "Schedule Next Round", submit: "Send Invite" },
+};
 
 function GroupLabel({ children, className = "" }) {
   return <p className={cn("text-[15px] font-medium text-[var(--fx-text)]", className)}>{children}</p>;
@@ -93,40 +101,44 @@ function ModeToggle({ value, onChange }) {
   );
 }
 
-function EvScheduleInterviewSheet({ open, onOpenChange, row, job, onSchedule }) {
+function EvScheduleInterviewSheet({ open, onOpenChange, row, job, onSchedule, initial, context = "create" }) {
   const candidate = row?.candidate ?? null;
   const app = row?.app ?? null;
   const seed = String(row?.id ?? app?.id ?? candidate?.id ?? "seed");
   const [now] = useState(() => Date.now());
   const first = RECENT_INTERVIEWERS[0];
+  const init = initial ?? {}; // prefill for reschedule / next-round (empty → the original create defaults)
+  const initPerson = init.interviewers?.[0] ?? null;
+  const copy = SHEET_COPY[context] ?? SHEET_COPY.create;
+  const defaultDateKey = init.dateKey ?? firstAvailableDateKey(now, { seed, durationMin: DEFAULT_DURATION });
 
   const [expanded, setExpanded] = useScreeningExpanded(); // ⤢ sheet width (shared, persisted)
   const [tab, setTab] = useState("summary");
   const [showSummaryPane, setShowSummaryPane] = useState(true);
 
   // Share packet
-  const [shareMode, setShareMode] = useState("cv_details");
-  const [include, setInclude] = useState({ phone: true, email: true, ctc: true, summary: true });
+  const [shareMode, setShareMode] = useState(init.sharePacket?.shareMode ?? "cv_details");
+  const [include, setInclude] = useState(init.sharePacket?.include && Object.keys(init.sharePacket.include).length ? { phone: false, email: false, ctc: false, summary: false, ...init.sharePacket.include } : { phone: true, email: true, ctc: true, summary: true });
   const [summaryOpen, setSummaryOpen] = useState(false);
 
-  // Interview setup
-  const [round, setRound] = useState("Round 1");
-  const [mode, setMode] = useState("remote");
-  const [interviewerName, setInterviewerName] = useState(first.name);
-  const [interviewerCompany, setInterviewerCompany] = useState(jobClientName(job) ?? "");
-  const [interviewerEmail, setInterviewerEmail] = useState(first.email);
-  const [interviewerPhone, setInterviewerPhone] = useState(first.phone);
-  const [duration, setDuration] = useState(String(DEFAULT_DURATION));
-  const [timezone, setTimezone] = useState(DEFAULT_TIMEZONE);
-  const [meetingLink, setMeetingLink] = useState("");
-  const [address, setAddress] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [notes, setNotes] = useState("");
+  // Interview setup — seeded from `initial` when reopening a round's interview (reschedule / next-round).
+  const [round, setRound] = useState(init.round ?? "Round 1");
+  const [mode, setMode] = useState(init.mode ?? "remote");
+  const [interviewerName, setInterviewerName] = useState(initPerson?.name ?? first.name);
+  const [interviewerCompany, setInterviewerCompany] = useState(initPerson?.company ?? jobClientName(job) ?? "");
+  const [interviewerEmail, setInterviewerEmail] = useState(initPerson?.email ?? first.email);
+  const [interviewerPhone, setInterviewerPhone] = useState(initPerson?.phone ?? first.phone);
+  const [duration, setDuration] = useState(String(init.durationMin ?? DEFAULT_DURATION));
+  const [timezone, setTimezone] = useState(init.timezone ?? DEFAULT_TIMEZONE);
+  const [meetingLink, setMeetingLink] = useState(init.where?.link ?? "");
+  const [address, setAddress] = useState(init.where?.address ?? "");
+  const [phoneNumber, setPhoneNumber] = useState(init.where?.number ?? "");
+  const [notes, setNotes] = useState(init.notes ?? "");
 
-  // Calendar — default to the first upcoming day with open slots at the default duration.
-  const [selectedDateKey, setSelectedDateKey] = useState(() => firstAvailableDateKey(now, { seed, durationMin: DEFAULT_DURATION }));
-  const [monthKey, setMonthKey] = useState(() => `${firstAvailableDateKey(now, { seed, durationMin: DEFAULT_DURATION }).slice(0, 7)}-01`);
-  const [selectedSlot, setSelectedSlot] = useState(null);
+  // Calendar — default to the first upcoming open day, or the prefilled slot when rescheduling.
+  const [selectedDateKey, setSelectedDateKey] = useState(defaultDateKey);
+  const [monthKey, setMonthKey] = useState(() => `${defaultDateKey.slice(0, 7)}-01`);
+  const [selectedSlot, setSelectedSlot] = useState(init.slotStart ?? null);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
 
   const durationMin = Number(duration);
@@ -192,7 +204,7 @@ function EvScheduleInterviewSheet({ open, onOpenChange, row, job, onSchedule }) 
   return (
     <FxSheet open={open} onOpenChange={handleOpenChange} side="right" size="xl" expandable expanded={expanded} onExpandedChange={setExpanded}>
       <FxSheet.Header
-        title="Schedule Interview"
+        title={copy.title}
         actions={
           <FxIconToggle
             icon={PanelLeft}
@@ -373,7 +385,7 @@ function EvScheduleInterviewSheet({ open, onOpenChange, row, job, onSchedule }) 
         }
       >
         <FxButton variant="primary" size="md" className="min-w-[150px]" disabled={!canSchedule} onClick={handleSubmit}>
-          Send Invite
+          {copy.submit}
         </FxButton>
       </FxSheet.Footer>
 

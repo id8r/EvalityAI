@@ -7,6 +7,7 @@ import { ChevronDown, FileText, PanelLeftClose, PanelLeftOpen, Upload, X } from 
 
 import { FxButton, FxToolbarSearch } from "@/components/FxUI/Forms";
 import { FxPdfViewer } from "@/components/FxUI/DataDisplay";
+import { FxConfirmDialog } from "@/components/FxUI/Overlays/FxConfirmDialog";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
@@ -351,6 +352,7 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
   const [showListPane, setShowListPane] = useState(true);
   const [uploads, setUploads] = useState([]);
   const [uploadActiveId, setUploadActiveId] = useState(null);
+  const [confirmCloseOpen, setConfirmCloseOpen] = useState(false);
 
   // Single-pass filter: age window → search → not-removed.
   const visible = useMemo(() => {
@@ -387,13 +389,20 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
     hide(selected.id);
   }
 
+  const hasDraftedChanges = uploads.length > 0 || hiddenIds.length > 0;
+
   function handleOpenChange(nextOpen) {
-    if (!nextOpen) {
-      uploads.forEach((item) => URL.revokeObjectURL(item.url));
-      setUploads([]);
-      setUploadActiveId(null);
+    if (!nextOpen && hasDraftedChanges) {
+      setConfirmCloseOpen(true);
+      return;
     }
     onOpenChange?.(nextOpen);
+  }
+
+  function closeAndReset() {
+    uploads.forEach((item) => URL.revokeObjectURL(item.url));
+    setConfirmCloseOpen(false);
+    onOpenChange?.(false);
   }
 
   const onCandidates = activeTab === "candidates";
@@ -469,12 +478,22 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
 
       <FxSheet.Footer
         footerStart={
-          <FxButton variant="outline" size="sm" onClick={() => onOpenChange?.(false)}>Close</FxButton>
+          <FxButton variant="outline" size="sm" onClick={() => handleOpenChange(false)}>Close</FxButton>
         }
       >
         <FxButton variant="destructiveOutline" size="sm" disabled={!selected || !onCandidates} onClick={() => selected && hide(selected.id)}>Ignore</FxButton>
         <FxButton size="sm" className="min-w-[116px]" disabled={!selected || !onCandidates} onClick={pick}>Add to Job</FxButton>
       </FxSheet.Footer>
+
+      <FxConfirmDialog
+        open={confirmCloseOpen}
+        onOpenChange={setConfirmCloseOpen}
+        title="Close Add Candidates to Job?"
+        description="You have uploaded resumes or selected candidates in this sheet. Closing now will discard them."
+        confirmLabel="Close Anyway"
+        tone="danger"
+        onConfirm={closeAndReset}
+      />
     </FxSheet>
   );
 }
