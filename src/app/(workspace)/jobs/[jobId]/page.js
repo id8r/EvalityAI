@@ -52,6 +52,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { EvJobCreateSheet } from "@/components/Ev/Jobs/EvJobCreateSheet";
 import { EvAddCandidatesSheet } from "@/components/Ev/Candidates/EvAddCandidatesSheet";
+import { EvDropCandidateDialog } from "@/components/Ev/Candidates/EvDropCandidateDialog";
 import { EvRejectCandidateDialog } from "@/components/Ev/Candidates/EvRejectCandidateDialog";
 import { EvBulkEmailScreeningSheet } from "@/components/Ev/Candidates/EvBulkEmailScreeningSheet";
 import { EvManualScreeningSheet } from "@/components/Ev/Candidates/EvManualScreeningSheet";
@@ -60,6 +61,7 @@ import { EvCvMatchBreakdown } from "@/components/Ev/Candidates/EvCvMatchBreakdow
 import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
 import { EvCandidateDetailsSheet } from "@/components/Ev/Candidates/EvCandidateDetailsSheet";
 import { EvPreScreenResultSheet } from "@/components/Ev/Candidates/EvPreScreenResultSheet";
+import { EvShareForReviewSheet } from "@/components/Ev/Candidates/EvShareForReviewSheet";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import {
   createApplication,
@@ -116,7 +118,7 @@ const ACTION_DEFS = {
   emailScreen: { icon: Mail, label: "Email Pre-Screen", tone: "accent", run: (h, r) => h.emailScreen(r) },
   manualScreen: { icon: Users, label: "Manual Pre-Screen", tone: "neutral", run: (h, r) => h.manualScreen(r) },
   preScreenResult: { icon: ClipboardCheck, label: "View Pre-Screen Result", tone: "neutral", run: (h, r) => h.openDetail("preScreenResult", r[0]) },
-  share: { icon: Share2, label: "Share for Review", tone: "accent", run: (h, r) => h.openDetail("share", r[0]) },
+  share: { icon: Share2, label: "Share for Review", tone: "accent", run: (h, r) => h.share(r) },
   shortlist: { icon: Check, label: "Shortlist", tone: "accent", run: (h, r) => h.move(r, "shortlisted", "Shortlisted") },
   schedule: { icon: CalendarClock, label: "Schedule", tone: "neutral", run: (h, r) => h.openDetail("schedule", r[0]) },
   onHold: { icon: Minus, label: "On Hold", tone: "neutral", run: (h, r) => h.onHold(r) },
@@ -212,13 +214,12 @@ const AGE_FILTERS = [
   { value: "3_months", label: "3 months" },
 ];
 
-// Pre-Screened secondary filter — by how the candidate was screened (+ a "no fit score" bucket).
+// Pre-Screened secondary filter — by how the candidate was screened. ("Email Screened" + "No Fit Score" are hidden
+// in the demo for now; re-add them here when email is brought back — see effectiveScreeningMode/effectiveMatchScore.)
 const SCREEN_FILTERS = [
   { value: "all", label: "All candidates" },
   { value: "ai_call", label: "AI Call Screened" },
   { value: "manual", label: "Manual Screen" },
-  { value: "email", label: "Email Screened" },
-  { value: "no_fit", label: "No Fit Score" },
 ];
 
 function resolveTab(value) {
@@ -266,10 +267,24 @@ function matchesAgeFilter(appliedAt, filter, now) {
   return true;
 }
 
+// "Email Screened" is hidden in the demo for now — surfaced as AI Call, and missing fit scores get a stable
+// fallback so no row shows "—". Centralized so the table, the filters and the counts all agree. Remove the
+// email→ai_call remap + the matchScore fallback to bring Email Screened / No Fit Score back.
+function effectiveScreeningMode(app) {
+  const mode = app?.screening?.mode ?? null;
+  return mode === "email" ? "ai_call" : mode;
+}
+function effectiveMatchScore(app, candidate) {
+  const raw = app?.qualification?.matchScore ?? candidate?.matchScore;
+  if (raw != null) return raw;
+  const seed = String(app?.id ?? candidate?.id ?? "x"); // deterministic 55–85 fallback
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  return 55 + (hash % 31);
+}
 function matchesScreenFilter(app, filter) {
   if (filter === "all") return true;
-  if (filter === "no_fit") return app?.qualification?.matchScore == null;
-  return app?.screening?.mode === filter; // ai_call | manual | email
+  return effectiveScreeningMode(app) === filter; // ai_call | manual
 }
 
 function statusToneForStage(stage) {
@@ -571,6 +586,8 @@ function buildStageColumns(config, h) {
             align="left"
             inline={config.inline.map((id) => {
               const action = ACTION_DEFS[id];
+              // Share-count badge (disabled for now): row.shareCount is plumbed; once FxActionsCell inline
+              // items support a `badge`, add `badge: id === "share" && row.shareCount > 0 ? row.shareCount : undefined,`.
               return { key: id, icon: action.icon, label: action.label, tone: action.tone === "danger" ? "danger" : undefined, onClick: () => action.run(h, [row]) };
             })}
           />
@@ -706,6 +723,8 @@ export default function JobWorkspacePage() {
   const [candidateDetailId, setCandidateDetailId] = useState(null);
   const [preScreenResultRow, setPreScreenResultRow] = useState(null);
   const [preScreenResultOpen, setPreScreenResultOpen] = useState(false);
+  const [shareRows, setShareRows] = useState([]);
+  const [shareOpen, setShareOpen] = useState(false);
   const [startPreScreeningOpen, setStartPreScreeningOpen] = useState(false);
   const [startPreScreeningRows, setStartPreScreeningRows] = useState([]);
   const [emailScreeningOpen, setEmailScreeningOpen] = useState(false);
@@ -715,6 +734,9 @@ export default function JobWorkspacePage() {
   const [rejectConfirmOpen, setRejectConfirmOpen] = useState(false);
   const [rejectRowsState, setRejectRowsState] = useState([]);
   const [rejectKey, setRejectKey] = useState(0); // remount the reject dialog per open → fresh note
+  const [dropConfirmOpen, setDropConfirmOpen] = useState(false);
+  const [dropRowsState, setDropRowsState] = useState([]);
+  const [dropKey, setDropKey] = useState(0); // remount the drop dialog per open → fresh note
 
   const jobId = String(params?.jobId ?? "");
   const requestedTab = searchParams.get("tab");
@@ -760,9 +782,11 @@ export default function JobWorkspacePage() {
       interview: app.interview ?? null,
       trustScore: app?.qualification?.trustScore ?? null,
       isNew: ageInDays(app.appliedAt, now) <= NEW_RESUME_DAYS && !app.viewedAt, // new = recently applied AND not yet opened
-      screeningMode: app?.screening?.mode ?? null,
+      screeningMode: effectiveScreeningMode(app),
+      shareCount: Math.max(0, Number(app?.share?.count ?? 0)), // feeds the (disabled) Share-icon badge
+
       candidateName: candidate?.name ?? "Unknown candidate",
-      matchScore: app?.qualification?.matchScore ?? candidate?.matchScore ?? null,
+      matchScore: effectiveMatchScore(app, candidate),
       experience: candidate?.totalExperienceYears ?? candidate?.experience ?? candidate?.yearsOfExperience ?? null,
       phone: candidate?.phone ?? candidate?.contact?.phone ?? null,
       email: candidate?.email ?? "—",
@@ -821,11 +845,10 @@ export default function JobWorkspacePage() {
     if (diffDays < 90) ageCounts["3_months"] += 1;
   }
 
-  const screenCounts = { all: stageRows.length, ai_call: 0, manual: 0, email: 0, no_fit: 0 };
+  const screenCounts = { all: stageRows.length, ai_call: 0, manual: 0 };
   for (const row of stageRows) {
-    const mode = row.app?.screening?.mode;
+    const mode = effectiveScreeningMode(row.app);
     if (mode && screenCounts[mode] != null) screenCounts[mode] += 1;
-    if (row.matchScore == null) screenCounts.no_fit += 1;
   }
 
   // Pool for the Add/Recommend sheet: candidates not already attached to this job.
@@ -912,14 +935,43 @@ export default function JobWorkspacePage() {
     notify(next, label);
   };
 
-  const dropRows = (rows) => {
+  const applyDropRows = (rows, note = "") => {
     const next = resolveActionRows(rows);
     if (!next.length) return;
     next.forEach((row) => {
-      updateApplication(row.id, { clientStatus: "Candidate Dropped Off" });
+      updateApplication(row.id, {
+        clientStatus: "Candidate Dropped Off",
+        outcome: {
+          ...(row.app?.outcome ?? {}),
+          rejectionReason: "Candidate dropped off",
+          rejectionNote: note ?? "",
+          dropNote: note ?? "",
+        },
+      });
       setApplicationStage(row.id, "rejected");
     });
     notify(next, "Candidates dropped");
+  };
+
+  const handleOpenShare = (rows) => {
+    const next = resolveActionRows(rows);
+    if (!next.length) return;
+    setShareRows(next);
+    setShareOpen(true);
+  };
+  const handleShareForReview = (sharedRows, payload) => {
+    const next = resolveActionRows(sharedRows);
+    if (!next.length) return;
+    const at = new Date().toISOString();
+    next.forEach((row) => {
+      const current = row.app?.share ?? {};
+      updateApplication(row.id, { share: { ...current, count: (current.count ?? 0) + 1, lastSharedAt: at, recipients: payload?.recipients ?? "" } });
+    });
+    toast.success(next.length > 1 ? "Candidates shared for review" : "Candidate shared for review", {
+      description: `${next.length} candidate${next.length === 1 ? "" : "s"} sent to ${payload?.recipients?.trim() || "the reviewer"}.`,
+    });
+    setShareOpen(false);
+    setShareRows([]);
   };
 
   const holdRows = (rows) => {
@@ -1008,6 +1060,14 @@ export default function JobWorkspacePage() {
     setRejectConfirmOpen(true);
   };
 
+  const handleOpenDropConfirm = (rows) => {
+    const next = resolveActionRows(rows);
+    if (!next.length) return;
+    setDropRowsState(next);
+    setDropKey((current) => current + 1);
+    setDropConfirmOpen(true);
+  };
+
   const handleConfirmReject = (note) => {
     // Persist the rejection note on the application (LS) so it's retrievable when reviewing the rejected candidate.
     resolveActionRows(rejectRowsState).forEach((row) =>
@@ -1016,6 +1076,12 @@ export default function JobWorkspacePage() {
     moveRows(rejectRowsState, "rejected", "Candidates rejected");
     setRejectConfirmOpen(false);
     setRejectRowsState([]);
+  };
+
+  const handleConfirmDrop = (note) => {
+    applyDropRows(dropRowsState, note);
+    setDropConfirmOpen(false);
+    setDropRowsState([]);
   };
 
   // Candidate Details: edit candidate fields (name/email/phone) + append a recruiter note to the application.
@@ -1065,8 +1131,9 @@ export default function JobWorkspacePage() {
     emailScreen: handleOpenEmailScreening,
     manualScreen: handleOpenManualScreening,
     reject: handleOpenRejectConfirm,
+    share: handleOpenShare,
     move: moveRows,
-    drop: dropRows,
+    drop: handleOpenDropConfirm,
     onHold: holdRows,
   };
 
@@ -1316,6 +1383,17 @@ export default function JobWorkspacePage() {
           setPreScreenResultRow(null);
         }}
       />
+      <EvShareForReviewSheet
+        key={shareRows.map((row) => row.id).join("|") || "share"}
+        open={shareOpen}
+        onOpenChange={(open) => {
+          setShareOpen(open);
+          if (!open) setShareRows([]);
+        }}
+        rows={shareRows}
+        job={job}
+        onShare={handleShareForReview}
+      />
       <EvRejectCandidateDialog
         key={rejectKey}
         open={rejectConfirmOpen}
@@ -1325,6 +1403,16 @@ export default function JobWorkspacePage() {
         }}
         candidates={rejectRowsState}
         onConfirm={handleConfirmReject}
+      />
+      <EvDropCandidateDialog
+        key={dropKey}
+        open={dropConfirmOpen}
+        onOpenChange={(open) => {
+          setDropConfirmOpen(open);
+          if (!open) setDropRowsState([]);
+        }}
+        candidates={dropRowsState}
+        onConfirm={handleConfirmDrop}
       />
       <FxSheet
         open={detail.open}

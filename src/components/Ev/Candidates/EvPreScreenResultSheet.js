@@ -130,12 +130,14 @@ function RecruiterNotes({ notes }) {
   );
 }
 
-function Field({ label, value }) {
+// Mirrors CanCard's field cell (same type scale + facing-pair alignment) so the result grid matches the summary card.
+function Field({ label, value, align }) {
+  const right = align === "right";
   const muted = NOT_ANSWERED.includes(value);
   return (
-    <div className="space-y-1">
-      <p className="text-[13px] text-[var(--fx-text-muted)]">{label}</p>
-      <p className={cn("text-[14px] leading-[20px]", muted ? "text-[var(--fx-text-muted)]" : "text-[var(--fx-text)]")}>{value}</p>
+    <div className={cn("flex min-w-0 flex-col gap-[2px]", right && "items-end")}>
+      <span className={cn("text-[12px] font-medium leading-[16px] text-[var(--fx-text-muted)]", right && "text-right")}>{label}</span>
+      <span className={cn("text-[14px] leading-[22px]", muted ? "text-[var(--fx-text-muted)]" : "text-[var(--fx-text)]", right && "text-right")}>{value}</span>
     </div>
   );
 }
@@ -175,9 +177,10 @@ function DetailsRetrieved({ row, mode }) {
   return (
     <div className="space-y-5">
       <div className={cn(CARD, "p-4")}>
-        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-          {fields.map((field) => (
-            <Field key={field.label} label={field.label} value={field.value} />
+        <div className="grid grid-cols-2 gap-x-6 gap-y-[16px]">
+          {/* Facing pairs — left column left-aligned, right column right-aligned (same as the summary card). */}
+          {fields.map((field, index) => (
+            <Field key={field.label} label={field.label} value={field.value} align={index % 2 === 0 ? "left" : "right"} />
           ))}
         </div>
       </div>

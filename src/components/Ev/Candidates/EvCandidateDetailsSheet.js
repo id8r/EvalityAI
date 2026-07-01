@@ -146,11 +146,15 @@ function EvCandidateDetailsSheet({ open, onOpenChange, row, onEditField, onSaveN
                 onEditField={onEditField}
                 editableName
               />
-              {/* Rejection reason captured at reject time (Manual/JW) — surfaced here when reviewing a rejected candidate. */}
-              {app?.outcome?.rejectionNote ? (
+              {/* Rejection / drop note captured at action time — surfaced here when reviewing the candidate. */}
+              {app?.outcome?.rejectionNote || app?.outcome?.dropNote ? (
                 <div className="space-y-1 rounded-[10px] border border-[color:color-mix(in_srgb,var(--fx-danger)_30%,var(--fx-border))] bg-[color:color-mix(in_srgb,var(--fx-danger)_7%,var(--fx-surface))] px-3 py-2.5">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fx-danger)]">Rejection Reason</p>
-                  <p className="whitespace-pre-wrap text-[13px] leading-[20px] text-[var(--fx-text)]">{app.outcome.rejectionNote}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fx-danger)]">
+                    {app?.clientStatus === "Candidate Dropped Off" ? "Drop Notes" : "Rejection Reason"}
+                  </p>
+                  <p className="whitespace-pre-wrap text-[13px] leading-[20px] text-[var(--fx-text)]">
+                    {app?.clientStatus === "Candidate Dropped Off" ? app.outcome.dropNote ?? app.outcome.rejectionNote : app.outcome.rejectionNote ?? app.outcome.dropNote}
+                  </p>
                 </div>
               ) : null}
               <NotesPane notes={app?.notes ?? []} onSaveNote={onSaveNote} onEditNote={onEditNote} onDeleteNote={onDeleteNote} />

@@ -118,6 +118,7 @@ function FxRichTextEditor({
   maxLength,
   showCount = false,
   fill = false, // stretch to fill a flex parent (content area scrolls) instead of growing with content
+  resizable = false, // show a corner grip so the author can drag the composer taller
   id,
   className,
   contentClassName,
@@ -297,6 +298,7 @@ function FxRichTextEditor({
           "overflow-hidden rounded-[6px] border border-[var(--fx-border)] bg-[var(--fx-surface)] transition-colors",
           "focus-within:border-[var(--fx-primary)] focus-within:ring-2 focus-within:ring-[var(--fx-ring)]",
           fill && "flex min-h-0 flex-1 flex-col", // stretch to the parent; the content area handles its own scroll
+          resizable && "resize-y", // corner grip — drag to grow (overflow-hidden gives the handle a box)
           disabled && "opacity-60",
           message && "border-[var(--fx-danger)]",
         )}
