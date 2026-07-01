@@ -143,11 +143,11 @@ const STAGE_CONFIG = {
   },
   prescreened: {
     columns: SHARED_COLUMNS, scoreLabel: "Fit Score", scoreKind: "preScreenResult", selectable: true, defaultSort: { key: "score", direction: "desc" },
-    inline: ["share", "shortlist"], bulk: ["share", "shortlist", "drop", "reject"], kebab: ["view", "resume", "preScreenResult", "share", "download", "drop", "rejectCandidate"],
+    inline: ["share", "shortlist"], bulk: ["share", "shortlist", "drop", "reject"], kebab: ["view", "preScreenResult", "share", "drop", "rejectCandidate"],
   },
   shortlisted: {
     columns: SHARED_COLUMNS, scoreLabel: "Fit Score", scoreKind: "preScreenResult", selectable: true, defaultSort: { key: "score", direction: "desc" }, contactColsDefault: true,
-    inline: ["schedule", "view"], bulk: ["onHold", "drop", "reject"], kebab: ["open", "resume", "preScreenResult", "schedule", "download", "drop", "moveBackPrescreened", "rejectCandidate"],
+    inline: ["schedule"], bulk: ["onHold", "drop", "reject"], kebab: ["open", "preScreenResult", "schedule", "drop", "moveBackPrescreened", "rejectCandidate"],
   },
   interviewing: {
     columns: INTERVIEW_COLUMNS, dot: true, selectable: false, defaultSort: null,
@@ -517,7 +517,7 @@ function buildStageColumns(config, h) {
     // of the icon row or the "Actions" header, plus a small gutter. No fixed 104–140px, and not resizable.
     const ACTION_ICON_W = 32; // FxInlineAction is size-8
     const ACTION_ICON_GAP = 0; // no extra spacing between icons
-    const ACTION_HEADER_W = 40; // keep the header label from clipping
+    const ACTION_HEADER_W = 64; // floor that fits the "Actions" header even with a single inline icon
     const ACTION_CELL_PAD = 4; // tiny gutter only
     const iconsW = config.inline.length * ACTION_ICON_W + Math.max(0, config.inline.length - 1) * ACTION_ICON_GAP;
     const actionsW = Math.max(iconsW, ACTION_HEADER_W) + ACTION_CELL_PAD;
