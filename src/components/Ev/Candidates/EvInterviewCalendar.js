@@ -113,7 +113,7 @@ function EvInterviewCalendar({ now, seed = "", monthKey, onMonthChange, selected
                   d.disabled && "cursor-not-allowed border-transparent bg-transparent text-[var(--fx-text-disabled)] opacity-50 hover:bg-transparent",
                 )}
               >
-                <span className="leading-none">{d.date}</span>
+                <span className="text-[15px] font-semibold leading-none">{d.date}</span>
                 <span className="flex h-[5px] items-center gap-[3px]">
                   {Array.from({ length: d.dots }).map((_, i) => (
                     <span key={i} className={cn("size-[4px] rounded-full", isSelected ? "bg-[var(--fx-primary)]" : "bg-[color:color-mix(in_srgb,var(--fx-primary)_55%,transparent)]")} />
@@ -125,23 +125,23 @@ function EvInterviewCalendar({ now, seed = "", monthKey, onMonthChange, selected
         </div>
       </div>
 
-      {/* Slots */}
-      <div className="space-y-3 border-t border-[var(--fx-border)] pt-4">
+      {/* Slots — bound in a subtle sub-panel so it reads as a group, not a detached list. */}
+      <div className="space-y-2.5 rounded-[10px] border border-[var(--fx-border)] bg-[var(--fx-surface-subtle)] p-3">
         <div className="flex items-baseline justify-between gap-3">
           <p className="text-[13px] font-semibold text-[var(--fx-text)]">Available Time Slots</p>
           <p className="text-[12px] text-[var(--fx-text-muted)]">{day ? formatDayLong(day.dateKey) : "Select a date"}</p>
         </div>
 
         {day && day.availableCount === 0 ? (
-          <p className="rounded-[8px] border border-dashed border-[var(--fx-border)] bg-[var(--fx-bg-soft)] px-3 py-4 text-center text-[13px] text-[var(--fx-text-muted)]">
+          <p className="rounded-[8px] border border-dashed border-[var(--fx-border)] bg-[var(--fx-surface)] px-3 py-3.5 text-center text-[13px] text-[var(--fx-text-muted)]">
             No available slots on this day. Try another date.
           </p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {grouped.map(({ group, slots }) => (
               <div key={group} className="space-y-1.5">
                 <p className="text-[11px] font-medium uppercase tracking-[0.04em] text-[var(--fx-text-muted)]">{group}</p>
-                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                <div className="flex flex-wrap gap-1.5">
                   {slots.map((slot) => {
                     const isActive = selectedSlot === slot.start;
                     return (
@@ -151,7 +151,7 @@ function EvInterviewCalendar({ now, seed = "", monthKey, onMonthChange, selected
                         disabled={slot.disabled}
                         onClick={() => onSelectSlot?.(slot.start)}
                         className={cn(
-                          "inline-flex h-8 items-center justify-center rounded-[6px] border text-[12px] font-medium transition-colors",
+                          "inline-flex h-[30px] w-[68px] items-center justify-center rounded-[6px] border text-[12px] font-medium transition-colors",
                           slot.disabled
                             ? "cursor-not-allowed border-[var(--fx-border)] bg-[var(--fx-bg-soft)] text-[var(--fx-text-disabled)] line-through opacity-55"
                             : isActive

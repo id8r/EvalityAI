@@ -75,14 +75,14 @@ function ShareCheckbox({ label, checked, onChange }) {
 // Segmented single-select (Remote / In-person / Phone) — matches the old neat pill row.
 function ModeToggle({ value, onChange }) {
   return (
-    <div className="inline-flex flex-wrap gap-1 rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-1">
+    <div className="flex w-full gap-1 rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-[3px]">
       {INTERVIEW_MODES.map((item) => (
         <button
           key={item.value}
           type="button"
           onClick={() => onChange(item.value)}
           className={cn(
-            "inline-flex h-8 items-center rounded-[6px] px-3 text-[12px] font-medium transition-colors",
+            "inline-flex h-8 flex-1 items-center justify-center rounded-[6px] px-3 text-[12px] font-medium transition-colors",
             value === item.value ? "bg-[var(--fx-surface-selected)] text-[var(--fx-primary)]" : "text-[var(--fx-text-muted)] hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-text)]",
           )}
         >
@@ -293,28 +293,32 @@ function EvScheduleInterviewSheet({ open, onOpenChange, row, job, onSchedule }) 
               </div>
 
               {/* Interview details — round · mode · duration · timezone in one compact row. */}
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 <GroupLabel>Interview details</GroupLabel>
-                <div className="grid items-end gap-3 md:grid-cols-[minmax(90px,1fr)_92px_164px_auto]">
+                {/* Row 1: Round (half — matches the inputs above) | Duration + Timezone share the other half. */}
+                <div className="grid gap-3 md:grid-cols-2">
                   <FxCombobox size="md" label="Round / Stage" options={ROUND_OPTIONS} value={round} onChange={setRound} createLabel="Add round" placeholder="Select round" />
-                  <FxSelect size="md" label="Duration" options={DURATION_OPTIONS} value={duration} onChange={handleDuration} />
-                  <FxSelect size="md" label="Timezone" options={TIMEZONES} value={timezone} onChange={setTimezone} />
+                  <div className="grid grid-cols-2 gap-3">
+                    <FxSelect size="md" label="Duration" options={DURATION_OPTIONS} value={duration} onChange={handleDuration} />
+                    <FxSelect size="md" label="Timezone" options={TIMEZONES} value={timezone} onChange={setTimezone} />
+                  </div>
+                </div>
+                {/* Row 2: Mode (half — full-width tabs like the row above) | its mode-aware location (Dial-in / link / Address). */}
+                <div className="grid items-start gap-3 md:grid-cols-2">
                   <div className="space-y-1.5">
                     <p className="text-[13px] font-medium text-[var(--fx-text-muted)]">Mode</p>
                     <ModeToggle value={mode} onChange={setMode} />
                   </div>
-                </div>
-
-                {/* Where — mode-aware; sits right under Mode so it reads as a consequence of the selection. */}
-                <div className="space-y-1.5">
-                  <label htmlFor="ev-where" className="flex items-center gap-1.5 text-[13px] font-medium text-[var(--fx-text-muted)]">
-                    <whereMeta.icon className="size-3.5" /> {whereMeta.label}
-                  </label>
-                  {mode === "in_person" ? (
-                    <FxTextarea id="ev-where" value={where} onChange={(e) => setWhere(e.target.value)} rows={2} placeholder={whereMeta.placeholder} />
-                  ) : (
-                    <FxInput id="ev-where" value={where} onChange={(e) => setWhere(e.target.value)} clearable={false} placeholder={whereMeta.placeholder} />
-                  )}
+                  <div className="space-y-1.5">
+                    <label htmlFor="ev-where" className="flex items-center gap-1.5 text-[13px] font-medium text-[var(--fx-text-muted)]">
+                      <whereMeta.icon className="size-3.5" /> {whereMeta.label}
+                    </label>
+                    {mode === "in_person" ? (
+                      <FxTextarea id="ev-where" value={where} onChange={(e) => setWhere(e.target.value)} rows={2} placeholder={whereMeta.placeholder} />
+                    ) : (
+                      <FxInput id="ev-where" size="md" value={where} onChange={(e) => setWhere(e.target.value)} clearable={false} placeholder={whereMeta.placeholder} />
+                    )}
+                  </div>
                 </div>
               </div>
 
