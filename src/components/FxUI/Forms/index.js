@@ -5,7 +5,7 @@ export { FxButton } from "@/components/FxUI/Forms/FxButton";
 export { FxIconButton } from "@/components/FxUI/Forms/FxButton";
 export { FxIconToggle } from "@/components/FxUI/Forms/FxIconToggle";
 export { FxCheckboxField } from "@/components/FxUI/Forms/FxCheckboxField";
-export { FxCreatableSelect } from "@/components/FxUI/Forms/FxCreatableSelect";
+export { FxCombobox } from "@/components/FxUI/Forms/FxCombobox";
 export { FxEditableField } from "@/components/FxUI/Forms/FxEditableField";
 export { FxInput } from "@/components/FxUI/Forms/FxInput";
 export { FxRadioGroupField } from "@/components/FxUI/Forms/FxRadioGroupField";

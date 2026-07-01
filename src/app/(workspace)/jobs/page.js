@@ -32,7 +32,8 @@ function getJobCounts(jobId) {
   const counts = { unscreened: 0, pre_screened: 0, shortlisted: 0, shared: 0 };
   for (const app of getApplicationsByJob(jobId)) {
     if (counts[app.stage] != null) counts[app.stage] += 1;
-    if (app.clientShare?.sharedAt || app.clientStatus != null) counts.shared += 1;
+    // Shared means "actually sent to the client" - empty strings are not shared state.
+    if (app.clientShare?.sharedAt || String(app.clientStatus ?? "").trim()) counts.shared += 1;
   }
   return counts;
 }

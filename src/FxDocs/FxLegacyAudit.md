@@ -22,7 +22,7 @@ So this audit separates **the idea/pattern worth keeping** from **the implementa
 | Token recipe system (`lib/FxTheme.js`) | **Convert** — this is the `FX_TYPOGRAPHY`/`FX_LAYOUT` system our conventions promised but never built. Adopt the *structure*, reconcile the *values*. |
 | `FxTable` | **Keep** — crown jewel. Port carefully. |
 | `ui/sheet` (composed) | **Keep** — best overlay in either project. |
-| `FxCreatableSelect`, `FxColumnPicker`, `FxFieldState` | **Keep / Convert** — mature, reusable. |
+| `FxCombobox`, `FxColumnPicker`, `FxFieldState` | **Keep / Convert** — mature, reusable. |
 | `FxTabs`, `FxStepTabs`, `FxPill`, `FxEmptyState`, `FxAiButton`, toasts | **Convert** — good direction, rebuild on new foundation. |
 | Filter bars, bulk-action bars, sort headers, split-detail sheets | **Convert** — mature UX, currently duplicated inline in pages. Extract to FxUI. |
 | `FxRichTextEditor` (execCommand), `FxThemeController` (polling), shell architecture, demo/auth logic, landing page | **Rebuild / Discard** — fragile, superseded, or product-specific. |
@@ -80,7 +80,7 @@ Unified input/textarea (`textarea` prop), label/helper/validation, `rightElement
 Tokenized tags: paste-splitting (`, ; \n`), dedupe, backspace-to-remove, `maxTags`. Good interaction.
 
 ### `FxMultiSelectInput.js` — **REBUILD / CONSOLIDATE**
-Tag input + suggestion dropdown. Overlaps heavily with `FxTagInput` and `FxCreatableSelect({multiple})`. Three components solve nearly the same problem — collapse into **one** tokenized multi-select primitive.
+Tag input + suggestion dropdown. Overlaps heavily with `FxTagInput` and `FxCombobox({multiple})`. Three components solve nearly the same problem — collapse into **one** tokenized multi-select primitive.
 
 ### `FxRichTextEditor.js` — **REBUILD (or defer)**
 `contentEditable` + **`document.execCommand`** (deprecated) + `window.prompt` for links + raw-HTML storage. Functional but fragile and legacy. If rich text is needed v1, rebuild on a real editor (e.g. Tiptap/Lexical). Otherwise defer. **Discard the execCommand approach** regardless.
@@ -92,11 +92,11 @@ Tag input + suggestion dropdown. Overlaps heavily with `FxTagInput` and `FxCreat
 ### `FxSelect.js` — **CONVERT**
 Simple select built on `DropdownMenu` with check-marks + field-state integration. Solid. (Built on a menu rather than a true listbox — acceptable for now.)
 
-### `FxCreatableSelect.js` — **KEEP / CONVERT (flagship)**
+### `FxCombobox.js` — **KEEP / CONVERT (flagship)**
 ~600 lines: search, create-new (async `onCreate`), single + multi-select with chips, **full keyboard nav** (arrow/enter/esc/backspace), controlled/uncontrolled, click-outside, selection limits, busy/loading state. The most capable input in either project. Port carefully.
 
 ### `FxCreatableCombobox.js` — **CONVERT / CONSOLIDATE**
-Popover-based single combobox (used in onboarding). Overlaps with `FxCreatableSelect`. Decide one combobox API and consolidate.
+Popover-based single combobox (used in onboarding). Overlaps with `FxCombobox`. Decide one combobox API and consolidate.
 
 ### `FxColumnPicker.js` — **KEEP / CONVERT**
 Table column-visibility dropdown: required/locked columns, "suppress close on toggle" UX, checkbox list. Pairs with `FxTable`. Mature.
@@ -227,7 +227,7 @@ Mature collapsible sidebar: localStorage-persisted collapse, collapse **tooltips
 ### Keep (port with care, minimal change)
 - `FxTable` (+ `FxColumnPicker`)
 - `components/ui/sheet.js` (composed sheet + motion + editable-escape)
-- `FxCreatableSelect`
+- `FxCombobox`
 - `FxFieldState` (field-state foundation)
 - Toast **helper API** ergonomics (`showSuccess/...`)
 
@@ -244,7 +244,7 @@ Mature collapsible sidebar: localStorage-persisted collapse, collapse **tooltips
 
 ### Rebuild from scratch
 - `FxRichTextEditor` (drop `execCommand`; use a real editor or defer)
-- Multi-token inputs — consolidate `FxTagInput` + `FxMultiSelectInput` + `FxCreatableSelect({multiple})` into one
+- Multi-token inputs — consolidate `FxTagInput` + `FxMultiSelectInput` + `FxCombobox({multiple})` into one
 - `FxTabs` a11y layer (Radix roving focus) while keeping variants
 - Theme toggle on `next-themes`
 
@@ -266,7 +266,7 @@ Mature collapsible sidebar: localStorage-persisted collapse, collapse **tooltips
 4. **Primitive base.** Rebuild `FxTable`/sheet/selects on **shadcn** primitives, or port rfa's raw-Radix `ui/*`? (Recommend shadcn to stay consistent with the new foundation.)
 5. **Tabs foundation.** Radix Tabs (a11y) + ported variants, or keep rfa's button-based flexibility? (Recommend Radix + variants.)
 6. **Table cell API.** Keep `row[columnKey]` prebaked cells, or move to `render(row)` column functions during the port? This changes every consumer — decide before porting.
-7. **Multi-token consolidation.** OK to collapse `FxTagInput` + `FxMultiSelectInput` + `FxCreatableSelect({multiple})` into one primitive, or are the distinct UXs intentional?
+7. **Multi-token consolidation.** OK to collapse `FxTagInput` + `FxMultiSelectInput` + `FxCombobox({multiple})` into one primitive, or are the distinct UXs intentional?
 8. **Scope & order.** Migrate **primitives first** (tokens → fields → table/sheet → selects), then product scaffolds (toolbars, detail sheets), and leave product workflows (screening/scheduling) for last? (Recommend yes.)
 9. **Rich text.** Needed for v1? If so, budget for a real editor (Tiptap/Lexical) — `execCommand` is not portable forward.
 10. **Shell collapse.** When we implement `sidebarCollapsed` in the frozen grid shell, do we want rfa's collapse-with-tooltips + account-menu interactions carried over verbatim?

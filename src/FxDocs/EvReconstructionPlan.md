@@ -93,7 +93,7 @@ then Jobs first.
 ### 1. Landing / Auth / Welcome — confirm only, do not block
 Already scaffolded in the rebuild (`app/page.js`, `marketing/LandingPage.js`, `marketing/AuthDialog.js`,
 `app/welcome/page.js`, `marketing/OnboardingPage.js`).
-- **Reuse:** existing marketing components, `FxButton/hero`, `FxDialog`, `FxInput`, `FxCreatableSelect`,
+- **Reuse:** existing marketing components, `FxButton/hero`, `FxDialog`, `FxInput`, `FxCombobox`,
   `FxRadioGroupField`, `FxStorage`, `FxCopy`.
 - **Ev data:** auth flags + persona/workspaceType + company profile → `EvSettings`/storage. No business entities.
 - **Now:** add `/login` + `/signup` routes wrapping AuthDialog; confirm post-auth redirects (signup→welcome,
@@ -140,7 +140,7 @@ Author the 6 entity schemas + seed JSON, `EvStore`/`EvData`/`EvSelectors`, and t
 ### 7. Settings (UI) — different shape, mostly independent
 - **Old:** left-nav + per-section forms (Profile, Org, Recruiting Status, Screening Mode, Email, Calendar…) each
   with a Save header; completion banner; provider connection cards.
-- **Reuse:** `FxInput/FxTextarea/FxCheckboxField/FxRadioGroupField/FxCreatableSelect`, `FxPanel`, left-nav. **Not a
+- **Reuse:** `FxInput/FxTextarea/FxCheckboxField/FxRadioGroupField/FxCombobox`, `FxPanel`, left-nav. **Not a
   toolbar pattern** — may surface a small `FxSectionHeader`.
 - **Ev data:** `User` + `Settings` (company profile lives here; drives workspace type).
 - **Now:** Profile + Organization + Recruiting Status (writes workspaceType consumed by Clients/Jobs).

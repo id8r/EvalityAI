@@ -12,7 +12,7 @@ import { cn } from "@/lib/FxUtils";
 /* - - - - - - - - - - - - - - - - */
 
 /*
-  A plain branded select over the ui/dropdown-menu primitive (NOT searchable/creatable — use FxCreatableSelect
+  A plain branded select over the ui/dropdown-menu primitive (NOT searchable/creatable — use FxCombobox
   for that). Options: string[] or { value, label, description }[]. Controlled (`value` + `onChange(value)`) or
   uncontrolled (`defaultValue`). The panel matches the trigger width.
 */

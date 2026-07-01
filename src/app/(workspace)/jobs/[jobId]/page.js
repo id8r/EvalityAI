@@ -62,6 +62,7 @@ import { EvCandidateCard } from "@/components/Ev/Candidates/EvCandidateCard";
 import { EvCandidateDetailsSheet } from "@/components/Ev/Candidates/EvCandidateDetailsSheet";
 import { EvPreScreenResultSheet } from "@/components/Ev/Candidates/EvPreScreenResultSheet";
 import { EvShareForReviewSheet } from "@/components/Ev/Candidates/EvShareForReviewSheet";
+import { EvScheduleInterviewSheet } from "@/components/Ev/Candidates/EvScheduleInterviewSheet";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import {
   createApplication,
@@ -120,7 +121,7 @@ const ACTION_DEFS = {
   preScreenResult: { icon: ClipboardCheck, label: "View Pre-Screen Result", tone: "neutral", run: (h, r) => h.openDetail("preScreenResult", r[0]) },
   share: { icon: Share2, label: "Share for Review", tone: "accent", run: (h, r) => h.share(r) },
   shortlist: { icon: Check, label: "Shortlist", tone: "accent", run: (h, r) => h.move(r, "shortlisted", "Shortlisted") },
-  schedule: { icon: CalendarClock, label: "Schedule", tone: "neutral", run: (h, r) => h.openDetail("schedule", r[0]) },
+  schedule: { icon: CalendarClock, label: "Schedule", tone: "neutral", run: (h, r) => h.schedule(r) },
   onHold: { icon: Minus, label: "On Hold", tone: "neutral", run: (h, r) => h.onHold(r) },
   drop: { icon: UserRoundX, label: "Drop Candidate", tone: "danger", run: (h, r) => h.drop(r) },
   reject: { icon: Ban, label: "Reject", tone: "danger", run: (h, r) => h.reject(r) },
@@ -725,6 +726,8 @@ export default function JobWorkspacePage() {
   const [preScreenResultOpen, setPreScreenResultOpen] = useState(false);
   const [shareRows, setShareRows] = useState([]);
   const [shareOpen, setShareOpen] = useState(false);
+  const [scheduleRow, setScheduleRow] = useState(null);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
   const [startPreScreeningOpen, setStartPreScreeningOpen] = useState(false);
   const [startPreScreeningRows, setStartPreScreeningRows] = useState([]);
   const [emailScreeningOpen, setEmailScreeningOpen] = useState(false);
@@ -974,6 +977,45 @@ export default function JobWorkspacePage() {
     setShareRows([]);
   };
 
+  const handleOpenSchedule = (rows) => {
+    const next = resolveActionRows(rows);
+    if (!next.length) return;
+    setScheduleRow(next[0]); // single-candidate path — no bulk scheduling
+    setScheduleOpen(true);
+  };
+  const handleScheduleInterview = (targetRow, payload) => {
+    if (!targetRow?.id || !payload) return;
+    const at = new Date().toISOString();
+    const interviewerLabel = (payload.interviewers ?? []).map((person) => person.name || person.email).filter(Boolean).join(", ");
+    updateApplication(targetRow.id, {
+      interview: {
+        ...(targetRow.app?.interview ?? null),
+        stage: payload.round,
+        mode: payload.mode,
+        date: payload.dateKey,
+        slotStart: payload.slotStart,
+        durationMin: payload.durationMin,
+        timezone: payload.timezone,
+        interviewers: payload.interviewers,
+        interviewer: interviewerLabel,
+        where: payload.where,
+        notes: payload.notes,
+        sharePacket: payload.sharePacket,
+        scheduleDetails: payload.scheduleDetails,
+        scheduledAt: at,
+        invitesSentAt: payload.notify ? at : null, // notification fires in the background
+      },
+    });
+    setApplicationStage(targetRow.id, "interview");
+    toast.success("Interview scheduled", {
+      description: payload.notify
+        ? `${targetRow.candidateName} · ${payload.scheduleDetails}. Invite sent.`
+        : `${targetRow.candidateName} · ${payload.scheduleDetails}.`,
+    });
+    setScheduleOpen(false);
+    setScheduleRow(null);
+  };
+
   const holdRows = (rows) => {
     const next = resolveActionRows(rows);
     if (!next.length) return;
@@ -1132,6 +1174,7 @@ export default function JobWorkspacePage() {
     manualScreen: handleOpenManualScreening,
     reject: handleOpenRejectConfirm,
     share: handleOpenShare,
+    schedule: handleOpenSchedule,
     move: moveRows,
     drop: handleOpenDropConfirm,
     onHold: holdRows,
@@ -1393,6 +1436,17 @@ export default function JobWorkspacePage() {
         rows={shareRows}
         job={job}
         onShare={handleShareForReview}
+      />
+      <EvScheduleInterviewSheet
+        key={scheduleRow?.id ?? "schedule"}
+        open={scheduleOpen}
+        onOpenChange={(open) => {
+          setScheduleOpen(open);
+          if (!open) setScheduleRow(null);
+        }}
+        row={scheduleRow}
+        job={job}
+        onSchedule={handleScheduleInterview}
       />
       <EvRejectCandidateDialog
         key={rejectKey}

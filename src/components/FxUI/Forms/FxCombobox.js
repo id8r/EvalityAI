@@ -1,9 +1,9 @@
-/* src/components/FxUI/Forms/FxCreatableSelect.js | Searchable, creatable single-select | Sree | 2026-06-27 */
+/* src/components/FxUI/Forms/FxCombobox.js | Searchable, creatable single-select (combobox) | Sree | 2026-06-27 */
 
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, Plus, Search } from "lucide-react";
+import { Check, ChevronDown, Plus, Search, X } from "lucide-react";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
@@ -15,8 +15,8 @@ import { cn } from "@/lib/FxUtils";
 /*
   A select-style trigger that opens a panel with a search box + filtered options (label +
   optional description). When the typed text matches no option and `allowCreate`, a
-  "Create new: …" row lets the user add it. Ported from the old FxCreatableCombobox onto our
-  local ui/dropdown-menu primitive + Fx tokens.
+  "Create new: …" row lets the user add it; options you created can be removed via a hover-× on their
+  row (predefined options aren't removable). Built on our local ui/dropdown-menu primitive + Fx tokens.
 
   Persistence: pass `storageKey` (a field name under the FxID8r root) to self-persist the chosen
   value via FxStorage — read once after mount, written on every change. Otherwise it's a normal
@@ -31,7 +31,7 @@ function normalizeOption(option) {
   };
 }
 
-function FxCreatableSelect({
+function FxCombobox({
   options = [],
   value,
   defaultValue = "",
@@ -72,12 +72,14 @@ function FxCreatableSelect({
     [options],
   );
   const allOptions = useMemo(() => {
+    // Just-created options surface at the top (most recent first) — you see what you just added, not buried below.
     const map = new Map();
-    for (const option of normalizedOptions) map.set(option.value, option);
     for (const option of createdOptions) map.set(option.value, option);
+    for (const option of normalizedOptions) map.set(option.value, option);
     return Array.from(map.values());
   }, [normalizedOptions, createdOptions]);
 
+  const createdValues = useMemo(() => new Set(createdOptions.map((o) => o.value)), [createdOptions]);
   const selectedOption = allOptions.find((option) => option.value === currentValue) ?? null;
   // Show a persisted custom value even if it's not in the options list.
   const triggerLabel = selectedOption?.label || currentValue || placeholder;
@@ -118,6 +120,12 @@ function FxCreatableSelect({
     setCreatedOptions((prev) => [option, ...prev.filter((o) => o.value !== option.value)]);
     commit(createdValue, option);
     closeMenu();
+  }
+
+  // Remove a value the user created (predefined options are never removable). Clears the field if it was selected.
+  function handleRemoveCreated(optionValue) {
+    setCreatedOptions((prev) => prev.filter((o) => o.value !== optionValue));
+    if (optionValue === currentValue) commit("", null);
   }
 
   return (
@@ -207,6 +215,7 @@ function FxCreatableSelect({
                 {filteredOptions.length ? (
                   filteredOptions.map((option) => {
                     const isSelected = option.value === currentValue;
+                    const isCreated = createdValues.has(option.value);
                     return (
                       <DropdownMenuItem
                         key={option.value || option.label}
@@ -225,7 +234,27 @@ function FxCreatableSelect({
                             <span className={cn(FX_TYPOGRAPHY.meta, "line-clamp-2 text-[var(--fx-text-muted)]")}>{option.description}</span>
                           ) : null}
                         </span>
-                        {isSelected ? <Check className="mt-0.5 size-4 shrink-0 text-[var(--fx-primary)]" /> : null}
+                        <span className="mt-0.5 flex shrink-0 items-center gap-1.5">
+                          {isSelected ? <Check className="size-4 text-[var(--fx-primary)]" /> : null}
+                          {isCreated ? (
+                            <button
+                              type="button"
+                              aria-label={`Remove ${option.label}`}
+                              title="Remove"
+                              // Radix Menu.Item selects on pointer-up — stop it here so × removes instead of selecting.
+                              onPointerDown={(event) => event.stopPropagation()}
+                              onPointerUp={(event) => event.stopPropagation()}
+                              onClick={(event) => {
+                                event.preventDefault();
+                                event.stopPropagation();
+                                handleRemoveCreated(option.value);
+                              }}
+                              className="inline-flex size-5 items-center justify-center rounded-[5px] text-[var(--fx-text-muted)] transition-colors hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-danger)]"
+                            >
+                              <X className="size-3.5" />
+                            </button>
+                          ) : null}
+                        </span>
                       </DropdownMenuItem>
                     );
                   })
@@ -249,5 +278,5 @@ function FxCreatableSelect({
   );
 }
 /* - - - - - - - - - - - - - - - - */
-export { FxCreatableSelect };
+export { FxCombobox };
 /* - - - - - - - - - - - - - - - - */

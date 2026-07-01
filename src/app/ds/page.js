@@ -18,7 +18,7 @@ import Link from "next/link";
 import { FxBadge, FxPdfViewer } from "@/components/FxUI/DataDisplay";
 import { EvCandidateProgress, EvCvMatchBreakdown } from "@/components/Ev/Candidates";
 import { ReviewCandidateCards } from "./ReviewCandidateCards";
-import { FxAiButton, FxButton, FxCheckboxField, FxCreatableSelect, FxEditableField, FxIconButton, FxInput, FxRadioGroupField, FxSwitchField, FxTextarea } from "@/components/FxUI/Forms";
+import { FxAiButton, FxButton, FxCheckboxField, FxCombobox, FxEditableField, FxIconButton, FxInput, FxRadioGroupField, FxSwitchField, FxTextarea } from "@/components/FxUI/Forms";
 import { FxPanel } from "@/components/FxUI/Layout";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { FxColorTokenCard } from "./FxColorTokenCard";
@@ -707,7 +707,7 @@ function ControlsSection() {
 
           <div className="space-y-3">
             <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">Creatable select · persists to localStorage</p>
-            <FxCreatableSelect
+            <FxCombobox
               options={roleOptions}
               placeholder="Select your role"
               createLabel="Create new role"

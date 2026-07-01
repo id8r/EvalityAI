@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Briefcase } from "lucide-react";
 
-import { FxButton, FxCreatableSelect, FxRadioGroupField } from "@/components/FxUI/Forms";
+import { FxButton, FxCombobox, FxRadioGroupField } from "@/components/FxUI/Forms";
 import { Label } from "@/components/ui/label";
 import { ONBOARDING_COPY } from "@/lib/FxCopy";
 import { ROUTES } from "@/lib/FxConstants";
@@ -56,7 +56,7 @@ export function WelcomeScreen() {
 
         {/* FORM CARD */}
         <div className="space-y-6 rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-6">
-          <FxCreatableSelect
+          <FxCombobox
             label={ONBOARDING_COPY.roleLabel}
             placeholder="Select your role"
             options={ONBOARDING_COPY.roleOptions}
