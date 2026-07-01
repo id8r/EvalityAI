@@ -194,11 +194,133 @@ export function confirmLineParts({ round, mode, candidateName, dateKey, slotStar
   if (!hasInterviewer || dateKey == null || slotStart == null) return null;
   return {
     round: round || "interview",
-    mode: INTERVIEW_MODES.find((m) => m.value === mode)?.label?.toLowerCase() ?? "",
+    mode: INTERVIEW_MODES.find((m) => m.value === mode)?.label ?? "",
     who: candidateName || "",
     date: formatDayLong(dateKey),
     time: formatClock(slotStart),
     duration: durationMin,
     tz: TIMEZONES.find((t) => t.value === timezone)?.label?.split(" · ")[0] ?? "",
+  };
+}
+
+/* - - - - Round Board — candidate interview journey (rounds[] + typed work-item cards) - - - - */
+
+export const ITEM_TYPES = [
+  { value: "interview", label: "Interview" },
+  { value: "task", label: "Task" },
+  { value: "decision", label: "Decision" },
+  { value: "note", label: "Note" },
+  { value: "feedback", label: "Feedback" },
+];
+
+// Decision outcome drives the round marker + the derived journey status (roundOutcome/interviewStatus).
+export const DECISION_OUTCOMES = [
+  { value: "advance", label: "Advance", tone: "success" },
+  { value: "hold", label: "Hold", tone: "warning" },
+  { value: "reject", label: "Reject", tone: "danger" },
+];
+
+const DONE_INTERVIEW_STATUSES = ["done", "cancelled"];
+
+// Latest decision outcome in a round ("advance" | "hold" | "reject"), else null. Rounds store no outcome of their own.
+export function roundOutcome(round) {
+  const decisions = (round?.items ?? []).filter((it) => it.type === "decision" && it.payload?.outcome);
+  return decisions.length ? decisions[decisions.length - 1].payload.outcome : null;
+}
+
+// Journey status derived from rounds. A reject here does NOT evict — the bucket move stays an explicit recruiter action.
+export function interviewStatus(rounds = []) {
+  if (!rounds.length) return "not_started";
+  for (let i = rounds.length - 1; i >= 0; i -= 1) {
+    const outcome = roundOutcome(rounds[i]);
+    if (outcome === "reject") return "rejected";
+    if (outcome === "hold") return "on_hold";
+    if (outcome === "advance") return "in_progress";
+  }
+  return "in_progress";
+}
+
+// A dated item is overdue when its due date has passed and it isn't already resolved.
+export function isItemOverdue(item, todayKey) {
+  if (!item?.dueDate || !todayKey) return false;
+  if (item.type === "task" && item.status === "done") return false;
+  if (item.type === "interview" && DONE_INTERVIEW_STATUSES.includes(item.status)) return false;
+  return item.dueDate < todayKey;
+}
+
+// Header-strip signals: overdue items + rounds that have an interview but no decision yet. Pure.
+export function journeyAttention(rounds = [], todayKey) {
+  const overdue = [];
+  let awaitingDecision = 0;
+  rounds.forEach((round) => {
+    (round.items ?? []).forEach((it) => { if (isItemOverdue(it, todayKey)) overdue.push({ ...it, roundName: round.name }); });
+    if ((round.items ?? []).some((it) => it.type === "interview") && !roundOutcome(round)) awaitingDecision += 1;
+  });
+  return { overdue, awaitingDecision };
+}
+
+// One interview card synthesized from the legacy flat single-interview object. Deterministic id → idempotent normalize.
+function interviewItemFromFlat(iv) {
+  return {
+    id: "itm_seed_interview",
+    type: "interview",
+    title: iv.scheduleDetails || iv.stage || "Interview",
+    assigneeId: null,
+    dueDate: iv.date ?? null,
+    flagged: false,
+    links: [],
+    status: "scheduled",
+    createdAt: iv.scheduledAt ?? null,
+    payload: {
+      mode: iv.mode ?? null,
+      dateKey: iv.date ?? null,
+      slotStart: iv.slotStart ?? null,
+      durationMin: iv.durationMin ?? null,
+      timezone: iv.timezone ?? null,
+      interviewers: iv.interviewers ?? [],
+      where: iv.where ?? null,
+      notes: iv.notes ?? "",
+      sharePacket: iv.sharePacket ?? null,
+      scheduleDetails: iv.scheduleDetails ?? "",
+    },
+  };
+}
+
+/*
+  Read adapter: fold whatever shape `app.interview` is in into the canonical journey { status, rounds, summary }.
+  Idempotent + pure (only deterministic seed ids). The board always reads through this, so the frozen Schedule
+  sheet can keep writing flat fields — they surface as a synthesized first round until the Phase 2 write path lands.
+*/
+export function normalizeInterview(interview) {
+  const iv = interview ?? {};
+  const rounds = Array.isArray(iv.rounds) ? iv.rounds : [];
+  if (rounds.length) return { status: interviewStatus(rounds), rounds, summary: iv.summary ?? "" };
+  if (iv.date || iv.scheduleDetails || iv.stage) {
+    const round = { id: "rnd_seed", order: 1, name: iv.stage || "Round 1", createdAt: iv.scheduledAt ?? null, items: [interviewItemFromFlat(iv)] };
+    return { status: interviewStatus([round]), rounds: [round], summary: iv.summary ?? "" };
+  }
+  return { status: "not_started", rounds: [], summary: iv.summary ?? "" };
+}
+
+function interviewerLabelOf(item) {
+  return (item?.payload?.interviewers ?? []).map((p) => p.name || p.email).filter(Boolean).join(", ");
+}
+
+/*
+  Flat mirror the Interview table columns still read (interview.stage/scheduleDetails/interviewer/recommendation/
+  feedback). Recomputed on every board write so the table needs zero changes while rounds[] stays the source of truth.
+*/
+export function deriveInterviewSummary(rounds = []) {
+  const items = rounds.flatMap((r) => (r.items ?? []).map((it) => ({ ...it, roundName: r.name })));
+  const lastInterview = items.filter((it) => it.type === "interview").slice(-1)[0] ?? null;
+  const lastDecision = items.filter((it) => it.type === "decision" && it.payload?.outcome).slice(-1)[0] ?? null;
+  const lastFeedback = items.filter((it) => it.type === "feedback").slice(-1)[0] ?? null;
+  const currentRound = rounds[rounds.length - 1] ?? null;
+  return {
+    stage: currentRound?.name ?? "",
+    scheduleDetails: lastInterview?.payload?.scheduleDetails ?? "",
+    interviewer: interviewerLabelOf(lastInterview),
+    recommendation: lastDecision ? DECISION_OUTCOMES.find((o) => o.value === lastDecision.payload.outcome)?.label ?? "" : "",
+    feedback: lastFeedback ? (lastFeedback.status === "submitted" ? "View" : "Pending") : "",
   };
 }

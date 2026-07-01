@@ -361,12 +361,12 @@ function EvScheduleInterviewSheet({ open, onOpenChange, row, job, onSchedule }) 
             <p className="flex min-w-0 items-center gap-2 rounded-[6px] border border-[var(--fx-border)] bg-[var(--fx-surface)] px-3 py-[8px] text-[13px] leading-[18px] text-[var(--fx-text)]">
               <CalendarCheck className="size-4 shrink-0 text-[var(--fx-text-muted)]" />
               <span className="min-w-0 truncate">
-                <span className="font-semibold text-[var(--fx-accent)]">{confirm.round}</span>{" "}
-                <span className="font-semibold text-[var(--fx-accent)]">{confirm.mode}</span> interview
-                {confirm.who ? <> with <span className="font-semibold text-[var(--fx-accent)]">{confirm.who}</span></> : null} on{" "}
-                <span className="font-semibold text-[var(--fx-accent)]">{confirm.date}</span> at{" "}
-                <span className="font-semibold text-[var(--fx-accent)]">{confirm.time}</span>
-                {" · "}<span className="font-semibold text-[var(--fx-accent)]">{confirm.duration} min{confirm.tz ? `, ${confirm.tz}` : ""}</span>
+                <span className="font-medium ">{'\"'}{confirm.round}</span>{'\" – '}
+                <span className="font-medium text-[var(--fx-accent)]">{confirm.mode}</span> interview
+                {confirm.who ? <> with <span className="font-medium ">{confirm.who}</span></> : null} on{" "}
+                <span className="font-medium text-[var(--fx-accent)]">{confirm.date}</span> at{" "}
+                <span className="font-medium text-[var(--fx-accent)]">{confirm.time}</span>
+                {" · "}<span>{confirm.duration} min{confirm.tz ? `, ${confirm.tz}` : ""}</span>
               </span>
             </p>
           ) : null

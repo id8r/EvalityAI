@@ -1,6 +1,7 @@
 /* src/lib/EvData.js | Ev domain accessors + CRUD over EvStore (no UI logic) | Sree | 2026-06-28 */
 
 import { getCollection, setCollection } from "@/lib/EvStore";
+import { normalizeInterview, deriveInterviewSummary, interviewStatus } from "@/lib/EvInterview";
 /* - - - - - - - - - - - - - - - - */
 
 function nowIso() {
@@ -211,6 +212,56 @@ export function setApplicationStage(id, stage, actorId = null) {
   if (!app) return null;
   const stageHistory = [...(app.stageHistory ?? []), { stage, at: nowIso(), actorId }];
   return updateApplication(id, { stage, stageHistory });
+}
+
+/* ---------- Interview Round Board (candidate journey; rounds[] = source of truth) ---------- */
+// Single write path: persist the journey + recompute the flat mirror the Interview table reads.
+function persistInterviewRounds(id, rounds, summary = "") {
+  return updateApplication(id, { interview: { status: interviewStatus(rounds), rounds, summary, ...deriveInterviewSummary(rounds) } });
+}
+export function getInterviewJourney(id) {
+  return normalizeInterview(getApplication(id)?.interview);
+}
+export function interviewAddRound(id, name) {
+  const { rounds, summary } = getInterviewJourney(id);
+  const round = { id: genId("rnd"), order: rounds.length + 1, name: name?.trim() || `Round ${rounds.length + 1}`, createdAt: nowIso(), items: [] };
+  return persistInterviewRounds(id, [...rounds, round], summary);
+}
+export function interviewUpdateRound(id, roundId, patch) {
+  const { rounds, summary } = getInterviewJourney(id);
+  return persistInterviewRounds(id, rounds.map((r) => (r.id === roundId ? { ...r, ...patch } : r)), summary);
+}
+export function interviewRemoveRound(id, roundId) {
+  const { rounds, summary } = getInterviewJourney(id);
+  const next = rounds.filter((r) => r.id !== roundId).map((r, i) => ({ ...r, order: i + 1 }));
+  return persistInterviewRounds(id, next, summary);
+}
+export function interviewAddItem(id, roundId, data = {}) {
+  const { rounds, summary } = getInterviewJourney(id);
+  const item = { id: genId("itm"), type: "task", title: "", assigneeId: null, dueDate: null, flagged: false, links: [], status: null, createdAt: nowIso(), payload: {}, ...data };
+  return persistInterviewRounds(id, rounds.map((r) => (r.id === roundId ? { ...r, items: [...(r.items ?? []), item] } : r)), summary);
+}
+export function interviewUpdateItem(id, itemId, patch) {
+  const { rounds, summary } = getInterviewJourney(id);
+  return persistInterviewRounds(id, rounds.map((r) => ({ ...r, items: (r.items ?? []).map((it) => (it.id === itemId ? { ...it, ...patch } : it)) })), summary);
+}
+export function interviewRemoveItem(id, itemId) {
+  const { rounds, summary } = getInterviewJourney(id);
+  return persistInterviewRounds(id, rounds.map((r) => ({ ...r, items: (r.items ?? []).filter((it) => it.id !== itemId) })), summary);
+}
+// v1 move (no drag lib): shift an item to an adjacent round. dir = -1 (left) | +1 (right).
+export function interviewMoveItem(id, itemId, dir) {
+  const { rounds, summary } = getInterviewJourney(id);
+  const fromIdx = rounds.findIndex((r) => (r.items ?? []).some((it) => it.id === itemId));
+  const toIdx = fromIdx + dir;
+  if (fromIdx < 0 || toIdx < 0 || toIdx >= rounds.length) return getApplication(id);
+  const item = rounds[fromIdx].items.find((it) => it.id === itemId);
+  const next = rounds.map((r, i) => {
+    if (i === fromIdx) return { ...r, items: r.items.filter((it) => it.id !== itemId) };
+    if (i === toIdx) return { ...r, items: [...(r.items ?? []), item] };
+    return r;
+  });
+  return persistInterviewRounds(id, next, summary);
 }
 // Append a recruiter note (job-specific) to the application.
 export function addApplicationNote(id, text, actorId = null) {

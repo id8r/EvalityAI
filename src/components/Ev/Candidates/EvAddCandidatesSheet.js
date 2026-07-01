@@ -63,6 +63,14 @@ function EmptyHint({ icon: Icon = FileText, title, detail, className }) {
   );
 }
 
+function stemFromFileName(fileName) {
+  return (fileName || "Resume")
+    .replace(/\.[^.]+$/, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim() || "Resume";
+}
+
 // ---- Candidate list pane (left) ----
 function AgeFilterMenu({ value, onChange }) {
   const label = AGE_FILTERS.find((filter) => filter.key === value)?.label ?? AGE_FILTERS[0].label;
@@ -135,44 +143,165 @@ function CandidateListPane({ items, selectedId, onSelect, onRemove, searchTerm, 
   );
 }
 
-// ---- Upload tab (owns its own blob lifecycle) ----
-function UploadPane({ onUpload }) {
+// ---- Upload tab (sheet-owned blob lifecycle so tab switches don't reset the tray) ----
+function UploadPane({ onUpload, uploads, setUploads, activeId, setActiveId }) {
   const inputRef = useRef(null);
+  const blobUrlsRef = useRef(new Set());
   const [dragging, setDragging] = useState(false);
-  const [file, setFile] = useState(null);
-  const [url, setUrl] = useState(null); // session-only blob — never persisted; revoked on change/unmount
 
-  useEffect(() => () => url && URL.revokeObjectURL(url), [url]);
+  useEffect(
+    () => () => {
+      blobUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+      blobUrlsRef.current.clear();
+    },
+    [],
+  );
 
   function accept(fileList) {
-    const next = fileList?.[0];
-    if (!next) return;
-    if (url) URL.revokeObjectURL(url);
-    setFile(next);
-    setUrl(URL.createObjectURL(next));
-    onUpload?.(fileList, buildResumeFromUpload(next));
+    const nextFiles = Array.from(fileList || []).filter((file) => file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"));
+    if (!nextFiles.length) return;
+
+    const nextUploads = nextFiles.map((file) => {
+      const url = URL.createObjectURL(file);
+      blobUrlsRef.current.add(url);
+      return {
+        id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${file.name}-${file.lastModified}-${Math.random().toString(36).slice(2)}`,
+        file,
+        url,
+        name: stemFromFileName(file.name),
+        meta: buildResumeFromUpload(file),
+      };
+    });
+
+    setUploads((current) => {
+      const merged = [...current, ...nextUploads];
+      if (!activeId && merged[0]) setActiveId(merged[0].id);
+      return merged;
+    });
+    onUpload?.(nextFiles, buildResumeFromUpload(nextFiles[0]));
   }
 
+  function removeUpload(id) {
+    setUploads((current) => {
+      const next = current.filter((item) => item.id !== id);
+      const removed = current.find((item) => item.id === id);
+      if (removed) {
+        URL.revokeObjectURL(removed.url);
+        blobUrlsRef.current.delete(removed.url);
+      }
+      if (activeId === id) setActiveId(next[0]?.id ?? null);
+      return next;
+    });
+  }
+
+  const activeUpload = uploads.find((item) => item.id === activeId) ?? uploads[0] ?? null;
+
   return (
-    <section className="flex min-h-0 flex-1 flex-col gap-3 rounded-[16px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-5">
-      {url ? (
-        <>
-          <div className="flex flex-none items-center justify-between gap-3 rounded-[10px] border border-[var(--fx-border)] bg-[var(--fx-bg-soft)] px-3 py-2">
-            <div className="flex min-w-0 items-center gap-2">
-              <FileText className="size-4 shrink-0 text-[var(--fx-primary)]" />
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      {uploads.length ? (
+        <div className="grid min-h-0 flex-1 gap-3 lg:grid-cols-[260px_minmax(0,1fr)_300px]">
+          <div className="flex min-h-0 flex-col overflow-hidden rounded-[14px] border border-[var(--fx-border)] bg-[var(--fx-bg-soft)]">
+            <div className="border-b border-[var(--fx-border)] px-3 py-3">
+              <p className="text-[13px] font-medium text-[var(--fx-text)]">Uploaded resumes</p>
+              <p className="mt-0.5 text-[12px] text-[var(--fx-text-muted)]">Pick one to preview or remove.</p>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto p-2">
+              <ul className="space-y-2">
+                {uploads.map((item) => {
+                  const selected = item.id === activeUpload?.id;
+                  return (
+                    <li key={item.id}>
+                      <div
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => setActiveId(item.id)}
+                        onKeyDown={(event) => (event.key === "Enter" || event.key === " ") && setActiveId(item.id)}
+                        className={cn(
+                          "flex w-full items-start justify-between gap-2 rounded-[10px] border px-3 py-3 text-left transition-colors",
+                          selected
+                            ? "border-[var(--fx-primary)] bg-[var(--fx-surface-selected)]"
+                            : "border-transparent bg-[var(--fx-surface)] hover:bg-[var(--fx-surface-hover)]",
+                        )}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <FileText className="size-4 shrink-0 text-[var(--fx-primary)]" />
+                            <p className="truncate text-[13px] font-medium text-[var(--fx-text)]">{item.name}</p>
+                          </div>
+                          <p className="mt-1 truncate text-[12px] text-[var(--fx-text-muted)]">
+                            {[item.file.type || "application/pdf", formatFileSize(item.file.size)].filter(Boolean).join(" · ")}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          aria-label={`Remove ${item.file.name}`}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            removeUpload(item.id);
+                          }}
+                          className="inline-flex size-6 shrink-0 items-center justify-center rounded-[6px] text-[var(--fx-text-muted)] transition-colors hover:bg-[var(--fx-surface-hover)] hover:text-[var(--fx-danger)]"
+                        >
+                          <X className="size-3.5" />
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+
+          <div className="min-h-0 overflow-hidden rounded-[14px] border border-[var(--fx-border)] bg-[var(--fx-surface)]">
+            <div className="flex items-center justify-between gap-3 border-b border-[var(--fx-border)] px-3 py-2">
               <div className="min-w-0">
-                <p className="truncate text-[13px] font-medium text-[var(--fx-text)]">{file?.name}</p>
+                <p className="truncate text-[13px] font-medium text-[var(--fx-text)]">{activeUpload?.file.name}</p>
                 <p className="truncate text-[12px] text-[var(--fx-text-muted)]">
-                  {[formatFileSize(file?.size), file?.type || "application/pdf"].filter(Boolean).join(" · ")} · preview is session-only
+                  {[activeUpload?.file.type || "application/pdf", formatFileSize(activeUpload?.file.size)].filter(Boolean).join(" · ")}
                 </p>
               </div>
             </div>
-            <FxButton variant="outline" size="sm" onClick={() => inputRef.current?.click()}>Replace</FxButton>
+            <div className="min-h-0 flex-1">
+              <FxPdfViewer file={activeUpload?.url} showToolbar className="h-full" />
+            </div>
           </div>
-          <div className="min-h-0 flex-1">
-            <FxPdfViewer file={url} showToolbar className="h-full" />
+
+          <div className="flex min-h-0 flex-col justify-between gap-3 rounded-[14px] border border-dashed border-[var(--fx-border)] bg-[var(--fx-bg-soft)] p-4">
+          <div>
+            <p className="text-[14px] font-medium text-[var(--fx-text)]">Drop more PDFs here</p>
+              <p className="mt-1 text-[13px] leading-[20px] text-[var(--fx-text-muted)]">Drag and drop resumes here.</p>
+            </div>
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => inputRef.current?.click()}
+              onKeyDown={(event) => (event.key === "Enter" || event.key === " ") && inputRef.current?.click()}
+              onDragOver={(event) => {
+                event.preventDefault();
+                setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(event) => {
+                event.preventDefault();
+                setDragging(false);
+                accept(event.dataTransfer.files);
+              }}
+              className={cn(
+                "flex min-h-[180px] cursor-pointer flex-col items-center justify-center rounded-[14px] border border-dashed px-5 py-6 text-center transition-colors",
+                dragging
+                  ? "border-[var(--fx-primary)] bg-[var(--fx-surface-selected)]"
+                  : "border-[var(--fx-border)] bg-[var(--fx-surface)] hover:bg-[var(--fx-surface-hover)]",
+              )}
+            >
+              <Upload className="size-7 text-[var(--fx-primary)]" />
+              <p className="mt-3 text-[14px] font-medium leading-[22px] text-[var(--fx-text)]">Upload resumes</p>
+              <div className="mt-3">
+                <FxButton size="sm" onClick={(event) => { event.stopPropagation(); inputRef.current?.click(); }}>
+                  Choose files
+                </FxButton>
+              </div>
+            </div>
           </div>
-        </>
+        </div>
       ) : (
         <div
           role="button"
@@ -199,10 +328,11 @@ function UploadPane({ onUpload }) {
         ref={inputRef}
         type="file"
         accept=".pdf,application/pdf"
+        multiple
         className="hidden"
         onChange={(event) => { accept(event.target.files); event.target.value = ""; }}
       />
-    </section>
+    </div>
   );
 }
 
@@ -219,6 +349,8 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
   const [selectedId, setSelectedId] = useState(null);
   const [hiddenIds, setHiddenIds] = useState([]);
   const [showListPane, setShowListPane] = useState(true);
+  const [uploads, setUploads] = useState([]);
+  const [uploadActiveId, setUploadActiveId] = useState(null);
 
   // Single-pass filter: age window → search → not-removed.
   const visible = useMemo(() => {
@@ -255,6 +387,15 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
     hide(selected.id);
   }
 
+  function handleOpenChange(nextOpen) {
+    if (!nextOpen) {
+      uploads.forEach((item) => URL.revokeObjectURL(item.url));
+      setUploads([]);
+      setUploadActiveId(null);
+    }
+    onOpenChange?.(nextOpen);
+  }
+
   const onCandidates = activeTab === "candidates";
   const headerActions = onCandidates ? (
     <>
@@ -277,7 +418,7 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
   ) : null;
 
   return (
-    <FxSheet open={open} onOpenChange={onOpenChange} size={showListPane ? "xl" : "md"}>
+    <FxSheet open={open} onOpenChange={handleOpenChange} size={showListPane ? "xl" : "md"}>
       <FxSheet.Header title={title} actions={headerActions} />
       <FxSheet.Toolbar className="border-b-0 pb-0">
         <FxTabs variant="rounded" value={activeTab} onValueChange={setActiveTab} tabs={ENTRY_TABS} />
@@ -285,7 +426,13 @@ function EvAddCandidatesSheet({ open, onOpenChange, mode = "add", job, candidate
 
       <FxSheet.Body className="flex min-h-0 flex-col overflow-hidden">
         {activeTab === "upload" ? (
-          <UploadPane onUpload={onUpload} />
+          <UploadPane
+            onUpload={onUpload}
+            uploads={uploads}
+            setUploads={setUploads}
+            activeId={uploadActiveId}
+            setActiveId={setUploadActiveId}
+          />
         ) : (
           <div className={cn("grid min-h-0 flex-1 gap-3", showListPane ? "lg:grid-cols-[300px_1px_minmax(0,1fr)]" : "lg:grid-cols-1")}>
             {showListPane ? (

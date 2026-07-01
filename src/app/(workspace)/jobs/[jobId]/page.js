@@ -22,6 +22,7 @@ import {
   Minus,
   PencilLine,
   PhoneCall,
+  MessagesSquare,
   RotateCcw,
   Share2,
   UserRoundX,
@@ -63,6 +64,7 @@ import { EvCandidateDetailsSheet } from "@/components/Ev/Candidates/EvCandidateD
 import { EvPreScreenResultSheet } from "@/components/Ev/Candidates/EvPreScreenResultSheet";
 import { EvShareForReviewSheet } from "@/components/Ev/Candidates/EvShareForReviewSheet";
 import { EvScheduleInterviewSheet } from "@/components/Ev/Candidates/EvScheduleInterviewSheet";
+import { EvInterviewBoardSheet } from "@/components/Ev/Candidates/EvInterviewBoardSheet";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import {
   createApplication,
@@ -129,7 +131,7 @@ const ACTION_DEFS = {
   moveToPrescreened: { icon: RotateCcw, label: "Move to Pre-Screened", tone: "accent", run: (h, r) => h.move(r, "prescreened", "Moved to Pre-Screened") },
   moveToShortlisted: { icon: ArrowRight, label: "Move to Shortlisted", tone: "neutral", run: (h, r) => h.move(r, "shortlisted", "Moved to Shortlisted") },
   moveBackPrescreened: { icon: RotateCcw, label: "Move back to Pre-Screened", tone: "neutral", run: (h, r) => h.move(r, "prescreened", "Moved to Pre-Screened") },
-  interviewWorkspace: { icon: ExternalLink, label: "Interview Workspace", tone: "neutral", run: (h, r) => h.openDetail("interview", r[0]) },
+  interviewWorkspace: { icon: MessagesSquare, label: "Interview Workspace", tone: "neutral", run: (h, r) => h.openDetail("interview", r[0]) },
 };
 
 /*
@@ -1468,8 +1470,14 @@ export default function JobWorkspacePage() {
         candidates={dropRowsState}
         onConfirm={handleConfirmDrop}
       />
+      {/* Interview Workspace = the Round Board (candidate journey). Other detail kinds use the generic sheet below. */}
+      <EvInterviewBoardSheet
+        open={detail.open && detail.kind === "interview"}
+        onOpenChange={(open) => setDetail((current) => ({ ...current, open }))}
+        row={detail.row}
+      />
       <FxSheet
-        open={detail.open}
+        open={detail.open && detail.kind !== "interview"}
         onOpenChange={(open) => setDetail((current) => ({ ...current, open }))}
         side="right"
         size={detail.kind === "resume" ? "lg" : detail.kind === "cvMatch" ? "sm" : "md"}
