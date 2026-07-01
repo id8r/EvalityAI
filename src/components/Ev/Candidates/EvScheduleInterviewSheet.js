@@ -3,7 +3,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, MapPin, PanelLeft, Phone, Video } from "lucide-react";
+import { CalendarCheck, ChevronDown, MapPin, PanelLeft, Phone, Video } from "lucide-react";
 
 import { FxButton, FxCombobox, FxIconToggle, FxInput, FxSelect, FxTextarea } from "@/components/FxUI/Forms";
 import { FxTabs } from "@/components/FxUI/Navigation";
@@ -26,7 +26,7 @@ import {
   firstAvailableDateKey,
   getDayAvailability,
   buildScheduleDetails,
-  formatConfirmLine,
+  confirmLineParts,
 } from "@/lib/EvInterview";
 import { jobClientName } from "@/lib/EvSelectors";
 import { useScreeningExpanded } from "@/lib/useScreeningExpanded";
@@ -134,8 +134,8 @@ function EvScheduleInterviewSheet({ open, onOpenChange, row, job, onSchedule }) 
   const whereMeta = WHERE_META[mode];
   const setWhere = mode === "remote" ? setMeetingLink : mode === "in_person" ? setAddress : setPhoneNumber;
 
-  const confirmLine = useMemo(
-    () => formatConfirmLine({ round, mode, candidateName: row?.candidateName, dateKey: selectedDateKey, slotStart: selectedSlot, durationMin, timezone, hasInterviewer: Boolean(interviewerEmail.trim()) }),
+  const confirm = useMemo(
+    () => confirmLineParts({ round, mode, candidateName: row?.candidateName, dateKey: selectedDateKey, slotStart: selectedSlot, durationMin, timezone, hasInterviewer: Boolean(interviewerEmail.trim()) }),
     [round, mode, row?.candidateName, selectedDateKey, selectedSlot, durationMin, timezone, interviewerEmail],
   );
 
@@ -346,10 +346,18 @@ function EvScheduleInterviewSheet({ open, onOpenChange, row, job, onSchedule }) 
                 <FxTextarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} placeholder="Context or focus areas for the interviewer (optional)." />
               </div>
 
-              {/* Live confirmation */}
-              {confirmLine ? (
-                <p className="rounded-[10px] border border-[color:color-mix(in_srgb,var(--fx-primary)_28%,var(--fx-border))] bg-[color:color-mix(in_srgb,var(--fx-primary)_7%,var(--fx-surface))] px-3.5 py-2.5 text-[13px] leading-[19px] text-[var(--fx-text)]">
-                  {confirmLine}
+              {/* Live confirmation banner — key entities bolded so it reads as a clear recap of what's being booked. */}
+              {confirm ? (
+                <p className="flex items-start gap-2 rounded-[10px] border border-[color:color-mix(in_srgb,var(--fx-primary)_34%,var(--fx-border))] bg-[color:color-mix(in_srgb,var(--fx-primary)_11%,var(--fx-surface))] px-3.5 py-3 text-[13px] leading-[20px] text-[var(--fx-text)]">
+                  <CalendarCheck className="mt-[2px] size-4 shrink-0 text-[var(--fx-primary)]" />
+                  <span>
+                    Booking a <strong className="font-semibold text-[var(--fx-text)]">{confirm.round}</strong>{" "}
+                    <strong className="font-semibold text-[var(--fx-text)]">{confirm.mode}</strong> interview
+                    {confirm.who ? <> with <strong className="font-semibold text-[var(--fx-text)]">{confirm.who}</strong></> : null} on{" "}
+                    <strong className="font-semibold text-[var(--fx-text)]">{confirm.date}</strong> at{" "}
+                    <strong className="font-semibold text-[var(--fx-text)]">{confirm.time}</strong>
+                    <span className="text-[var(--fx-text-muted)]"> · {confirm.duration} min{confirm.tz ? `, ${confirm.tz}` : ""}</span>.
+                  </span>
                 </p>
               ) : null}
               </div>

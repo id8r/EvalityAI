@@ -113,7 +113,7 @@ function EvInterviewCalendar({ now, seed = "", monthKey, onMonthChange, selected
                   d.disabled && "cursor-not-allowed border-transparent bg-transparent text-[var(--fx-text-disabled)] opacity-50 hover:bg-transparent",
                 )}
               >
-                <span className="text-[15px] font-semibold leading-none">{d.date}</span>
+                <span className="leading-none">{d.date}</span>
                 <span className="flex h-[5px] items-center gap-[3px]">
                   {Array.from({ length: d.dots }).map((_, i) => (
                     <span key={i} className={cn("size-[4px] rounded-full", isSelected ? "bg-[var(--fx-primary)]" : "bg-[color:color-mix(in_srgb,var(--fx-primary)_55%,transparent)]")} />
@@ -129,7 +129,7 @@ function EvInterviewCalendar({ now, seed = "", monthKey, onMonthChange, selected
       <div className="space-y-2.5 rounded-[10px] border border-[var(--fx-border)] bg-[var(--fx-surface-subtle)] p-3">
         <div className="flex items-baseline justify-between gap-3">
           <p className="text-[13px] font-semibold text-[var(--fx-text)]">Available Time Slots</p>
-          <p className="text-[12px] text-[var(--fx-text-muted)]">{day ? formatDayLong(day.dateKey) : "Select a date"}</p>
+          <p className="text-[13px] font-semibold text-[var(--fx-accent)]">{day ? formatDayLong(day.dateKey) : "Select a date"}</p>
         </div>
 
         {day && day.availableCount === 0 ? (
@@ -169,16 +169,22 @@ function EvInterviewCalendar({ now, seed = "", monthKey, onMonthChange, selected
           </div>
         )}
 
-        {/* Existing-interviews peek — only after a date is picked, only if the day has any. */}
+        {/* Existing-interviews peek — a bounded box of readable rectangle pills (dot echoes the calendar day-dots). */}
         {day && day.bookedIntervals.length ? (
-          <div className="space-y-1.5 rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface-subtle)] px-3 py-2.5">
+          <div className="space-y-2 rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface-raised)] px-3 py-2.5">
             <p className="text-[11px] font-medium uppercase tracking-[0.04em] text-[var(--fx-text-muted)]">Existing interviews on this day</p>
-            {day.bookedIntervals.map((item) => (
-              <div key={item.start} className="flex items-center justify-between gap-3 text-[12px]">
-                <span className="font-medium text-[var(--fx-text)]">{item.timeLabel}</span>
-                <span className="truncate text-[var(--fx-text-muted)]">{item.round} · {item.interviewer}</span>
-              </div>
-            ))}
+            <div className="flex flex-wrap gap-2">
+              {day.bookedIntervals.map((item) => (
+                <span
+                  key={item.start}
+                  className="inline-flex items-center gap-2 rounded-[6px] border border-[var(--fx-border)] bg-[var(--fx-surface-subtle)] px-2.5 py-1.5 text-[12px] leading-[16px]"
+                >
+                  <span className="size-1.5 shrink-0 rounded-full bg-[color:color-mix(in_srgb,var(--fx-primary)_55%,transparent)]" />
+                  <span className="font-semibold text-[var(--fx-text)]">{item.timeLabel}</span>
+                  <span className="text-[var(--fx-text-muted)]">{item.round} · {item.interviewer}</span>
+                </span>
+              ))}
+            </div>
           </div>
         ) : null}
       </div>

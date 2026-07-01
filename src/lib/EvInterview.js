@@ -189,11 +189,16 @@ export function buildScheduleDetails({ dateKey, slotStart, durationMin, timezone
   return `${formatDayLong(dateKey)} · ${formatSlotRange(slotStart, durationMin)}${tz ? ` ${tz}` : ""}`;
 }
 
-// Live one-liner in the sheet; null until interviewer + date + slot are all set.
-export function formatConfirmLine({ round, mode, candidateName, dateKey, slotStart, durationMin, timezone, hasInterviewer }) {
+// Live confirmation parts for the sheet (so the entities can be bolded); null until interviewer + date + slot are set.
+export function confirmLineParts({ round, mode, candidateName, dateKey, slotStart, durationMin, timezone, hasInterviewer }) {
   if (!hasInterviewer || dateKey == null || slotStart == null) return null;
-  const modeLabel = INTERVIEW_MODES.find((m) => m.value === mode)?.label?.toLowerCase() ?? "";
-  const tz = TIMEZONES.find((t) => t.value === timezone)?.label?.split(" · ")[0] ?? "";
-  const who = candidateName ? ` with ${candidateName}` : "";
-  return `Booking a ${round || "interview"} ${modeLabel} interview${who} on ${formatDayLong(dateKey)} at ${formatClock(slotStart)} · ${durationMin} min${tz ? `, ${tz}` : ""}.`;
+  return {
+    round: round || "interview",
+    mode: INTERVIEW_MODES.find((m) => m.value === mode)?.label?.toLowerCase() ?? "",
+    who: candidateName || "",
+    date: formatDayLong(dateKey),
+    time: formatClock(slotStart),
+    duration: durationMin,
+    tz: TIMEZONES.find((t) => t.value === timezone)?.label?.split(" · ")[0] ?? "",
+  };
 }
