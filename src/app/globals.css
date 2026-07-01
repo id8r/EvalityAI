@@ -97,7 +97,7 @@
 
   --fx-shadow-core: #000000;
   --fx-dark-panel: #26272b;
-  --fx-pdf-canvas: #404040; /* neutral gray canvas behind PDF pages (resume preview) */
+  --fx-pdf-canvas: #e9e9ec; /* soft light-gray canvas behind PDF pages (resume preview) */
 
   --fx-disabled-bg: #e6eaef;
   --fx-disabled-text: #6a7588;
@@ -144,7 +144,7 @@
 
   --fx-shadow-core: #000000;
   --fx-dark-panel: #161c27;
-  --fx-pdf-canvas: #262626;
+  --fx-pdf-canvas: #33343a;
 
   --fx-disabled-bg: #334155;
   --fx-disabled-text: #6f7d94;
