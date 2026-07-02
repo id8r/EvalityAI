@@ -87,7 +87,7 @@ import {
   interviewCreateNextRound,
 } from "@/lib/EvData";
 import { employmentTypeLabel, experienceLabel, jobLocationLabel, stageLabel } from "@/lib/EvSelectors";
-import { feedbackRecommendationLabel, feedbackRecommendationTone, latestFeedbackItem, latestInterviewItem, interviewOverview, normalizeInterview, RECENT_INTERVIEWERS } from "@/lib/EvInterview";
+import { feedbackRecommendationLabel, feedbackRecommendationTone, latestFeedbackItem, latestInterviewItem, RECENT_INTERVIEWERS } from "@/lib/EvInterview";
 import { screeningTypeMeta } from "@/lib/EvScreening";
 import { formatMoney } from "@/lib/EvFormat";
 import { isPdfResume, resolveResumeUrl } from "@/lib/EvResume";
