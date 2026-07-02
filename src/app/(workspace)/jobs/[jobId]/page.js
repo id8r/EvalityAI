@@ -111,7 +111,26 @@ const NEW_ROW_CLASS =
 
 // Column id sets reused across stages.
 const SHARED_COLUMNS = ["name", "phone", "score", "experience", "currentSalary", "expectedSalary", "email", "availability"];
+const OFFERED_COLUMNS = ["name", "phone", "score", "currentSalary", "expectedSalary", "offeredSalary", "offerStatus", "availability"];
+const JOINED_COLUMNS = ["name", "phone", "score", "offeredSalary", "joinedDate", "noticePeriod"];
 const INTERVIEW_COLUMNS = ["name", "phone", "scheduleDetails", "interviewer", "interviewStage", "recommendation", "feedback"];
+
+const OFFER_STATUS_LABELS = {
+  offer_to_be_sent: "Offer to be sent",
+  offer_sent: "Offer sent",
+  negotiating: "Negotiating",
+  accepted: "Accepted",
+  declined: "Declined",
+  withdrawn: "Withdrawn",
+};
+const OFFER_STATUS_TONES = {
+  offer_to_be_sent: "subtle",
+  offer_sent: "primary",
+  negotiating: "warning",
+  accepted: "success",
+  declined: "danger",
+  withdrawn: "subtle",
+};
 
 
 /*
@@ -143,6 +162,12 @@ const ACTION_DEFS = {
   recordDecision: { icon: FileText, label: "Record Decision", tone: "neutral", run: (h, r) => h.openDetail("interview", r[0], { action: "decision" }) },
   createNextRound: { icon: ArrowRight, label: "Create Next Round", tone: "neutral", run: (h, r) => h.rescheduleInterview(r[0], { nextRound: true }) },
   moveToOffered: { icon: Check, label: "Move to Offered", tone: "accent", run: (h, r) => h.offer(r) },
+  prepareOffer: { icon: FileText, label: "Prepare Offer", tone: "neutral", run: (h, r) => h.prepareOffer(r) },
+  markOfferSent: { icon: Mail, label: "Mark Offer Sent", tone: "neutral", run: (h, r) => h.markOfferSent(r) },
+  markAccepted: { icon: Check, label: "Mark Accepted", tone: "accent", run: (h, r) => h.markAccepted(r) },
+  markDeclined: { icon: Ban, label: "Mark Declined", tone: "danger", run: (h, r) => h.markDeclined(r) },
+  moveToJoined: { icon: Check, label: "Move to Joined", tone: "accent", run: (h, r) => h.join(r) },
+  moveBackOffered: { icon: RotateCcw, label: "Move back to Offered", tone: "neutral", run: (h, r) => h.move(r, "offered", "Moved back to Offered") },
   markDropped: { icon: UserRoundX, label: "Mark Candidate Dropped", tone: "danger", run: (h, r) => h.drop(r) },
 };
 
@@ -169,12 +194,12 @@ const STAGE_CONFIG = {
     inline: ["interviewWorkspace"], bulk: [], kebab: ["interviewWorkspace", "rescheduleInterview", "rejectCandidate", "markDropped"],
   },
   offered: {
-    columns: SHARED_COLUMNS, scoreLabel: "Fit Score", scoreKind: "preScreenResult", dot: true, selectable: false, defaultSort: null,
-    inline: ["view"], bulk: [], kebab: ["view", "resume", "download", "rejectCandidate"],
+    columns: OFFERED_COLUMNS, scoreLabel: "Fit Score", scoreKind: "preScreenResult", dot: true, selectable: false, defaultSort: null,
+    inline: ["view"], bulk: [], kebab: ["view", "resume", "download", "prepareOffer", "markOfferSent", "markAccepted", "markDeclined", "moveToJoined", "rejectCandidate", "markDropped"],
   },
   joined: {
-    columns: SHARED_COLUMNS, scoreLabel: "Fit Score", scoreKind: "preScreenResult", dot: true, selectable: false, defaultSort: null,
-    inline: ["view"], bulk: [], kebab: ["view", "resume", "download", "rejectCandidate"],
+    columns: JOINED_COLUMNS, scoreLabel: "Fit Score", scoreKind: "preScreenResult", dot: true, selectable: false, defaultSort: null,
+    inline: ["view"], bulk: [], kebab: ["view", "resume", "download", "moveBackOffered"],
   },
   dropped: {
     columns: SHARED_COLUMNS, scoreLabel: "Fit Score", scoreKind: "preScreenResult", selectable: false, defaultSort: null,
@@ -260,7 +285,7 @@ function stageForApplication(app) {
 function matchesSearch(candidate, app, query) {
   const q = query.trim().toLowerCase();
   if (!q) return true;
-  return [candidate?.name, candidate?.email, candidate?.currentTitle, candidate?.currentCompany, candidate?.location, app?.id, app?.clientStatus]
+  return [candidate?.name, candidate?.email, candidate?.currentTitle, candidate?.currentCompany, candidate?.location, app?.id, app?.clientStatus, app?.offer?.status]
     .filter(Boolean)
     .some((value) => String(value).toLowerCase().includes(q));
 }
@@ -369,6 +394,83 @@ function questionFormatLabel(value) {
   if (value === "cv_and_prescreen") return "CV + AI pre-screening";
   if (value === "prescreen_only") return "Standard Questions Only";
   return "—";
+}
+
+function hashString(input = "") {
+  let hash = 0;
+  for (let i = 0; i < String(input).length; i += 1) {
+    hash = (hash * 31 + String(input).charCodeAt(i)) >>> 0;
+  }
+  return hash;
+}
+
+function salaryAmount(value) {
+  if (value == null || value === "") return null;
+  if (typeof value === "object") {
+    const amount = Number(value.amount);
+    return Number.isFinite(amount) ? amount : null;
+  }
+  const amount = Number(value);
+  return Number.isFinite(amount) ? amount : null;
+}
+
+function salaryCurrencyOf(...values) {
+  for (const value of values) {
+    if (value && typeof value === "object" && value.currency) return value.currency;
+  }
+  return "INR";
+}
+
+function formatDateCell(value) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function formatNoticePeriod(days) {
+  if (days == null || days === "") return "—";
+  const value = Number(days);
+  if (!Number.isFinite(value)) return String(days);
+  return `${value} day${value === 1 ? "" : "s"}`;
+}
+
+function offerStatusLabel(value) {
+  return OFFER_STATUS_LABELS[value] ?? "Offer to be sent";
+}
+
+function offerStatusTone(value) {
+  return OFFER_STATUS_TONES[value] ?? "subtle";
+}
+
+function stageHistoryDate(app, stage) {
+  const entry = [...(app?.stageHistory ?? [])].reverse().find((item) => item.stage === stage);
+  return entry?.at ?? null;
+}
+
+function deriveOfferDetails(row) {
+  const offer = row?.app?.offer ?? {};
+  const currency = salaryCurrencyOf(row?.currentSalary, row?.expectedSalary, row?.candidate?.currentSalary, row?.candidate?.expectedSalary);
+  const currentAmount = salaryAmount(row?.currentSalary ?? row?.candidate?.currentSalary);
+  const expectedAmount = salaryAmount(row?.expectedSalary ?? row?.candidate?.expectedSalary);
+  const seed = hashString(row?.id ?? row?.app?.id ?? "");
+  const seededStatus = row?.stage === "joined"
+    ? "accepted"
+    : ["offer_to_be_sent", "offer_sent", "negotiating"][seed % 3];
+  const status = offer.status ?? seededStatus;
+  const base = expectedAmount ?? currentAmount ?? 2500000;
+  const floor = currentAmount != null ? Math.round(currentAmount * 1.08) : Math.round(base * 0.92);
+  const ceiling = expectedAmount != null ? expectedAmount : Math.round(base * 1.18);
+  const blended = Math.round((floor + ceiling) / 2);
+  const offeredAmount = salaryAmount(offer.offeredCTC ?? offer.offeredAmount ?? offer.amount) ?? Math.max(floor, blended);
+  const noticePeriod = offer.noticePeriod ?? row?.availabilityDays ?? [15, 30, 45, 60][seed % 4];
+  const joinedDate = offer.joinedAt ?? stageHistoryDate(row?.app, "joined") ?? (row?.stage === "joined" ? row?.updatedAt : null);
+  return {
+    status,
+    offeredCTC: { amount: offeredAmount, currency },
+    noticePeriod,
+    joinedDate,
+  };
 }
 
 function EmptyState({ tab, query, onAddCandidates }) {
@@ -532,6 +634,30 @@ function buildStageColumns(config, h) {
           {row.expectedSalary?.amount != null || Number.isFinite(Number(row.expectedSalary)) ? formatMoney(row.expectedSalary?.amount ?? row.expectedSalary, row.expectedSalaryCurrency) : "—"}
         </span>
       ),
+    },
+    offeredSalary: {
+      key: "offeredSalary", header: "Offered CTC", width: 138, minWidth: 128, align: "right", sortable: true, sortType: "number",
+      sortAccessor: (row) => row.offeredCTC?.amount ?? null,
+      cell: (row) => (
+        <span className="tabular-nums text-[var(--fx-text)]">
+          {row.offeredCTC?.amount != null ? formatMoney(row.offeredCTC.amount, row.offeredCTC.currency ?? row.currentSalaryCurrency ?? row.expectedSalaryCurrency) : "—"}
+        </span>
+      ),
+    },
+    offerStatus: {
+      key: "offerStatus", header: "Offer Status", width: 146, minWidth: 132, align: "center", sortable: true, sortType: "string",
+      sortAccessor: (row) => row.offerStatus ?? "",
+      cell: (row) => <FxBadge tone={offerStatusTone(row.offerStatus)} variant="soft" size="sm">{offerStatusLabel(row.offerStatus)}</FxBadge>,
+    },
+    joinedDate: {
+      key: "joinedDate", header: "Joined Date", width: 126, minWidth: 118, align: "center", sortable: true, sortType: "string",
+      sortAccessor: (row) => row.joinedDate ?? "",
+      cell: (row) => <span className="text-[var(--fx-text)]">{formatDateCell(row.joinedDate)}</span>,
+    },
+    noticePeriod: {
+      key: "noticePeriod", header: "Notice Period", width: 128, minWidth: 120, align: "center", sortable: true, sortType: "number",
+      sortAccessor: (row) => row.noticePeriod ?? null,
+      cell: (row) => <span className="text-[var(--fx-text)]">{formatNoticePeriod(row.noticePeriod)}</span>,
     },
     email: {
       // Email + Availability are in the column model everywhere but only default-visible where the stage opts in (Shortlisted).
@@ -962,6 +1088,15 @@ export default function JobWorkspacePage() {
     const expectedSalary = app?.qualification?.expectedSalary ?? candidate?.expectedSalary ?? null;
     const availabilityDays = app?.qualification?.availability?.days ?? candidate?.availabilityDays ?? null;
     const emailScreening = app?.screening?.email ?? {};
+    const offer = deriveOfferDetails({
+      id: app.id,
+      app,
+      candidate,
+      stage,
+      currentSalary,
+      expectedSalary,
+      availabilityDays,
+    });
     return {
       id: app.id,
       app,
@@ -996,6 +1131,10 @@ export default function JobWorkspacePage() {
       expectedSalary,
       expectedSalaryCurrency: expectedSalary?.currency ?? candidate?.salaryCurrency ?? salaryCurrency,
       availabilityDays,
+      offeredCTC: offer.offeredCTC,
+      offerStatus: offer.status,
+      noticePeriod: offer.noticePeriod,
+      joinedDate: offer.joinedDate,
       appliedAt: app.appliedAt,
       updatedAt: app.updatedAt,
     };
@@ -1330,6 +1469,46 @@ export default function JobWorkspacePage() {
     setOfferKey((current) => current + 1);
     setOfferConfirmOpen(true);
   };
+  const patchOfferRows = (rows, patch, message) => {
+    const next = resolveActionRows(rows);
+    if (!next.length) return;
+    const at = new Date().toISOString();
+    next.forEach((row) => {
+      const currentOffer = row.app?.offer ?? {};
+      updateApplication(row.id, {
+        offer: {
+          ...currentOffer,
+          ...patch,
+          updatedAt: at,
+        },
+      });
+    });
+    notify(next, message);
+  };
+  const handlePrepareOffer = (rows) => patchOfferRows(rows, { status: "offer_to_be_sent" }, "Offer prepared");
+  const handleMarkOfferSent = (rows) => patchOfferRows(rows, { status: "offer_sent", sentAt: new Date().toISOString() }, "Offer marked sent");
+  const handleMarkAccepted = (rows) => patchOfferRows(rows, { status: "accepted", acceptedAt: new Date().toISOString() }, "Offer marked accepted");
+  const handleMarkDeclined = (rows) => patchOfferRows(rows, { status: "declined", declinedAt: new Date().toISOString() }, "Offer marked declined");
+  const handleMoveToJoined = (rows) => {
+    const next = resolveActionRows(rows);
+    if (!next.length) return;
+    const at = new Date().toISOString();
+    next.forEach((row) => {
+      const currentOffer = row.app?.offer ?? {};
+      updateApplication(row.id, {
+        offer: {
+          ...currentOffer,
+          status: "accepted",
+          acceptedAt: currentOffer.acceptedAt ?? at,
+          joinedAt: currentOffer.joinedAt ?? at,
+          updatedAt: at,
+        },
+      });
+      updateApplication(row.id, { clientStatus: null });
+      setApplicationStage(row.id, "joined");
+    });
+    notify(next, "Moved to Joined");
+  };
   const handleConfirmMoveToOffered = () => {
     const next = offerRowsState.length ? offerRowsState : [];
     if (!next.length) return;
@@ -1406,6 +1585,11 @@ export default function JobWorkspacePage() {
     rescheduleInterview: handleRescheduleInterview,
     move: moveRows,
     offer: handleOpenOfferConfirm,
+    prepareOffer: handlePrepareOffer,
+    markOfferSent: handleMarkOfferSent,
+    markAccepted: handleMarkAccepted,
+    markDeclined: handleMarkDeclined,
+    join: handleMoveToJoined,
     drop: handleOpenDropConfirm,
     onHold: holdRows,
   };

@@ -4,8 +4,8 @@
 
 import { useState } from "react";
 import {
-  BadgeCheck, CalendarClock, CalendarPlus, CheckCircle2, ClipboardCheck, ListPlus,
-  MapPin, Phone, RefreshCw, Scale, Video, XCircle,
+  BadgeCheck, CalendarClock, CalendarPlus, CheckCircle2, ClipboardCheck, Columns3, ListPlus,
+  Lock, MapPin, Phone, RefreshCw, Rows3, Scale, Video, XCircle,
 } from "lucide-react";
 
 import { FxButton } from "@/components/FxUI/Forms";
@@ -141,6 +141,7 @@ function EvInterviewJourneySheet({ open, onOpenChange, row, job, onReschedule, o
   const rowCount = Math.max(PLANNED_ROUNDS.length, activeIndex + 1);
   const latestActualRound = rounds[lastIdx] ?? null;
   const [feedbackRound, setFeedbackRound] = useState(() => (initialAction === "feedback" ? latestActualRound : null));
+  const [view, setView] = useState("vertical"); // "vertical" | "horizontal" — product-review toggle, not persisted
 
   function markCompleted(round) {
     const interview = interviewOf(round);
@@ -205,11 +206,11 @@ function EvInterviewJourneySheet({ open, onOpenChange, row, job, onReschedule, o
   return (
     <>
     <FxSheet open={open} onOpenChange={onOpenChange} side="right" size="lg" expandable expanded={expanded} onExpandedChange={setExpanded}>
-      <FxSheet.Header title="Interview Workspace" actions={statusChip} />
+      <FxSheet.Header title="Interview Workspace" actions={<div className="flex min-w-0 items-center gap-2">{statusChip}<ViewToggle view={view} onChange={setView} /></div>} />
 
       <FxSheet.Body className="p-0">
         <div className="h-full min-h-0 overflow-y-auto bg-[var(--fx-surface-subtle)]">
-          <div className="mx-auto w-full max-w-[760px] space-y-4 px-6 py-6">
+          <div className={cn("mx-auto w-full space-y-4 px-6 py-6", view === "vertical" ? "max-w-[760px]" : "max-w-[1180px]")}>
             {/* Who + role/company. */}
             <section className="flex items-start gap-4 rounded-[14px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-5">
               <span className="grid size-12 shrink-0 place-items-center rounded-full bg-[var(--fx-surface-selected)] text-[15px] font-semibold text-[var(--fx-primary)]">{initialsOf(candidate?.name) || "?"}</span>
@@ -235,12 +236,20 @@ function EvInterviewJourneySheet({ open, onOpenChange, row, job, onReschedule, o
               </dl>
             </section>
 
-            {/* The full expected journey. */}
-            <section className="space-y-1">
-              {rows.map((r, idx) => (
-                <RoundStep key={r.i} row={r} last={idx === rows.length - 1} onRun={(key) => runStep(r.actual, key)} />
-              ))}
-            </section>
+            {/* The full expected journey — vertical timeline (V1) or horizontal round cards (product-review alt). */}
+            {view === "vertical" ? (
+              <section className="space-y-1">
+                {rows.map((r, idx) => (
+                  <RoundStep key={r.i} row={r} last={idx === rows.length - 1} onRun={(key) => runStep(r.actual, key)} />
+                ))}
+              </section>
+            ) : (
+              <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {rows.map((r) => (
+                  <HRoundCard key={r.i} row={r} onRun={(key) => runStep(r.actual, key)} />
+                ))}
+              </section>
+            )}
           </div>
         </div>
       </FxSheet.Body>
@@ -277,11 +286,85 @@ function ActionButton({ action, ghost, onClick }) {
   return <FxButton variant={ghost ? "ghost" : action.variant} size="sm" onClick={onClick}><Icon className="size-4" />{action.label}</FxButton>;
 }
 
-function RoundStep({ row, last, onRun }) {
-  const { ordinal, name, state, sentence, interview, feedback, decision, isActive, placeholder, actions } = row;
+// Shared body for a round — sentence + interview facts + feedback/decision summaries + actions.
+// Used by BOTH the vertical RoundStep and the horizontal HRoundCard so the two views can never diverge on behavior.
+function RoundBody({ row, onRun }) {
+  const { sentence, interview, feedback, decision, isActive, actions } = row;
   const mode = interview?.payload?.mode ? MODE_META[interview.payload.mode] : null;
   const decOutcome = decision?.payload?.outcome ? OUTCOME_META[decision.payload.outcome] : null;
   const decColor = decOutcome ? (TONE_VAR[decOutcome.tone] ?? "var(--fx-text)") : "var(--fx-text)";
+  return (
+    <>
+      <p className="mt-1 text-[13px] text-[var(--fx-text-muted)]">{sentence}</p>
+
+      {/* Interview facts — only for the active round (quiet elsewhere). */}
+      {isActive && interview ? (
+        <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-[var(--fx-text)]">
+          {(interview.payload?.interviewers ?? []).length ? (
+            <span className="text-[var(--fx-text-muted)]">with <span className="text-[var(--fx-text)]">{interview.payload.interviewers.map((i) => i.name || i.email).filter(Boolean).join(", ")}</span></span>
+          ) : null}
+          {interview.payload?.dateKey ? <span className="inline-flex items-center gap-1.5"><CalendarClock className="size-3.5 text-[var(--fx-text-muted)]" />{formatDayLong(interview.payload.dateKey)}{interview.payload.slotStart != null ? `, ${formatSlotRange(interview.payload.slotStart, interview.payload.durationMin ?? 60)}` : ""}</span> : null}
+          {mode ? <span className="inline-flex items-center gap-1.5"><mode.icon className="size-3.5 text-[var(--fx-text-muted)]" />{mode.label}</span> : null}
+        </div>
+      ) : null}
+
+      {/* Feedback summary — two-column (label+value | note), stacks on narrow. */}
+      {feedback ? (
+        <div className="mt-2.5 rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface-subtle)] px-3 py-2.5">
+          <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold text-[var(--fx-text-muted)]">Feedback</p>
+              <p className="mt-1 text-[13px] text-[var(--fx-text)]">
+                <span className="font-medium">{REC_META[feedback.payload?.recommendation]?.label ?? "—"}</span>
+                {feedback.payload?.byInterviewerId ? <span className="text-[var(--fx-text-muted)]"> by {personName(feedback.payload.byInterviewerId)}</span> : null}
+              </p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium text-[var(--fx-text-muted)]">Feedback note</p>
+              <p className={cn("mt-0.5 whitespace-pre-wrap text-[12.5px]", feedback.payload?.notes ? "text-[var(--fx-text)]" : "text-[var(--fx-text-muted)]")}>{feedback.payload?.notes || "—"}</p>
+            </div>
+          </div>
+          <button type="button" onClick={() => onRun("change_feedback")} className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--fx-primary)] transition-colors hover:underline">
+            <RefreshCw className="size-3" /> Change feedback
+          </button>
+        </div>
+      ) : null}
+
+      {/* Decision — two-column (label+outcome | note), stacks on narrow. */}
+      {decision?.payload?.outcome ? (
+        <div className="mt-2.5 rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface-subtle)] px-3 py-2.5">
+          <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold text-[var(--fx-text-muted)]">Decision</p>
+              <div className="mt-1">
+                <span className="inline-flex items-center rounded-[6px] border-[0.5px] px-2 py-[3px] text-[12px] font-semibold" style={{ color: decColor, borderColor: `color-mix(in srgb, ${decColor} 45%, transparent)`, backgroundColor: `color-mix(in srgb, ${decColor} 12%, var(--fx-surface))` }}>{decOutcome?.label ?? "—"}</span>
+              </div>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] font-medium text-[var(--fx-text-muted)]">Decision note</p>
+              <p className={cn("mt-0.5 whitespace-pre-wrap text-[12.5px]", decision.payload?.note ? "text-[var(--fx-text)]" : "text-[var(--fx-text-muted)]")}>{decision.payload?.note || "—"}</p>
+            </div>
+          </div>
+          <button type="button" onClick={() => onRun("change_decision")} className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--fx-primary)] transition-colors hover:underline">
+            <RefreshCw className="size-3" /> Change decision
+          </button>
+        </div>
+      ) : null}
+
+      {/* Actions — the current round, plus any decided round (kept editable so nothing dead-ends). */}
+      {actions && (actions.primary || actions.secondary.length) ? (
+        <div className="mt-3.5 flex flex-wrap items-center gap-2">
+          {actions.primary ? <ActionButton action={actions.primary} onClick={() => onRun(actions.primary.key)} /> : null}
+          {actions.secondary.map((a) => <ActionButton key={a.key} action={a} ghost onClick={() => onRun(a.key)} />)}
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+// Vertical presentation (V1) — the timeline journey.
+function RoundStep({ row, last, onRun }) {
+  const { ordinal, name, state, isActive, placeholder } = row;
   return (
     <div className="flex gap-3">
       {/* Timeline spine. */}
@@ -303,71 +386,50 @@ function RoundStep({ row, last, onRun }) {
           </p>
           <FxBadge tone={state?.tone} variant="soft" size="xs" dot>{state?.label}</FxBadge>
         </div>
-
-        <p className="mt-1 text-[13px] text-[var(--fx-text-muted)]">{sentence}</p>
-
-        {/* Interview facts — only for the active round (quiet elsewhere). */}
-        {isActive && interview ? (
-          <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-[var(--fx-text)]">
-            {(interview.payload?.interviewers ?? []).length ? (
-              <span className="text-[var(--fx-text-muted)]">with <span className="text-[var(--fx-text)]">{interview.payload.interviewers.map((i) => i.name || i.email).filter(Boolean).join(", ")}</span></span>
-            ) : null}
-            {interview.payload?.dateKey ? <span className="inline-flex items-center gap-1.5"><CalendarClock className="size-3.5 text-[var(--fx-text-muted)]" />{formatDayLong(interview.payload.dateKey)}{interview.payload.slotStart != null ? `, ${formatSlotRange(interview.payload.slotStart, interview.payload.durationMin ?? 60)}` : ""}</span> : null}
-            {mode ? <span className="inline-flex items-center gap-1.5"><mode.icon className="size-3.5 text-[var(--fx-text-muted)]" />{mode.label}</span> : null}
-          </div>
-        ) : null}
-
-        {/* Feedback summary — two-column (label+value | note), stacks on narrow. */}
-        {feedback ? (
-          <div className="mt-2.5 rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface-subtle)] px-3 py-2.5">
-            <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2">
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold text-[var(--fx-text-muted)]">Feedback</p>
-                <p className="mt-1 text-[13px] text-[var(--fx-text)]">
-                  <span className="font-medium">{REC_META[feedback.payload?.recommendation]?.label ?? "—"}</span>
-                  {feedback.payload?.byInterviewerId ? <span className="text-[var(--fx-text-muted)]"> by {personName(feedback.payload.byInterviewerId)}</span> : null}
-                </p>
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium text-[var(--fx-text-muted)]">Feedback note</p>
-                <p className={cn("mt-0.5 whitespace-pre-wrap text-[12.5px]", feedback.payload?.notes ? "text-[var(--fx-text)]" : "text-[var(--fx-text-muted)]")}>{feedback.payload?.notes || "—"}</p>
-              </div>
-            </div>
-            <button type="button" onClick={() => onRun("change_feedback")} className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--fx-primary)] transition-colors hover:underline">
-              <RefreshCw className="size-3" /> Change feedback
-            </button>
-          </div>
-        ) : null}
-
-        {/* Decision — two-column (label+outcome | note), stacks on narrow; matches the Feedback block treatment. */}
-        {decision?.payload?.outcome ? (
-          <div className="mt-2.5 rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface-subtle)] px-3 py-2.5">
-            <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2">
-              <div className="min-w-0">
-                <p className="text-[11px] font-semibold text-[var(--fx-text-muted)]">Decision</p>
-                <div className="mt-1">
-                  <span className="inline-flex items-center rounded-[6px] border-[0.5px] px-2 py-[3px] text-[12px] font-semibold" style={{ color: decColor, borderColor: `color-mix(in srgb, ${decColor} 45%, transparent)`, backgroundColor: `color-mix(in srgb, ${decColor} 12%, var(--fx-surface))` }}>{decOutcome?.label ?? "—"}</span>
-                </div>
-              </div>
-              <div className="min-w-0">
-                <p className="text-[11px] font-medium text-[var(--fx-text-muted)]">Decision note</p>
-                <p className={cn("mt-0.5 whitespace-pre-wrap text-[12.5px]", decision.payload?.note ? "text-[var(--fx-text)]" : "text-[var(--fx-text-muted)]")}>{decision.payload?.note || "—"}</p>
-              </div>
-            </div>
-            <button type="button" onClick={() => onRun("change_decision")} className="mt-2 inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--fx-primary)] transition-colors hover:underline">
-              <RefreshCw className="size-3" /> Change decision
-            </button>
-          </div>
-        ) : null}
-
-        {/* Actions — the current round, plus any decided round (kept editable so nothing dead-ends). */}
-        {actions && (actions.primary || actions.secondary.length) ? (
-          <div className="mt-3.5 flex flex-wrap items-center gap-2">
-            {actions.primary ? <ActionButton action={actions.primary} onClick={() => onRun(actions.primary.key)} /> : null}
-            {actions.secondary.map((a) => <ActionButton key={a.key} action={a} ghost onClick={() => onRun(a.key)} />)}
-          </div>
-        ) : null}
+        <RoundBody row={row} onRun={onRun} />
       </div>
+    </div>
+  );
+}
+
+// Horizontal presentation — the same rounds as left→right cards (product-review alternative to the vertical journey).
+function HRoundCard({ row, onRun }) {
+  const { ordinal, name, state, isActive, placeholder } = row;
+  const future = placeholder && !isActive; // not scheduled and not the active slot → muted / locked
+  return (
+    <div className={cn(
+      "flex h-full min-w-0 flex-col rounded-[12px] border p-4",
+      isActive ? "border-[color:color-mix(in_srgb,var(--fx-primary)_38%,var(--fx-border))] bg-[var(--fx-surface)] shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+        : future ? "border-dashed border-[var(--fx-border)] bg-transparent opacity-80"
+          : "border-[var(--fx-border)] bg-[var(--fx-surface)]",
+    )}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--fx-text-muted)]">Round {ordinal}</p>
+          <p className="mt-0.5 truncate text-[14px] font-semibold text-[var(--fx-primary)]" title={name}>{name}</p>
+        </div>
+        {future ? <Lock className="mt-0.5 size-3.5 shrink-0 text-[var(--fx-text-muted)]" /> : null}
+      </div>
+      <div className="mt-1.5"><FxBadge tone={state?.tone} variant="soft" size="xs" dot>{state?.label}</FxBadge></div>
+      <RoundBody row={row} onRun={onRun} />
+    </div>
+  );
+}
+
+// Segmented view switch — product-review only, not persisted.
+function ViewToggle({ view, onChange }) {
+  const options = [{ value: "vertical", icon: Rows3, label: "Vertical" }, { value: "horizontal", icon: Columns3, label: "Horizontal" }];
+  return (
+    <div className="inline-flex shrink-0 items-center rounded-[8px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-[2px]">
+      {options.map((o) => {
+        const active = view === o.value;
+        const Icon = o.icon;
+        return (
+          <button key={o.value} type="button" onClick={() => onChange(o.value)} title={o.label} aria-pressed={active} className={cn("inline-flex h-7 items-center gap-1.5 rounded-[6px] px-2.5 text-[12px] font-medium transition-colors", active ? "bg-[var(--fx-surface-selected)] text-[var(--fx-primary)]" : "text-[var(--fx-text-muted)] hover:text-[var(--fx-text)]")}>
+            <Icon className="size-3.5" /> {o.label}
+          </button>
+        );
+      })}
     </div>
   );
 }
