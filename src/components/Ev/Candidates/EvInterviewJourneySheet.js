@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import {
   BadgeCheck, CalendarClock, CalendarPlus, CheckCircle2, ClipboardCheck, Columns3, ListPlus,
   Lock, MapPin, Phone, RefreshCw, Rows3, Scale, Video, XCircle,
@@ -244,11 +244,15 @@ function EvInterviewJourneySheet({ open, onOpenChange, row, job, onReschedule, o
                 ))}
               </section>
             ) : (
-              <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {rows.map((r) => (
-                  <HRoundCard key={r.i} row={r} onRun={(key) => runStep(r.actual, key)} />
-                ))}
-              </section>
+              <div className="space-y-4">
+                {/* One-line progress rail — the journey line that survives grid wrapping. */}
+                <RoundRail rows={rows} activeIndex={activeIndex} />
+                <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  {rows.map((r) => (
+                    <HRoundCard key={r.i} row={r} onRun={(key) => runStep(r.actual, key)} />
+                  ))}
+                </section>
+              </div>
             )}
           </div>
         </div>
@@ -412,6 +416,33 @@ function HRoundCard({ row, onRun }) {
       </div>
       <div className="mt-1.5"><FxBadge tone={state?.tone} variant="soft" size="xs" dot>{state?.label}</FxBadge></div>
       <RoundBody row={row} onRun={onRun} />
+    </div>
+  );
+}
+
+// One-line numbered progress rail for the horizontal view — dots joined by connectors (never breaks on grid wrap).
+function RoundRail({ rows, activeIndex }) {
+  return (
+    <div className="flex items-center px-1">
+      {rows.map((r, i) => {
+        const future = r.placeholder && !r.isActive;
+        const cleared = r.state?.tone === "success";
+        return (
+          <Fragment key={r.i}>
+            {i > 0 ? <div className={cn("mx-2 h-px flex-1", i <= activeIndex ? "bg-[color:color-mix(in_srgb,var(--fx-primary)_40%,var(--fx-border))]" : "bg-[var(--fx-border)]")} /> : null}
+            <div className="flex min-w-0 items-center gap-2">
+              <span className={cn(
+                "grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold",
+                r.isActive ? "bg-[var(--fx-primary)] text-[var(--fx-primary-foreground)]"
+                  : cleared ? "bg-[var(--fx-success)] text-[var(--fx-primary-foreground)]"
+                    : future ? "border border-dashed border-[var(--fx-border)] text-[var(--fx-text-muted)]"
+                      : "border border-[var(--fx-border)] bg-[var(--fx-surface)] text-[var(--fx-text)]",
+              )}>{r.ordinal}</span>
+              <span className={cn("truncate text-[12px]", r.isActive ? "font-semibold text-[var(--fx-text)]" : "text-[var(--fx-text-muted)]")}>{r.name}</span>
+            </div>
+          </Fragment>
+        );
+      })}
     </div>
   );
 }
