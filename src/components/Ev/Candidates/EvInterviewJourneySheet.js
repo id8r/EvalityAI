@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import {
   BadgeCheck, CalendarClock, CalendarPlus, CheckCircle2, ClipboardCheck, ListPlus,
   MapPin, Phone, Plus, RefreshCw, Scale, Video, XCircle,
@@ -11,6 +11,7 @@ import {
 import { FxButton } from "@/components/FxUI/Forms";
 import { FxBadge } from "@/components/FxUI/DataDisplay";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EvRecordDecisionDialog } from "@/components/Ev/Candidates/EvRecordDecisionDialog";
 import { EvRecordFeedbackDialog } from "@/components/Ev/Candidates/EvRecordFeedbackDialog";
 import { getInterviewJourney, interviewAddRound, interviewUpdateItem, interviewAddItem, interviewRecordDecision, interviewRecordFeedback } from "@/lib/EvData";
@@ -117,9 +118,6 @@ function nowSentence(round) {
   return who ? `Interview completed. Feedback is pending from ${who}.` : "Interview completed. Feedback is pending.";
 }
 
-// Header Status = the human state label (interview detail lives in the round card body, not here).
-const headerStatus = (active) => active.state?.label ?? "";
-
 // Header Next = the primary action label (record_decision reads "Record your decision").
 const nextPhrase = (primary) => (primary.key === "record_decision" ? "Record your decision" : primary.label);
 
@@ -190,17 +188,25 @@ function EvInterviewJourneySheet({ open, onOpenChange, row, job, onReschedule, o
   }
   const rows = Array.from({ length: rowCount }, (_, i) => buildRow(i));
   const active = rows[activeIndex];
+  // Reverse-chronological: latest activity / scheduled date first (a future interview outranks older completed rounds);
+  // fall back to the round's latest item / createdAt. Unscheduled planned suggestions have no date → they sort to the end.
+  const activityTime = (r) => {
+    const dk = r.interview?.payload?.dateKey;
+    if (dk) return new Date(dk).getTime();
+    if (!r.actual) return -Infinity;
+    const created = (r.actual.items ?? []).map((it) => it.createdAt).filter(Boolean).map((s) => new Date(s).getTime());
+    return created.length ? Math.max(...created) : (r.actual.createdAt ? new Date(r.actual.createdAt).getTime() : 0);
+  };
+  const sortedRows = [...rows].sort((a, b) => activityTime(b) - activityTime(a));
   // Persistent current/next status — lives in the header (center-right, before expand/close), not the footer.
   const statusChip = (
     <span className="inline-flex min-w-0 max-w-[460px] items-center gap-2 rounded-[6px] border border-[var(--fx-border)] bg-[var(--fx-surface)] px-2.5 py-1 text-[12.5px] leading-[16px]">
       <span className="size-[7px] shrink-0 rounded-full" style={{ backgroundColor: TONE_VAR[active.state?.tone] ?? "var(--fx-text-muted)" }} />
       <span className="min-w-0 truncate">
-        <span className="text-[var(--fx-text-muted)]">Current: </span>
-        <span className="font-medium text-[var(--fx-primary)]">{planName(activeIndex, active.actual)}</span>
         {active.actions?.primary ? (
-          <><span className="text-[var(--fx-text-muted)]"> · Next: </span><span className="font-medium text-[var(--fx-primary)]">{nextPhrase(active.actions.primary)}</span></>
+          <><span className="text-[var(--fx-text-muted)]">Next: </span><span className="font-medium text-[var(--fx-primary)]">{nextPhrase(active.actions.primary)}</span><span className="text-[var(--fx-text-muted)]"> for </span><span className="font-medium text-[var(--fx-primary)]">{planName(activeIndex, active.actual)}</span></>
         ) : (
-          <><span className="text-[var(--fx-text-muted)]"> · Status: </span><span className="font-medium text-[var(--fx-primary)]">{active.state?.label}</span></>
+          <><span className="text-[var(--fx-text-muted)]">Status: </span><span className="font-medium text-[var(--fx-primary)]">{planName(activeIndex, active.actual)} · {active.state?.label}</span></>
         )}
       </span>
     </span>
@@ -229,14 +235,16 @@ function EvInterviewJourneySheet({ open, onOpenChange, row, job, onReschedule, o
               {row?.matchScore != null ? <FxBadge tone="primary" variant="soft" size="sm">Fit {row.matchScore}%</FxBadge> : null}
             </section>
 
-            {/* At a glance — compact status card, deliberately lighter/smaller than the identity card above. */}
+            {/* At a glance — the single most important next action across all rounds (rounds aren't sequential/locked). */}
             <section className="rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-bg-soft)] px-4 py-3.5">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--fx-text-muted)]">Current round</p>
-              <p className="mt-0.5 text-[14px] font-semibold text-[var(--fx-text)]">Round {activeIndex + 1} of {rowCount} — {planName(activeIndex, active.actual)}</p>
-              <dl className="mt-2 space-y-1 text-[13px]">
-                <div className="flex gap-2"><dt className="w-[48px] shrink-0 text-[var(--fx-text-muted)]">Status</dt><dd className="text-[var(--fx-text)]">{headerStatus(active)}</dd></div>
-                {active.actions?.primary ? <div className="flex gap-2"><dt className="w-[48px] shrink-0 text-[var(--fx-text-muted)]">Next</dt><dd className="font-medium text-[var(--fx-text)]">{nextPhrase(active.actions.primary)}</dd></div> : null}
-              </dl>
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--fx-text-muted)]">Next up</p>
+              {active.actions?.primary ? (
+                <p className="mt-0.5 text-[14px] font-semibold text-[var(--fx-text)]">
+                  {nextPhrase(active.actions.primary)} <span className="font-normal text-[var(--fx-text-muted)]">for</span> {planName(activeIndex, active.actual)}
+                </p>
+              ) : (
+                <p className="mt-0.5 text-[14px] font-medium text-[var(--fx-text-muted)]">All caught up — add an interview round if another is needed.</p>
+              )}
             </section>
 
             {/* The full expected journey — vertical timeline (V1) or horizontal round cards (product-review alt). */}
@@ -247,23 +255,13 @@ function EvInterviewJourneySheet({ open, onOpenChange, row, job, onReschedule, o
                 ))}
               </section>
             ) : (
-              <div className="space-y-4">
-                {/* One-line progress rail — the journey line that survives grid wrapping. */}
-                <RoundRail rows={rows} activeIndex={activeIndex} />
-                <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                  {rows.map((r) => (
-                    <HRoundCard key={r.i} row={r} onRun={(key) => runStep(r, key)} />
-                  ))}
-                  {/* Add another round beyond the plan. */}
-                  <button
-                    type="button"
-                    onClick={() => appId && interviewAddRound(appId)}
-                    className="flex h-full min-h-[128px] min-w-0 flex-col items-center justify-center gap-1.5 rounded-[12px] border border-dashed border-[var(--fx-border)] text-[13px] font-medium text-[var(--fx-text-muted)] transition-colors hover:border-[color:color-mix(in_srgb,var(--fx-primary)_45%,var(--fx-border))] hover:text-[var(--fx-text)]"
-                  >
-                    <Plus className="size-5" /> Add round
-                  </button>
-                </section>
-              </div>
+              // Round events, latest activity first (not a locked sequence). Add rounds freely via the trailing card.
+              <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <AddRoundCard appId={appId} />
+                {sortedRows.map((r) => (
+                  <HRoundCard key={r.i} row={r} onRun={(key) => runStep(r, key)} />
+                ))}
+              </section>
             )}
           </div>
         </div>
@@ -428,30 +426,23 @@ function HRoundCard({ row, onRun }) {
   );
 }
 
-// One-line numbered progress rail for the horizontal view — dots joined by connectors (never breaks on grid wrap).
-function RoundRail({ rows, activeIndex }) {
+// Trailing "add interview round" card — a dashed cell whose menu offers the suggested round names (or a custom one).
+// Rounds are freely addable at any time; the plan names are suggestions, not a fixed sequence.
+function AddRoundCard({ appId }) {
   return (
-    <div className="flex items-center px-1">
-      {rows.map((r, i) => {
-        const future = r.placeholder && !r.isActive;
-        const cleared = r.state?.tone === "success";
-        return (
-          <Fragment key={r.i}>
-            {i > 0 ? <div className={cn("mx-2 h-px flex-1", i <= activeIndex ? "bg-[color:color-mix(in_srgb,var(--fx-primary)_40%,var(--fx-border))]" : "bg-[var(--fx-border)]")} /> : null}
-            <div className="flex min-w-0 items-center gap-2">
-              <span className={cn(
-                "grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold",
-                r.isActive ? "bg-[var(--fx-primary)] text-[var(--fx-primary-foreground)]"
-                  : cleared ? "bg-[var(--fx-success)] text-[var(--fx-primary-foreground)]"
-                    : future ? "border border-dashed border-[var(--fx-border)] text-[var(--fx-text-muted)]"
-                      : "border border-[var(--fx-border)] bg-[var(--fx-surface)] text-[var(--fx-text)]",
-              )}>{r.ordinal}</span>
-              <span className={cn("truncate text-[12px]", r.isActive ? "font-semibold text-[var(--fx-text)]" : "text-[var(--fx-text-muted)]")}>{r.name}</span>
-            </div>
-          </Fragment>
-        );
-      })}
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger className="flex h-full min-h-[128px] min-w-0 flex-col items-center justify-center gap-1.5 rounded-[12px] border border-dashed border-[var(--fx-border)] text-[13px] font-medium text-[var(--fx-text-muted)] transition-colors hover:border-[color:color-mix(in_srgb,var(--fx-primary)_45%,var(--fx-border))] hover:text-[var(--fx-text)]">
+        <Plus className="size-5" /> Add interview round
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-56">
+        <DropdownMenuLabel>Suggested rounds</DropdownMenuLabel>
+        {PLANNED_ROUNDS.map((name) => (
+          <DropdownMenuItem key={name} onClick={() => appId && interviewAddRound(appId, name)}>{name}</DropdownMenuItem>
+        ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => appId && interviewAddRound(appId)}>Custom round</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
