@@ -34,6 +34,7 @@ import { FxPageToolbar, FxWorkspaceTableFrame } from "@/components/FxUI/Layout";
 import { FxTabs } from "@/components/FxUI/Navigation";
 import { FxConfirmDialog } from "@/components/FxUI/Overlays/FxConfirmDialog";
 import {
+  FxBadge,
   FxTable,
   FxActionsCell,
   FxColumnManager,
@@ -65,7 +66,7 @@ import { EvCandidateDetailsSheet } from "@/components/Ev/Candidates/EvCandidateD
 import { EvPreScreenResultSheet } from "@/components/Ev/Candidates/EvPreScreenResultSheet";
 import { EvShareForReviewSheet } from "@/components/Ev/Candidates/EvShareForReviewSheet";
 import { EvScheduleInterviewSheet } from "@/components/Ev/Candidates/EvScheduleInterviewSheet";
-import { EvInterviewBoardSheet } from "@/components/Ev/Candidates/EvInterviewBoardSheet";
+import { EvInterviewJourneySheet } from "@/components/Ev/Candidates/EvInterviewJourneySheet";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import {
   createApplication,
@@ -86,6 +87,7 @@ import {
   interviewCreateNextRound,
 } from "@/lib/EvData";
 import { employmentTypeLabel, experienceLabel, jobLocationLabel, stageLabel } from "@/lib/EvSelectors";
+import { feedbackRecommendationLabel, feedbackRecommendationTone, latestFeedbackItem, latestInterviewItem, interviewOverview, normalizeInterview, RECENT_INTERVIEWERS } from "@/lib/EvInterview";
 import { screeningTypeMeta } from "@/lib/EvScreening";
 import { formatMoney } from "@/lib/EvFormat";
 import { isPdfResume, resolveResumeUrl } from "@/lib/EvResume";
@@ -164,7 +166,7 @@ const STAGE_CONFIG = {
   },
   interviewing: {
     columns: INTERVIEW_COLUMNS, dot: true, selectable: false, defaultSort: null,
-    inline: ["interviewWorkspace"], bulk: [], kebab: ["interviewWorkspace", "rescheduleInterview", "addFeedback", "recordDecision", "createNextRound", "moveToOffered", "view", "resume", "download", "rejectCandidate", "markDropped"],
+    inline: ["interviewWorkspace"], bulk: [], kebab: ["interviewWorkspace", "rescheduleInterview", "rejectCandidate", "markDropped"],
   },
   offered: {
     columns: SHARED_COLUMNS, scoreLabel: "Fit Score", scoreKind: "preScreenResult", dot: true, selectable: false, defaultSort: null,
@@ -542,7 +544,41 @@ function buildStageColumns(config, h) {
       cell: (row) => <span className="text-[var(--fx-text)]">{row.availabilityDays == null ? "—" : `${row.availabilityDays} days`}</span>,
     },
     // interviewing-only columns (data wires in with the Interview Workspace sheet; structure faithful to old)
-    scheduleDetails: { key: "scheduleDetails", header: "Schedule Details", width: 200, minWidth: 160, sortable: false, cell: (row) => <FxTextCell value={row.interview?.scheduleDetails} muted /> },
+    scheduleDetails: {
+      key: "scheduleDetails",
+      header: "Schedule Details",
+      width: 220,
+      minWidth: 180,
+      sortable: false,
+      cell: (row) => {
+        const raw = row.interview ?? {};
+        const dateValue = raw.dateKey ? new Date(raw.dateKey) : raw.date ? new Date(raw.date) : null;
+        const summary = raw.scheduleDetails ? String(raw.scheduleDetails).trim() : "";
+        const summaryParts = summary ? summary.split(" · ").map((part) => part.trim()).filter(Boolean) : [];
+        const datePart = dateValue && !Number.isNaN(dateValue.getTime())
+          ? dateValue.toLocaleDateString("en-US", { weekday: "short", day: "2-digit", month: "short", year: "numeric" })
+          : summaryParts.slice(0, 1).join(" · ");
+        const timePart = raw.slotStart ?? "";
+        const methodPart = raw.mode
+          ? [raw.mode, raw.where?.link ? "link" : raw.where?.address ? "address" : raw.where?.number ? "phone" : ""].filter(Boolean).join(" · ")
+          : raw.where?.link
+            ? "link"
+            : raw.where?.address
+              ? "address"
+              : raw.where?.number
+                ? "phone"
+                : "";
+        const parsedMethod = summaryParts.length >= 3 ? summaryParts.slice(2).join(" · ") : "";
+        const line1 = [datePart, timePart].filter(Boolean).join(" · ") || summaryParts.slice(0, 2).join(" · ") || summaryParts[0] || "—";
+        const line2 = methodPart || parsedMethod || summaryParts[1] || "";
+        return (
+          <div className="min-w-0">
+            <div className="truncate text-[13px] font-medium text-[var(--fx-text)]">{line1}</div>
+            <div className="truncate text-[12px] text-[var(--fx-text-muted)]">{line2}</div>
+          </div>
+        );
+      },
+    },
   interviewer: {
       key: "interviewer",
       header: "Interviewer",
@@ -562,10 +598,36 @@ function buildStageColumns(config, h) {
       },
     },
     interviewStage: { key: "interviewStage", header: "Stage", width: 90, minWidth: 80, align: "center", sortable: false, cell: (row) => <FxTextCell value={row.interview?.stage} muted /> },
-    recommendation: { key: "recommendation", header: "Recommendation", width: 150, minWidth: 120, align: "center", sortable: false, cell: (row) => <FxTextCell value={row.interview?.recommendation} muted /> },
+    recommendation: {
+      key: "recommendation",
+      header: "Recommendation",
+      width: 154,
+      minWidth: 124,
+      align: "center",
+      sortable: false,
+      cell: (row) => {
+        const feedback = latestFeedbackItem(row.interview?.rounds ?? []);
+        if (!feedback) return <FxTextCell value="Pending" muted />;
+        const recommendation = feedback.payload?.recommendation ?? "";
+        return (
+          <FxBadge tone={feedbackRecommendationTone(recommendation)} variant="soft" size="sm">
+            {feedbackRecommendationLabel(recommendation)}
+          </FxBadge>
+        );
+      },
+    },
     feedback: {
       key: "feedback", header: "Feedback", width: 130, minWidth: 110, align: "center", sortable: false,
-      cell: (row) => <FxLinkCell value={row.interview?.feedback ?? "View"} onClick={() => h.openDetail("feedback", row)} />,
+      cell: (row) => {
+        const rounds = row.interview?.rounds ?? [];
+        const latestFeedback = latestFeedbackItem(rounds);
+        if (latestFeedback) return <FxLinkCell value="View" onClick={() => h.openDetail("feedback", row)} />;
+        const latestInterview = latestInterviewItem(rounds);
+        if (latestInterview?.status === "done") {
+          return <FxLinkCell value="Record" onClick={() => h.openDetail("interview", row, { action: "feedback" })} />;
+        }
+        return <FxTextCell value="Pending" muted />;
+      },
     },
   };
 
@@ -726,6 +788,23 @@ function deriveCvMatchScores(row) {
   return { jdMatch: around(8), companyDomain: around(14), education: around(12), communication: around(14), culturalSoft: around(10), bonus: around(16) };
 }
 
+function personLabel(email) {
+  return RECENT_INTERVIEWERS.find((person) => person.email === email)?.name ?? email ?? "—";
+}
+
+function formatSubmittedAt(value) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleString("en-US", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 function DetailBody({ kind, row }) {
   if (!row) return null;
   if (kind === "cvMatch") {
@@ -745,6 +824,50 @@ function DetailBody({ kind, row }) {
       </div>
     ) : (
       <div className="rounded-[12px] border border-dashed border-[var(--fx-border)] p-6 text-center text-[13px] text-[var(--fx-text-muted)]">No resume on file for this candidate.</div>
+    );
+  }
+  if (kind === "feedback") {
+    const feedback = latestFeedbackItem(row.interview?.rounds ?? []);
+    if (!feedback) {
+      return (
+        <div className="rounded-[12px] border border-dashed border-[var(--fx-border)] p-4 text-[13px] text-[var(--fx-text-muted)]">
+          No interviewer feedback has been submitted for this interview yet.
+        </div>
+      );
+    }
+    const recommendation = feedback.payload?.recommendation ?? null;
+    const submittedBy = feedback.payload?.byInterviewerId ?? feedback.assigneeId ?? null;
+    return (
+      <div className="space-y-4">
+        <div className="rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">
+          <dl className="space-y-3 text-[13px]">
+            <div className="flex gap-3">
+              <dt className="w-28 shrink-0 text-[var(--fx-text-muted)]">Round</dt>
+              <dd className="font-medium text-[var(--fx-text)]">{feedback.roundName ?? "—"}</dd>
+            </div>
+            <div className="flex gap-3">
+              <dt className="w-28 shrink-0 text-[var(--fx-text-muted)]">Submitted by</dt>
+              <dd className="font-medium text-[var(--fx-text)]">{submittedBy ? personLabel(submittedBy) : "—"}</dd>
+            </div>
+            <div className="flex gap-3">
+              <dt className="w-28 shrink-0 text-[var(--fx-text-muted)]">Recommendation</dt>
+              <dd>
+                <FxBadge tone={feedbackRecommendationTone(recommendation)} variant="soft" size="sm">
+                  {feedbackRecommendationLabel(recommendation)}
+                </FxBadge>
+              </dd>
+            </div>
+            <div className="flex gap-3">
+              <dt className="w-28 shrink-0 text-[var(--fx-text-muted)]">Submitted</dt>
+              <dd className="font-medium text-[var(--fx-text)]">{formatSubmittedAt(feedback.createdAt)}</dd>
+            </div>
+          </dl>
+        </div>
+        <div className="rounded-[12px] border border-[var(--fx-border)] bg-[var(--fx-surface)] p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--fx-text-muted)]">Notes</p>
+          <p className="mt-2 whitespace-pre-wrap text-[13px] leading-6 text-[var(--fx-text)]">{feedback.payload?.notes?.trim() ? feedback.payload.notes : "—"}</p>
+        </div>
+      </div>
     );
   }
   return (
@@ -1098,7 +1221,7 @@ export default function JobWorkspacePage() {
         invitesSentAt: payload.notify ? at : null, // notification fires in the background
       },
     });
-    setApplicationStage(targetRow.id, "interview");
+    setApplicationStage(targetRow.id, "interviewing"); // valid stage token — "interview" maps to no bucket (→ unscreened)
     toast.success("Interview scheduled", {
       description: payload.notify
         ? `${targetRow.candidateName} · ${payload.scheduleDetails}. Invite sent.`
@@ -1599,14 +1722,17 @@ export default function JobWorkspacePage() {
         onConfirm={handleConfirmMoveToOffered}
       />
       {/* Interview Workspace = the Round Board (candidate journey). Other detail kinds use the generic sheet below. */}
-      <EvInterviewBoardSheet
+      {/* Interview Workspace = the V2 human journey sheet (V1 board preserved as EvInterviewBoardSheet.v1.js). */}
+      <EvInterviewJourneySheet
+        key={`${detail.row?.id ?? "interview"}:${detail.action ?? "view"}:${detail.open ? "open" : "closed"}`}
         open={detail.open && detail.kind === "interview"}
         onOpenChange={(open) => setDetail((current) => ({ ...current, open }))}
         row={detail.row}
         job={job}
-        initialAction={detail.action}
+        onReschedule={(opts) => handleRescheduleInterview(detail.row, opts)}
         onMoveToOffered={(r) => { moveRows([r], "offered", "Moved to Offered"); setDetail((current) => ({ ...current, open: false })); }}
         onRejectCandidate={(r) => { setDetail((current) => ({ ...current, open: false })); handleOpenRejectConfirm([r]); }}
+        initialAction={detail.action}
       />
       <FxSheet
         open={detail.open && detail.kind !== "interview"}

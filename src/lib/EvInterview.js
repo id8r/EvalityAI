@@ -221,12 +221,54 @@ export const DECISION_OUTCOMES = [
   { value: "offer", label: "Offer", tone: "primary" },
 ];
 
+// Interviewer feedback recommendation scale (feedback item payload.recommendation).
+export const RECOMMENDATIONS = [
+  { value: "strong_yes", label: "Strong Yes", tone: "success" },
+  { value: "yes", label: "Yes", tone: "success" },
+  { value: "no", label: "No", tone: "danger" },
+  { value: "strong_no", label: "Strong No", tone: "danger" },
+];
+
+const RECOMMENDATION_LABEL_BY_VALUE = Object.fromEntries(RECOMMENDATIONS.map((item) => [item.value, item.label]));
+const RECOMMENDATION_TONE_BY_VALUE = {
+  strong_yes: "success",
+  yes: "success",
+  no: "warning",
+  strong_no: "danger",
+};
+
 const DONE_INTERVIEW_STATUSES = ["done", "cancelled"];
 
 // Latest decision outcome in a round ("advance" | "hold" | "reject"), else null. Rounds store no outcome of their own.
 export function roundOutcome(round) {
   const decisions = (round?.items ?? []).filter((it) => it.type === "decision" && it.payload?.outcome);
   return decisions.length ? decisions[decisions.length - 1].payload.outcome : null;
+}
+
+function flattenRoundItems(rounds, type) {
+  return rounds.flatMap((round, roundIndex) =>
+    (round.items ?? [])
+      .filter((item) => item.type === type)
+      .map((item) => ({ ...item, roundId: round.id, roundName: round.name, roundOrder: roundIndex + 1 })),
+  );
+}
+
+export function latestInterviewItem(rounds = []) {
+  const items = flattenRoundItems(rounds, "interview");
+  return items.length ? [...items].sort((a, b) => new Date(a.createdAt ?? 0) - new Date(b.createdAt ?? 0)).at(-1) : null;
+}
+
+export function latestFeedbackItem(rounds = []) {
+  const items = flattenRoundItems(rounds, "feedback");
+  return items.length ? [...items].sort((a, b) => new Date(a.createdAt ?? 0) - new Date(b.createdAt ?? 0)).at(-1) : null;
+}
+
+export function feedbackRecommendationLabel(value) {
+  return RECOMMENDATION_LABEL_BY_VALUE[value] ?? "Pending";
+}
+
+export function feedbackRecommendationTone(value) {
+  return RECOMMENDATION_TONE_BY_VALUE[value] ?? "subtle";
 }
 
 // Journey status derived from rounds. A reject here does NOT evict — the bucket move stays an explicit recruiter action.
@@ -328,6 +370,66 @@ export function nextActionHint(journey) {
   return { label: "Journey up to date", roundId: lastId, action: null };
 }
 
+/* - - - - Planned journey + table overview (shared by the journey sheet and the Interviewing table) - - - - */
+
+// Default planned journey (until job-config / round-setup drives it).
+export const PLANNED_ROUNDS = ["Recruiter Screen", "Portfolio Review", "Leadership Round", "Final Round"];
+
+// A stored round name wins only if it's a real label (has letters, not a generic "Round N"); else the plan name.
+export function roundDisplayName(index, actual) {
+  const stored = actual?.name?.trim();
+  if (stored && /[a-z]/i.test(stored) && !/^round\s*\d+$/i.test(stored)) return stored;
+  return PLANNED_ROUNDS[index] ?? `Round ${index + 1}`;
+}
+
+// Short day label without the year — "Wed, 8 Jul".
+export function formatDayShort(key) {
+  const dt = dateFromKey(key);
+  return `${WEEKDAYS[dt.getDay()]}, ${dt.getDate()} ${MONTHS[dt.getMonth()]}`;
+}
+
+/*
+  Compact status view of a candidate's journey for the Interviewing TABLE (not the full lifecycle). Reflects the
+  ACTIVE slot: the last actual round, or — once that round is Advanced — the next planned slot ("Ready to schedule").
+*/
+export function interviewOverview(journey) {
+  const rounds = journey?.rounds ?? [];
+  const lastIdx = rounds.length - 1;
+  const lastOutcome = lastIdx >= 0 ? roundOutcome(rounds[lastIdx]) : null;
+  const activeIndex = rounds.length === 0 ? 0 : lastOutcome === "advance" ? rounds.length : lastIdx;
+  const activeRound = rounds[activeIndex] ?? null;
+  const ordinal = activeIndex + 1;
+  const roundName = roundDisplayName(activeIndex, activeRound);
+
+  const interview = activeRound ? [...(activeRound.items ?? [])].reverse().find((it) => it.type === "interview") ?? null : null;
+  const feedback = activeRound ? [...(activeRound.items ?? [])].reverse().find((it) => it.type === "feedback") ?? null : null;
+  const outcome = activeRound ? roundOutcome(activeRound) : null;
+
+  const p = interview?.payload ?? {};
+  const scheduled = Boolean(interview && p.dateKey);
+  const whenLabel = scheduled ? [formatDayShort(p.dateKey), p.slotStart != null ? formatClock(p.slotStart) : ""].filter(Boolean).join(" · ") : "";
+  const modeMeta = INTERVIEW_MODES.find((m) => m.value === p.mode);
+  const whereText = p.where?.link || p.where?.address || p.where?.number || "";
+  const modeLabel = modeMeta ? `${modeMeta.label}${whereText ? ` · ${whereText}` : ""}` : "";
+  const person = (p.interviewers ?? [])[0] ?? null;
+
+  let nextActionLabel = "";
+  if (!activeRound) nextActionLabel = `Schedule Round ${ordinal}`;
+  else if (outcome === "offer") nextActionLabel = "Move to Offered";
+  else if (outcome === "reject") nextActionLabel = "Reject Candidate";
+  else if (outcome === "hold") nextActionLabel = "Add follow-up task";
+  else if (!interview) nextActionLabel = "Schedule interview";
+  else if (interview.status !== "done") nextActionLabel = "Mark completed";
+  else if (!feedback) nextActionLabel = "Record feedback";
+  else if (!outcome) nextActionLabel = "Record decision";
+
+  let feedbackState = "pending"; // scheduled/upcoming
+  if (feedback) feedbackState = "view";
+  else if (interview && interview.status === "done") feedbackState = "record";
+
+  return { roundName, ordinal, scheduled, whenLabel, modeLabel, interviewerName: person?.name ?? "", interviewerEmail: person?.email ?? "", nextActionLabel, feedbackState, feedback, round: activeRound };
+}
+
 // One interview card synthesized from the legacy flat single-interview object. Deterministic id → idempotent normalize.
 function interviewItemFromFlat(iv) {
   return {
@@ -381,16 +483,14 @@ function interviewerLabelOf(item) {
   feedback). Recomputed on every board write so the table needs zero changes while rounds[] stays the source of truth.
 */
 export function deriveInterviewSummary(rounds = []) {
-  const items = rounds.flatMap((r) => (r.items ?? []).map((it) => ({ ...it, roundName: r.name })));
-  const lastInterview = items.filter((it) => it.type === "interview").slice(-1)[0] ?? null;
-  const lastDecision = items.filter((it) => it.type === "decision" && it.payload?.outcome).slice(-1)[0] ?? null;
-  const lastFeedback = items.filter((it) => it.type === "feedback").slice(-1)[0] ?? null;
+  const lastInterview = latestInterviewItem(rounds);
+  const lastFeedback = latestFeedbackItem(rounds);
   const currentRound = rounds[rounds.length - 1] ?? null;
   return {
     stage: currentRound?.name ?? "",
     scheduleDetails: lastInterview?.payload?.scheduleDetails ?? "",
     interviewer: interviewerLabelOf(lastInterview),
-    recommendation: lastDecision ? DECISION_OUTCOMES.find((o) => o.value === lastDecision.payload.outcome)?.label ?? "" : "",
-    feedback: lastFeedback ? (lastFeedback.status === "submitted" ? "View" : "Pending") : "",
+    recommendation: lastFeedback ? feedbackRecommendationLabel(lastFeedback.payload?.recommendation) : "",
+    feedback: lastFeedback ? "View" : "",
   };
 }

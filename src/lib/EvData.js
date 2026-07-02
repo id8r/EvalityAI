@@ -206,6 +206,21 @@ export function markApplicationViewed(id) {
   if (!app || app.viewedAt) return app;
   return updateApplication(id, { viewedAt: nowIso() });
 }
+// One-time healing of legacy/invalid application data. Idempotent — only writes when something actually changes.
+// Currently: the old bug wrote the stage "interview" (no such bucket → showed as Unscreened); map it to "interviewing".
+export function migrateApplications() {
+  const apps = getApplications();
+  let changed = false;
+  const next = apps.map((app) => {
+    if (app.stage !== "interview") return app;
+    changed = true;
+    const stageHistory = (app.stageHistory ?? []).map((h) => (h.stage === "interview" ? { ...h, stage: "interviewing" } : h));
+    return { ...app, stage: "interviewing", stageHistory };
+  });
+  if (changed) setCollection("applications", next);
+  return changed;
+}
+
 // Move to a new stage and append to stageHistory.
 export function setApplicationStage(id, stage, actorId = null) {
   const app = getApplication(id);
@@ -311,6 +326,30 @@ export function interviewCreateNextRound(id, name, payload) {
   const roundName = name?.trim() || `Round ${rounds.length + 1}`;
   const round = { id: genId("rnd"), order: rounds.length + 1, name: roundName, createdAt: nowIso(), items: [newInterviewItem(roundName, interviewPayloadFrom(payload))] };
   return persistInterviewRounds(id, [...rounds, round], summary);
+}
+
+// Record interviewer feedback for a round (one per round for v1 — re-recording replaces it).
+export function interviewRecordFeedback(id, roundId, { submittedBy = null, recommendation, notes = "" } = {}) {
+  const { rounds, summary } = getInterviewJourney(id);
+  const next = rounds.map((r) => {
+    if (r.id !== roundId) return r;
+    const items = (r.items ?? []).filter((it) => it.type !== "feedback");
+    items.push({ id: genId("itm"), type: "feedback", title: "Feedback", assigneeId: submittedBy, dueDate: null, flagged: false, links: [], status: "submitted", createdAt: nowIso(), payload: { recommendation, notes, byInterviewerId: submittedBy } });
+    return { ...r, items };
+  });
+  return persistInterviewRounds(id, next, summary);
+}
+
+// Record a single decision for a round (one per round — re-deciding replaces it). Drives roundOutcome + the lifecycle.
+export function interviewRecordDecision(id, roundId, outcome, note = "") {
+  const { rounds, summary } = getInterviewJourney(id);
+  const next = rounds.map((r) => {
+    if (r.id !== roundId) return r;
+    const items = (r.items ?? []).filter((it) => it.type !== "decision");
+    items.push({ id: genId("itm"), type: "decision", title: "Decision", assigneeId: null, dueDate: null, flagged: false, links: [], status: null, createdAt: nowIso(), payload: { outcome, note } });
+    return { ...r, items };
+  });
+  return persistInterviewRounds(id, next, summary);
 }
 // Append a recruiter note (job-specific) to the application.
 export function addApplicationNote(id, text, actorId = null) {

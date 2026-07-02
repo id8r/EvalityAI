@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 
 import { loadEvData, subscribeEvData } from "@/lib/EvStore";
+import { migrateApplications } from "@/lib/EvData";
 /* - - - - - - - - - - - - - - - - */
 
 // The page-level init gate: ensures the Ev seed is loaded once, and re-renders the caller on any Ev data change.
@@ -16,6 +17,7 @@ export function useEvData() {
   useEffect(() => {
     let active = true;
     loadEvData()
+      .then(() => { try { migrateApplications(); } catch { /* heal-on-load is best-effort */ } })
       .catch(() => {}) // fail open — render an empty page rather than hang
       .finally(() => {
         if (active) setReady(true);

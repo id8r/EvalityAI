@@ -206,12 +206,28 @@ function EvScheduleInterviewSheet({ open, onOpenChange, row, job, onSchedule, in
       <FxSheet.Header
         title={copy.title}
         actions={
-          <FxIconToggle
-            icon={PanelLeft}
-            pressed={showSummaryPane}
-            onClick={() => setShowSummaryPane((current) => !current)}
-            label={showSummaryPane ? "Hide candidate panel" : "Show candidate panel"}
-          />
+          <div className="flex min-w-0 items-center gap-2">
+            {/* Live confirmation summary — in the header (center-right, before the system icons), not the footer. */}
+            {confirm ? (
+              <p className="flex min-w-0 max-w-[440px] items-center gap-2 rounded-[6px] border border-[var(--fx-border)] bg-[var(--fx-surface)] px-2.5 py-1 text-[12.5px] leading-[16px] text-[var(--fx-text)]">
+                <CalendarCheck className="size-3.5 shrink-0 text-[var(--fx-text-muted)]" />
+                <span className="min-w-0 truncate">
+                  <span className="font-medium">{'\"'}{confirm.round}</span>{'\" – '}
+                  <span className="font-medium text-[var(--fx-accent)]">{confirm.mode}</span> interview
+                  {confirm.who ? <> with <span className="font-medium">{confirm.who}</span></> : null} on{" "}
+                  <span className="font-medium text-[var(--fx-accent)]">{confirm.date}</span> at{" "}
+                  <span className="font-medium text-[var(--fx-accent)]">{confirm.time}</span>
+                  {" · "}<span>{confirm.duration} min{confirm.tz ? `, ${confirm.tz}` : ""}</span>
+                </span>
+              </p>
+            ) : null}
+            <FxIconToggle
+              icon={PanelLeft}
+              pressed={showSummaryPane}
+              onClick={() => setShowSummaryPane((current) => !current)}
+              label={showSummaryPane ? "Hide candidate panel" : "Show candidate panel"}
+            />
+          </div>
         }
       />
       {row ? (
@@ -368,21 +384,6 @@ function EvScheduleInterviewSheet({ open, onOpenChange, row, job, onSchedule, in
 
       <FxSheet.Footer
         footerStart={<FxButton variant="outline" size="md" onClick={() => handleOpenChange(false)}>Cancel</FxButton>}
-        footerCenter={
-          confirm ? (
-            <p className="flex min-w-0 items-center gap-2 rounded-[6px] border border-[var(--fx-border)] bg-[var(--fx-surface)] px-3 py-[8px] text-[13px] leading-[18px] text-[var(--fx-text)]">
-              <CalendarCheck className="size-4 shrink-0 text-[var(--fx-text-muted)]" />
-              <span className="min-w-0 truncate">
-                <span className="font-medium ">{'\"'}{confirm.round}</span>{'\" – '}
-                <span className="font-medium text-[var(--fx-accent)]">{confirm.mode}</span> interview
-                {confirm.who ? <> with <span className="font-medium ">{confirm.who}</span></> : null} on{" "}
-                <span className="font-medium text-[var(--fx-accent)]">{confirm.date}</span> at{" "}
-                <span className="font-medium text-[var(--fx-accent)]">{confirm.time}</span>
-                {" · "}<span>{confirm.duration} min{confirm.tz ? `, ${confirm.tz}` : ""}</span>
-              </span>
-            </p>
-          ) : null
-        }
       >
         <FxButton variant="primary" size="md" className="min-w-[150px]" disabled={!canSchedule} onClick={handleSubmit}>
           {copy.submit}
