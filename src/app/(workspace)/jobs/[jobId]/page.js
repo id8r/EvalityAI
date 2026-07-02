@@ -85,6 +85,7 @@ import {
   getInterviewJourney,
   interviewUpsertInterview,
   interviewCreateNextRound,
+  interviewEnsureRoundAt,
 } from "@/lib/EvData";
 import { employmentTypeLabel, experienceLabel, jobLocationLabel, stageLabel } from "@/lib/EvSelectors";
 import { feedbackRecommendationLabel, feedbackRecommendationTone, latestFeedbackItem, latestInterviewItem, RECENT_INTERVIEWERS } from "@/lib/EvInterview";
@@ -1036,6 +1037,7 @@ export default function JobWorkspacePage() {
   const [scheduleRow, setScheduleRow] = useState(null);
   const [scheduleMode, setScheduleMode] = useState("create");
   const [scheduleInitial, setScheduleInitial] = useState(null);
+  const [scheduleTargetRoundId, setScheduleTargetRoundId] = useState(null); // which round the schedule sheet writes to (null = current/last)
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [startPreScreeningOpen, setStartPreScreeningOpen] = useState(false);
   const [startPreScreeningRows, setStartPreScreeningRows] = useState([]);
@@ -1307,11 +1309,17 @@ export default function JobWorkspacePage() {
     if (!next.length) return;
     setScheduleMode("create");
     setScheduleInitial(null);
+    setScheduleTargetRoundId(null);
     setScheduleRow(next[0]); // single-candidate path — no bulk scheduling
     setScheduleOpen(true);
   };
+  // Schedule/reschedule a SPECIFIC round (no locking). options: { roundId } to target an existing round,
+  // or { slotIndex } to schedule a planned slot (creates it + any gaps), or { nextRound } legacy append.
   const handleRescheduleInterview = (row, options = {}) => {
     if (!row?.id) return;
+    let targetRoundId = options.roundId ?? null;
+    if (options.slotIndex != null) targetRoundId = interviewEnsureRoundAt(row.id, options.slotIndex);
+    setScheduleTargetRoundId(targetRoundId);
     setScheduleMode(options.nextRound ? "next-round" : "reschedule");
     setScheduleInitial(buildScheduleInitial(row, { nextRound: Boolean(options.nextRound) }));
     setScheduleRow(row);
@@ -1319,15 +1327,15 @@ export default function JobWorkspacePage() {
   };
   const handleScheduleInterview = (targetRow, payload) => {
     if (!targetRow?.id || !payload) return;
-    const closeSchedule = () => { setScheduleOpen(false); setScheduleRow(null); setScheduleMode("create"); setScheduleInitial(null); };
+    const closeSchedule = () => { setScheduleOpen(false); setScheduleRow(null); setScheduleMode("create"); setScheduleInitial(null); setScheduleTargetRoundId(null); };
 
-    // Round Board reuse — reschedule the current round's interview, or schedule the next round; both write into rounds[].
+    // Round Board reuse — write to the TARGET round (per-round, no locking); fall back to the current/last round.
     if (scheduleMode === "reschedule") {
       const rounds = getInterviewJourney(targetRow.id).rounds ?? [];
-      const round = rounds[rounds.length - 1] ?? null;
+      const round = (scheduleTargetRoundId ? rounds.find((r) => r.id === scheduleTargetRoundId) : null) ?? rounds[rounds.length - 1] ?? null;
       const interview = round ? [...(round.items ?? [])].reverse().find((it) => it.type === "interview") : null;
       if (round) interviewUpsertInterview(targetRow.id, round.id, interview?.id ?? null, payload);
-      toast.success("Interview rescheduled", { description: `${targetRow.candidateName} · ${payload.scheduleDetails}.` });
+      toast.success("Interview scheduled", { description: `${targetRow.candidateName} · ${payload.scheduleDetails}.` });
       closeSchedule();
       return;
     }
@@ -1860,6 +1868,7 @@ export default function JobWorkspacePage() {
             setScheduleRow(null);
             setScheduleMode("create");
             setScheduleInitial(null);
+            setScheduleTargetRoundId(null);
           }
         }}
         row={scheduleRow}

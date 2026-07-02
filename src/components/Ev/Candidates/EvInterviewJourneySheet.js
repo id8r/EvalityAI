@@ -4,8 +4,8 @@
 
 import { Fragment, useState } from "react";
 import {
-  BadgeCheck, CalendarClock, CalendarPlus, CheckCircle2, ClipboardCheck, Columns3, ListPlus,
-  Lock, MapPin, Phone, RefreshCw, Rows3, Scale, Video, XCircle,
+  BadgeCheck, CalendarClock, CalendarPlus, CheckCircle2, ClipboardCheck, ListPlus,
+  MapPin, Phone, Plus, RefreshCw, Scale, Video, XCircle,
 } from "lucide-react";
 
 import { FxButton } from "@/components/FxUI/Forms";
@@ -13,7 +13,7 @@ import { FxBadge } from "@/components/FxUI/DataDisplay";
 import { FxSheet } from "@/components/FxUI/Overlays/FxSheet";
 import { EvRecordDecisionDialog } from "@/components/Ev/Candidates/EvRecordDecisionDialog";
 import { EvRecordFeedbackDialog } from "@/components/Ev/Candidates/EvRecordFeedbackDialog";
-import { getInterviewJourney, interviewUpdateItem, interviewAddItem, interviewRecordDecision, interviewRecordFeedback } from "@/lib/EvData";
+import { getInterviewJourney, interviewAddRound, interviewUpdateItem, interviewAddItem, interviewRecordDecision, interviewRecordFeedback } from "@/lib/EvData";
 import {
   roundOutcome, roundState, DECISION_OUTCOMES, RECOMMENDATIONS, RECENT_INTERVIEWERS,
   formatDayLong, formatSlotRange, toDateKey,
@@ -141,26 +141,30 @@ function EvInterviewJourneySheet({ open, onOpenChange, row, job, onReschedule, o
   const rowCount = Math.max(PLANNED_ROUNDS.length, activeIndex + 1);
   const latestActualRound = rounds[lastIdx] ?? null;
   const [feedbackRound, setFeedbackRound] = useState(() => (initialAction === "feedback" ? latestActualRound : null));
-  const [view, setView] = useState("vertical"); // "vertical" | "horizontal" — product-review toggle, not persisted
+  // PO decision (2026-07-02): horizontal-only. Vertical journey (RoundStep + the `view === "vertical"` branch below)
+  // is kept intact but unreached — to bring the toggle back, restore `useState("vertical")` + the ViewToggle in the header.
+  const view = "horizontal";
 
   function markCompleted(round) {
     const interview = interviewOf(round);
     if (interview) interviewUpdateItem(appId, interview.id, { status: "done" });
   }
-  function addSecondary(type) {
-    const round = rounds[activeIndex] ?? rounds[lastIdx];
-    if (round) interviewAddItem(appId, round.id, { type, title: type === "note" ? "New note" : "New task", status: type === "task" ? "open" : null });
+  function addSecondary(type, round) {
+    const target = round ?? rounds[activeIndex] ?? rounds[lastIdx];
+    if (target) interviewAddItem(appId, target.id, { type, title: type === "note" ? "New note" : "New task", status: type === "task" ? "open" : null });
   }
-  function runStep(round, key) {
+  // Every action targets the SPECIFIC round it was invoked on (no locking) — `stepRow` is that round's row model.
+  function runStep(stepRow, key) {
+    const round = stepRow?.actual ?? null;
     switch (key) {
       case "mark_completed": markCompleted(round); break;
-      case "schedule": case "reschedule": case "schedule_reinterview": onReschedule?.({}); break;
-      case "schedule_next": onReschedule?.({ nextRound: true }); break;
+      case "schedule": case "reschedule": case "schedule_reinterview": onReschedule?.({ roundId: round?.id }); break;
+      case "schedule_next": onReschedule?.({ slotIndex: stepRow?.i }); break; // schedule this planned slot (creates it + any gaps)
       case "record_feedback": case "change_feedback": setFeedbackRound(round); break;
       case "record_decision": case "change_decision": setDecisionRound(round); break;
       case "move_offered": onMoveToOffered?.(row); break;
       case "reject": onRejectCandidate?.(row); break;
-      case "add_task": addSecondary("task"); break;
+      case "add_task": addSecondary("task", round); break;
       default: break;
     }
   }
@@ -173,17 +177,16 @@ function EvInterviewJourneySheet({ open, onOpenChange, row, job, onReschedule, o
     if (actual) {
       const outcome = roundOutcome(actual);
       const state = outcome ? OUTCOME_STATE[outcome] : roundState(actual, todayKey);
-      // Actions for the active round AND any decided round (decided rounds must stay editable — never a dead-end).
-      const steps = isActive || outcome ? stepsFor(actual) : null;
-      const actions = steps ? { primary: steps.primary ? resolveStep(steps.primary) : null, secondary: steps.secondary.map((k) => resolveStep(k)) } : null;
+      // Every round is actionable — no locking to the "current" one. Its own state drives its actions.
+      const steps = stepsFor(actual);
+      const actions = { primary: steps.primary ? resolveStep(steps.primary) : null, secondary: steps.secondary.map((k) => resolveStep(k)) };
       const feedback = [...(actual.items ?? [])].reverse().find((it) => it.type === "feedback") ?? null;
       const decision = [...(actual.items ?? [])].reverse().find((it) => it.type === "decision") ?? null;
       return { i, actual, ordinal, name, state, sentence: nowSentence(actual), interview: interviewOf(actual), feedback, decision, isActive, placeholder: false, actions };
     }
-    if (isActive) {
-      return { i, actual: null, ordinal, name, state: { label: "Ready to schedule", tone: "primary" }, sentence: i > 0 ? `Round ${i} cleared. Schedule ${planName(i, null)}.` : `Ready to schedule ${planName(i, null)}.`, interview: null, isActive: true, placeholder: true, actions: { primary: resolveStep("schedule_next", `Schedule Round ${i + 1}`), secondary: [] } };
-    }
-    return { i, actual: null, ordinal, name, state: { label: "Not scheduled", tone: "subtle" }, sentence: i > 0 ? `Available after Round ${i} is cleared.` : "Not scheduled yet.", interview: null, isActive: false, placeholder: true, actions: null };
+    // Planned-but-unscheduled slot — directly schedulable in any order (not locked behind earlier rounds).
+    const sentence = isActive && i > 0 ? `Round ${i} cleared. Schedule ${name}.` : "Not scheduled yet.";
+    return { i, actual: null, ordinal, name, state: { label: "Not scheduled", tone: "subtle" }, sentence, interview: null, isActive, placeholder: true, actions: { primary: resolveStep("schedule_next", `Schedule Round ${i + 1}`), secondary: [] } };
   }
   const rows = Array.from({ length: rowCount }, (_, i) => buildRow(i));
   const active = rows[activeIndex];
@@ -206,7 +209,7 @@ function EvInterviewJourneySheet({ open, onOpenChange, row, job, onReschedule, o
   return (
     <>
     <FxSheet open={open} onOpenChange={onOpenChange} side="right" size="lg" expandable expanded={expanded} onExpandedChange={setExpanded}>
-      <FxSheet.Header title="Interview Workspace" actions={<div className="flex min-w-0 items-center gap-2">{statusChip}<ViewToggle view={view} onChange={setView} /></div>} />
+      <FxSheet.Header title="Interview Workspace" actions={statusChip} />
 
       <FxSheet.Body className="p-0">
         <div className="h-full min-h-0 overflow-y-auto bg-[var(--fx-surface-subtle)]">
@@ -240,7 +243,7 @@ function EvInterviewJourneySheet({ open, onOpenChange, row, job, onReschedule, o
             {view === "vertical" ? (
               <section className="space-y-1">
                 {rows.map((r, idx) => (
-                  <RoundStep key={r.i} row={r} last={idx === rows.length - 1} onRun={(key) => runStep(r.actual, key)} />
+                  <RoundStep key={r.i} row={r} last={idx === rows.length - 1} onRun={(key) => runStep(r, key)} />
                 ))}
               </section>
             ) : (
@@ -249,8 +252,16 @@ function EvInterviewJourneySheet({ open, onOpenChange, row, job, onReschedule, o
                 <RoundRail rows={rows} activeIndex={activeIndex} />
                 <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                   {rows.map((r) => (
-                    <HRoundCard key={r.i} row={r} onRun={(key) => runStep(r.actual, key)} />
+                    <HRoundCard key={r.i} row={r} onRun={(key) => runStep(r, key)} />
                   ))}
+                  {/* Add another round beyond the plan. */}
+                  <button
+                    type="button"
+                    onClick={() => appId && interviewAddRound(appId)}
+                    className="flex h-full min-h-[128px] min-w-0 flex-col items-center justify-center gap-1.5 rounded-[12px] border border-dashed border-[var(--fx-border)] text-[13px] font-medium text-[var(--fx-text-muted)] transition-colors hover:border-[color:color-mix(in_srgb,var(--fx-primary)_45%,var(--fx-border))] hover:text-[var(--fx-text)]"
+                  >
+                    <Plus className="size-5" /> Add round
+                  </button>
                 </section>
               </div>
             )}
@@ -293,7 +304,7 @@ function ActionButton({ action, ghost, onClick }) {
 // Shared body for a round — sentence + interview facts + feedback/decision summaries + actions.
 // Used by BOTH the vertical RoundStep and the horizontal HRoundCard so the two views can never diverge on behavior.
 function RoundBody({ row, onRun }) {
-  const { sentence, interview, feedback, decision, isActive, actions } = row;
+  const { sentence, interview, feedback, decision, actions } = row;
   const mode = interview?.payload?.mode ? MODE_META[interview.payload.mode] : null;
   const decOutcome = decision?.payload?.outcome ? OUTCOME_META[decision.payload.outcome] : null;
   const decColor = decOutcome ? (TONE_VAR[decOutcome.tone] ?? "var(--fx-text)") : "var(--fx-text)";
@@ -301,8 +312,8 @@ function RoundBody({ row, onRun }) {
     <>
       <p className="mt-1 text-[13px] text-[var(--fx-text-muted)]">{sentence}</p>
 
-      {/* Interview facts — only for the active round (quiet elsewhere). */}
-      {isActive && interview ? (
+      {/* Interview facts — shown for any round that has a scheduled interview. */}
+      {interview ? (
         <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12.5px] text-[var(--fx-text)]">
           {(interview.payload?.interviewers ?? []).length ? (
             <span className="text-[var(--fx-text-muted)]">with <span className="text-[var(--fx-text)]">{interview.payload.interviewers.map((i) => i.name || i.email).filter(Boolean).join(", ")}</span></span>
@@ -399,20 +410,17 @@ function RoundStep({ row, last, onRun }) {
 // Horizontal presentation — the same rounds as left→right cards (product-review alternative to the vertical journey).
 function HRoundCard({ row, onRun }) {
   const { ordinal, name, state, isActive, placeholder } = row;
-  const future = placeholder && !isActive; // not scheduled and not the active slot → muted / locked
   return (
     <div className={cn(
+      // No locking — unscheduled slots are dashed (empty) but fully actionable; active gets the accent.
       "flex h-full min-w-0 flex-col rounded-[12px] border p-4",
       isActive ? "border-[color:color-mix(in_srgb,var(--fx-primary)_38%,var(--fx-border))] bg-[var(--fx-surface)] shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-        : future ? "border-dashed border-[var(--fx-border)] bg-transparent opacity-80"
+        : placeholder ? "border-dashed border-[var(--fx-border)] bg-[var(--fx-surface)]"
           : "border-[var(--fx-border)] bg-[var(--fx-surface)]",
     )}>
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--fx-text-muted)]">Round {ordinal}</p>
-          <p className="mt-0.5 truncate text-[14px] font-semibold text-[var(--fx-primary)]" title={name}>{name}</p>
-        </div>
-        {future ? <Lock className="mt-0.5 size-3.5 shrink-0 text-[var(--fx-text-muted)]" /> : null}
+      <div className="min-w-0">
+        <p className="text-[11px] font-semibold uppercase tracking-wide text-[var(--fx-text-muted)]">Round {ordinal}</p>
+        <p className="mt-0.5 truncate text-[14px] font-semibold text-[var(--fx-primary)]" title={name}>{name}</p>
       </div>
       <div className="mt-1.5"><FxBadge tone={state?.tone} variant="soft" size="xs" dot>{state?.label}</FxBadge></div>
       <RoundBody row={row} onRun={onRun} />
@@ -447,7 +455,11 @@ function RoundRail({ rows, activeIndex }) {
   );
 }
 
-// Segmented view switch — product-review only, not persisted.
+/*
+  Segmented view switch — DISABLED per PO (horizontal-only). Kept for revert.
+  To restore: re-import { Rows3, Columns3 } from lucide-react, change `view` back to useState("vertical"),
+  and render <ViewToggle view={view} onChange={setView} /> in the header actions.
+
 function ViewToggle({ view, onChange }) {
   const options = [{ value: "vertical", icon: Rows3, label: "Vertical" }, { value: "horizontal", icon: Columns3, label: "Horizontal" }];
   return (
@@ -464,6 +476,7 @@ function ViewToggle({ view, onChange }) {
     </div>
   );
 }
+*/
 /* - - - - - - - - - - - - - - - - */
 export { EvInterviewJourneySheet };
 /* - - - - - - - - - - - - - - - - */

@@ -328,6 +328,19 @@ export function interviewCreateNextRound(id, name, payload) {
   return persistInterviewRounds(id, [...rounds, round], summary);
 }
 
+// Ensure a round exists at a given slot index (fills any gaps with empty rounds) and return its id.
+// Lets the recruiter schedule/fill rounds in any order — no locking to a strict sequence.
+export function interviewEnsureRoundAt(id, index) {
+  const { rounds, summary } = getInterviewJourney(id);
+  if (index < rounds.length) return rounds[index].id;
+  const next = [...rounds];
+  for (let i = rounds.length; i <= index; i += 1) {
+    next.push({ id: genId("rnd"), order: i + 1, name: `Round ${i + 1}`, createdAt: nowIso(), items: [] });
+  }
+  persistInterviewRounds(id, next, summary);
+  return next[index].id;
+}
+
 // Record interviewer feedback for a round (one per round for v1 — re-recording replaces it).
 export function interviewRecordFeedback(id, roundId, { submittedBy = null, recommendation, notes = "" } = {}) {
   const { rounds, summary } = getInterviewJourney(id);
